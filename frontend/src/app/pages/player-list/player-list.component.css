@@ -1,0 +1,22 @@
+.players-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.players-table th,
+.players-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.players-table th {
+  background-color: #f5f5f5;
+}
+
+
+.table-wrapper {
+  overflow-x: auto;
+}

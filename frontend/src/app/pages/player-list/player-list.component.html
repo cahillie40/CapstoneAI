@@ -1,0 +1,50 @@
+<h2>Players</h2>
+
+@if (players().length > 0) {
+  <div class="table-wrapper">
+    <table class="players-table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Position</th>
+        <th>Team</th>
+        <th>Matches</th>
+        <th>Goals</th>
+        <th>Assists</th>
+        <th>Minutes</th>
+        <th>Yellow</th>
+        <th>Red</th>
+        <th>Shots On Target</th>
+        <th>Pass Accuracy</th>
+        <th>Form Rating</th>
+        <th>Injury Status</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (player of players(); track $index) {
+          <tr>
+            <td>{{ player.id }}</td>
+            <td>{{ player.name }}</td>
+            <td>{{ player.age }}</td>
+            <td>{{ player.position }}</td>
+            <td>{{ player.team }}</td>
+            <td>{{ player.matchesPlayed }}</td>
+            <td>{{ player.goals }}</td>
+            <td>{{ player.assists }}</td>
+            <td>{{ player.minutesPlayed }}</td>
+            <td>{{ player.yellowCards }}</td>
+            <td>{{ player.redCards }}</td>
+            <td>{{ player.shotsOnTarget }}</td>
+            <td>{{ player.passAccuracy }}</td>
+            <td>{{ player.formRating }}</td>
+            <td>{{ player.injuryStatus ? 'Injured' : 'Fit' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+} @else {
+  <p>No players found.</p>
+}
