@@ -6,6 +6,8 @@ import { PlayerDetailComponent } from './pages/player-detail/player-detail.compo
 import { PlayerEditComponent } from './pages/player-edit/player-edit.component';
 import { PredictionFormComponent } from './pages/prediction-form/prediction-form.component';
 import { PredictionHistoryComponent } from './pages/prediction-history/prediction-history.component';
+import { ChartsComponent } from './pages/charts/charts.component';
+import { CompareComponent } from './pages/compare/compare.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -14,5 +16,7 @@ export const routes: Routes = [
   { path: 'players/:id/edit', component: PlayerEditComponent },
   { path: 'add-player', component: PlayerFormComponent },
   { path: 'predict', component: PredictionFormComponent },
-  { path: 'history', component: PredictionHistoryComponent }
+  { path: 'history', component: PredictionHistoryComponent },
+  { path: 'charts', component: ChartsComponent },
+  { path: 'compare', component: CompareComponent }
 ];

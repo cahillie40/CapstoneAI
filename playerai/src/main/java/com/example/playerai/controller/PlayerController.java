@@ -2,6 +2,10 @@ package com.example.playerai.controller;
 
 import com.example.playerai.entity.Player;
 import com.example.playerai.repository.PlayerRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -20,6 +24,19 @@ public class PlayerController {
     @GetMapping
     public List<Player> getAllPlayers() {
         return playerRepository.findAll();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<Player>> searchPlayers(
+            @RequestParam(defaultValue = "") String name,
+            @RequestParam(defaultValue = "") String position,
+            @RequestParam(defaultValue = "") String team,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        Page<Player> result = playerRepository.searchPlayers(name, position, team, pageable);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")

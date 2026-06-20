@@ -14,6 +14,10 @@ export class PredictionHistoryComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   predictions: any[] = [];
+  totalElements = 0;
+  totalPages = 0;
+  currentPage = 0;
+  pageSize = 10;
   loading = false;
   error: string | null = null;
 
@@ -23,9 +27,11 @@ export class PredictionHistoryComponent implements OnInit {
 
   loadHistory(): void {
     this.loading = true;
-    this.predictionService.getHistory().subscribe({
-      next: (data) => {
-        this.predictions = data;
+    this.predictionService.getHistoryPaged(this.currentPage, this.pageSize).subscribe({
+      next: (data: any) => {
+        this.predictions = data.content || [];
+        this.totalElements = data.totalElements || 0;
+        this.totalPages = data.totalPages || 0;
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -36,6 +42,20 @@ export class PredictionHistoryComponent implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= this.totalPages) return;
+    this.currentPage = page;
+    this.loadHistory();
+  }
+
+  getPages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i);
+  }
+
+  exportCsv(): void {
+    this.predictionService.exportCsv();
   }
 
   getRiskClass(riskLevel: string): string {

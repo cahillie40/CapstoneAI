@@ -1,0 +1,75 @@
+<h2>Compare Players</h2>
+
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+<div class="selector">
+  <div class="selector-group">
+    <label>Player 1</label>
+    <select [(ngModel)]="player1Id" name="player1">
+      <option [ngValue]="null">Select player...</option>
+      @for (player of players; track player.id) {
+        <option [ngValue]="player.id">{{ player.name }} ({{ player.position }})</option>
+      }
+    </select>
+  </div>
+
+  <div class="vs">VS</div>
+
+  <div class="selector-group">
+    <label>Player 2</label>
+    <select [(ngModel)]="player2Id" name="player2">
+      <option [ngValue]="null">Select player...</option>
+      @for (player of players; track player.id) {
+        <option [ngValue]="player.id">{{ player.name }} ({{ player.position }})</option>
+      }
+    </select>
+  </div>
+
+  <button (click)="compare()" class="btn-compare">Compare</button>
+</div>
+
+@if (compared && player1 && player2) {
+  <div class="compare-header">
+    <div class="player-name">{{ player1.name }}</div>
+    <div class="stat-label-col"></div>
+    <div class="player-name">{{ player2.name }}</div>
+  </div>
+
+  <div class="compare-subheader">
+    <div class="player-sub">{{ player1.position }} · {{ player1.team }}</div>
+    <div class="stat-label-col"></div>
+    <div class="player-sub">{{ player2.position }} · {{ player2.team }}</div>
+  </div>
+
+  <div class="compare-table">
+
+    @for (stat of stats; track stat.key) {
+      <div class="compare-row">
+        <div class="compare-value" [class.winner]="isWinner(player1, stat.key, stat.lowerIsBetter)">
+          {{ getValue(player1, stat.key) }}
+        </div>
+        <div class="compare-label">{{ stat.label }}</div>
+        <div class="compare-value" [class.winner]="isWinner(player2, stat.key, stat.lowerIsBetter)">
+          {{ getValue(player2, stat.key) }}
+        </div>
+      </div>
+    }
+
+    <div class="compare-row">
+      <div class="compare-value" [class.winner]="!player1.injuryStatus && player2.injuryStatus">
+        {{ player1.injuryStatus ? 'Injured' : 'Fit' }}
+      </div>
+      <div class="compare-label">Injury Status</div>
+      <div class="compare-value" [class.winner]="!player2.injuryStatus && player1.injuryStatus">
+        {{ player2.injuryStatus ? 'Injured' : 'Fit' }}
+      </div>
+    </div>
+
+  </div>
+
+  <div class="winner-banner">
+    🏆 {{ getWinner() }}
+  </div>
+}

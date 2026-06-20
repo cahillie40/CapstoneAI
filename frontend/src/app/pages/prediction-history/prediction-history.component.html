@@ -1,4 +1,9 @@
-<h2>Prediction History</h2>
+<div class="history-header">
+  <h2>Prediction History</h2>
+  @if (predictions.length > 0) {
+    <button (click)="exportCsv()" class="btn-export">⬇ Export CSV</button>
+  }
+</div>
 
 @if (loading) {
   <p>Loading...</p>
@@ -9,30 +14,51 @@
 }
 
 @if (!loading && predictions.length > 0) {
-  <table class="history-table">
-    <thead>
-    <tr>
-      <th>ID</th>
-      <th>Player</th>
-      <th>Predicted Rating</th>
-      <th>Risk Level</th>
-      <th>Summary</th>
-      <th>Created At</th>
-    </tr>
-    </thead>
-    <tbody>
-      @for (pred of predictions; track pred.id) {
-        <tr [class]="getRiskClass(pred.riskLevel)">
-          <td>{{ pred.id }}</td>
-          <td>{{ pred.playerName }}</td>
-          <td>{{ pred.predictedFormRating }}</td>
-          <td class="risk-badge">{{ pred.riskLevel }}</td>
-          <td class="summary-cell">{{ pred.summary }}</td>
-          <td>{{ formatDate(pred.createdAt) }}</td>
-        </tr>
-      }
-    </tbody>
-  </table>
+  <p class="result-count">{{ totalElements }} prediction(s) total</p>
+
+  <div class="table-wrapper">
+    <table class="history-table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Player</th>
+        <th>Predicted Rating</th>
+        <th>Risk Level</th>
+        <th>Summary</th>
+        <th>Created At</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (pred of predictions; track pred.id) {
+          <tr [class]="getRiskClass(pred.riskLevel)">
+            <td>{{ pred.id }}</td>
+            <td>{{ pred.playerName }}</td>
+            <td>{{ pred.predictedFormRating }}</td>
+            <td>{{ pred.riskLevel }}</td>
+            <td class="summary-cell">{{ pred.summary }}</td>
+            <td>{{ formatDate(pred.createdAt) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button (click)="goToPage(0)" [disabled]="currentPage === 0">«</button>
+    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">‹</button>
+
+    @for (page of getPages(); track page) {
+      <button
+        (click)="goToPage(page)"
+        [class.active]="page === currentPage">
+        {{ page + 1 }}
+      </button>
+    }
+
+    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">›</button>
+    <button (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1">»</button>
+  </div>
+
 } @else if (!loading) {
   <p>No predictions found.</p>
 }

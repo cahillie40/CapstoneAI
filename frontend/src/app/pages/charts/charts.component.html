@@ -1,0 +1,40 @@
+<h2>Charts</h2>
+
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+@if (loaded) {
+  <div class="charts-grid">
+
+    <div class="chart-card">
+      <h3>Player Form Ratings</h3>
+      <canvas baseChart
+              [data]="formRatingChartData"
+              [options]="formRatingChartOptions"
+              type="bar">
+      </canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3>Goals Per Player</h3>
+      <canvas baseChart
+              [data]="goalsChartData"
+              [options]="goalsChartOptions"
+              type="bar">
+      </canvas>
+    </div>
+
+    <div class="chart-card chart-card--small">
+      <h3>Risk Level Breakdown</h3>
+      <canvas baseChart
+              [data]="riskChartData"
+              [options]="riskChartOptions"
+              type="pie">
+      </canvas>
+    </div>
+
+  </div>
+} @else if (!error) {
+  <p>Loading charts...</p>
+}

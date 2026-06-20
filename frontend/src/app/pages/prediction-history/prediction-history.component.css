@@ -1,7 +1,35 @@
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.history-header h2 {
+  margin: 0;
+}
+
+.btn-export {
+  padding: 8px 18px;
+  font-size: 14px;
+  background-color: #43a047;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-export:hover {
+  background-color: #388e3c;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
 .history-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 16px;
   font-size: 13px;
 }
 
@@ -17,30 +45,13 @@
   font-weight: bold;
 }
 
-.history-table tr.risk-low {
-  background-color: #e8f5e9;
-}
-
-.history-table tr.risk-medium {
-  background-color: #fff8e1;
-}
-
-.history-table tr.risk-high {
-  background-color: #ffebee;
-}
-
-.risk-badge {
-  font-weight: bold;
-  padding: 4px 8px;
-  border-radius: 4px;
-  display: inline-block;
-}
+.history-table tr.risk-low    { background-color: #e8f5e9; }
+.history-table tr.risk-medium { background-color: #fff8e1; }
+.history-table tr.risk-high   { background-color: #ffebee; }
 
 .summary-cell {
   max-width: 300px;
   word-wrap: break-word;
 }
 
-.error {
-  color: red;
-}
+.error { color: red; }

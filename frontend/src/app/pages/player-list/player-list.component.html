@@ -1,6 +1,29 @@
 <h2>Players</h2>
 
-<button (click)="loadPlayers()">Reload Players</button>
+<div class="search-bar">
+  <input
+    [(ngModel)]="searchName"
+    name="searchName"
+    placeholder="Search by name..."
+    (keyup.enter)="onSearch()" />
+
+  <select [(ngModel)]="searchPosition" name="searchPosition">
+    @for (pos of positions; track pos) {
+      <option [value]="pos">{{ pos === '' ? 'All Positions' : pos }}</option>
+    }
+  </select>
+
+  <input
+    [(ngModel)]="searchTeam"
+    name="searchTeam"
+    placeholder="Search by team..."
+    (keyup.enter)="onSearch()" />
+
+  <button (click)="onSearch()" class="btn-search">Search</button>
+  <button (click)="onClear()" class="btn-clear">Clear</button>
+</div>
+
+<p class="result-count">{{ totalElements }} player(s) found</p>
 
 @if (players.length > 0) {
   <div class="table-wrapper">
@@ -21,12 +44,12 @@
         <th>Shots On Target</th>
         <th>Pass Accuracy</th>
         <th>Form Rating</th>
-        <th>Injury Status</th>
+        <th>Injury</th>
         <th>Actions</th>
       </tr>
       </thead>
       <tbody>
-        @for (player of players; track $index) {
+        @for (player of players; track player.id) {
           <tr>
             <td>{{ player.id }}</td>
             <td><a [routerLink]="['/players', player.id]">{{ player.name }}</a></td>
@@ -43,14 +66,29 @@
             <td>{{ player.passAccuracy }}</td>
             <td>{{ player.formRating }}</td>
             <td>{{ player.injuryStatus ? 'Injured' : 'Fit' }}</td>
-            <td>
-              <a [routerLink]="['/players', player.id, 'edit']">Edit</a>
-            </td>
+            <td><a [routerLink]="['/players', player.id, 'edit']">Edit</a></td>
           </tr>
         }
       </tbody>
     </table>
   </div>
+
+  <div class="pagination">
+    <button (click)="goToPage(0)" [disabled]="currentPage === 0">«</button>
+    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">‹</button>
+
+    @for (page of getPages(); track page) {
+      <button
+        (click)="goToPage(page)"
+        [class.active]="page === currentPage">
+        {{ page + 1 }}
+      </button>
+    }
+
+    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">›</button>
+    <button (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1">»</button>
+  </div>
+
 } @else {
   <p>No players found.</p>
 }

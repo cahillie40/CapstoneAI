@@ -5,6 +5,7 @@ import com.example.playerai.dto.PredictionResponse;
 import com.example.playerai.dto.PredictionSaveRequest;
 import com.example.playerai.dto.PredictionHistoryDTO;
 import com.example.playerai.service.PredictionService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -41,13 +42,19 @@ public class PredictionController {
 
     @GetMapping("/history")
     public ResponseEntity<List<PredictionHistoryDTO>> getAllHistory() {
-        List<PredictionHistoryDTO> history = predictionService.getAllHistory();
-        return ResponseEntity.ok(history);
+        return ResponseEntity.ok(predictionService.getAllHistory());
+    }
+
+    @GetMapping("/history/paged")
+    public ResponseEntity<Page<PredictionHistoryDTO>> getAllHistoryPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(predictionService.getAllHistoryPaged(page, size));
     }
 
     @GetMapping("/history/{playerId}")
-    public ResponseEntity<List<PredictionHistoryDTO>> getPlayerHistory(@PathVariable Long playerId) {
-        List<PredictionHistoryDTO> history = predictionService.getHistoryForPlayer(playerId);
-        return ResponseEntity.ok(history);
+    public ResponseEntity<List<PredictionHistoryDTO>> getPlayerHistory(
+            @PathVariable Long playerId) {
+        return ResponseEntity.ok(predictionService.getHistoryForPlayer(playerId));
     }
 }

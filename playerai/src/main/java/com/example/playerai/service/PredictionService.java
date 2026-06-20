@@ -7,6 +7,10 @@ import com.example.playerai.entity.Prediction;
 import com.example.playerai.entity.Player;
 import com.example.playerai.repository.PredictionRepository;
 import com.example.playerai.repository.PlayerRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
@@ -32,46 +36,16 @@ public class PredictionService {
     public PredictionResponse predict(PredictionRequest request) {
         double score = 50.0;
 
-        // Goals contribution
-        if (request.getGoals() != null) {
-            score += request.getGoals() * 2.5;
-        }
+        if (request.getGoals() != null)          score += request.getGoals() * 2.5;
+        if (request.getAssists() != null)         score += request.getAssists() * 2.0;
+        if (request.getShotsOnTarget() != null)   score += request.getShotsOnTarget() * 0.8;
+        if (request.getPassAccuracy() != null)    score += request.getPassAccuracy() * 0.3;
+        if (request.getMinutesPlayed() != null)   score += request.getMinutesPlayed() * 0.005;
+        if (request.getYellowCards() != null)     score -= request.getYellowCards() * 0.5;
+        if (request.getRedCards() != null)        score -= request.getRedCards() * 2.0;
 
-        // Assists contribution
-        if (request.getAssists() != null) {
-            score += request.getAssists() * 2.0;
-        }
+        if (Boolean.TRUE.equals(request.getInjuryStatus())) score -= 10.0;
 
-        // Shots on target contribution
-        if (request.getShotsOnTarget() != null) {
-            score += request.getShotsOnTarget() * 0.8;
-        }
-
-        // Pass accuracy contribution
-        if (request.getPassAccuracy() != null) {
-            score += request.getPassAccuracy() * 0.3;
-        }
-
-        // Minutes played contribution
-        if (request.getMinutesPlayed() != null) {
-            score += request.getMinutesPlayed() * 0.005;
-        }
-
-        // Discipline deductions
-        if (request.getYellowCards() != null) {
-            score -= request.getYellowCards() * 0.5;
-        }
-
-        if (request.getRedCards() != null) {
-            score -= request.getRedCards() * 2.0;
-        }
-
-        // Injury penalty
-        if (Boolean.TRUE.equals(request.getInjuryStatus())) {
-            score -= 10.0;
-        }
-
-        // Position bonus
         if (request.getPosition() != null) {
             switch (request.getPosition().toLowerCase()) {
                 case "goalkeeper" -> score += 2.0;
@@ -83,32 +57,15 @@ public class PredictionService {
             }
         }
 
-        // Age factor
         if (request.getAge() != null) {
-            if (request.getAge() >= 24 && request.getAge() <= 29) {
-                score += 3.0;
-            } else if (request.getAge() >= 30) {
-                score -= 1.5;
-            }
+            if (request.getAge() >= 24 && request.getAge() <= 29) score += 3.0;
+            else if (request.getAge() >= 30)                      score -= 1.5;
         }
 
-        // Cap between 0 and 100
         score = Math.max(0, Math.min(100, score));
-
-        // Round to 1 decimal
         double rounded = Math.round(score * 10.0) / 10.0;
 
-        // Risk level
-        String riskLevel;
-        if (rounded >= 75) {
-            riskLevel = "LOW";
-        } else if (rounded >= 50) {
-            riskLevel = "MEDIUM";
-        } else {
-            riskLevel = "HIGH";
-        }
-
-        // Summary
+        String riskLevel = rounded >= 75 ? "LOW" : rounded >= 50 ? "MEDIUM" : "HIGH";
         String summary = buildSummary(request, rounded, riskLevel);
 
         return new PredictionResponse(rounded, riskLevel, summary);
@@ -136,74 +93,45 @@ public class PredictionService {
         );
 
         Prediction saved = predictionRepository.save(prediction);
-
-        return new PredictionHistoryDTO(
-                saved.getId(),
-                saved.getPlayer().getName(),
-                saved.getPlayer().getId(),
-                saved.getPredictedFormRating(),
-                saved.getRiskLevel(),
-                saved.getSummary(),
-                saved.getCreatedAt()
-        );
+        return toDTO(saved);
     }
 
     public List<PredictionHistoryDTO> getHistoryForPlayer(Long playerId) {
         return predictionRepository.findByPlayerIdOrderByCreatedAtDesc(playerId)
-                .stream()
-                .map(p -> new PredictionHistoryDTO(
-                        p.getId(),
-                        p.getPlayer().getName(),
-                        p.getPlayer().getId(),
-                        p.getPredictedFormRating(),
-                        p.getRiskLevel(),
-                        p.getSummary(),
-                        p.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
+                .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     public List<PredictionHistoryDTO> getAllHistory() {
         return predictionRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(p -> new PredictionHistoryDTO(
-                        p.getId(),
-                        p.getPlayer().getName(),
-                        p.getPlayer().getId(),
-                        p.getPredictedFormRating(),
-                        p.getRiskLevel(),
-                        p.getSummary(),
-                        p.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public Page<PredictionHistoryDTO> getAllHistoryPaged(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return predictionRepository.findAll(pageable).map(this::toDTO);
+    }
+
+    private PredictionHistoryDTO toDTO(Prediction p) {
+        return new PredictionHistoryDTO(
+                p.getId(),
+                p.getPlayer().getName(),
+                p.getPlayer().getId(),
+                p.getPredictedFormRating(),
+                p.getRiskLevel(),
+                p.getSummary(),
+                p.getCreatedAt()
+        );
     }
 
     private String buildSummary(PredictionRequest request, double score, String riskLevel) {
         StringBuilder sb = new StringBuilder();
-
         sb.append("Predicted form rating: ").append(score).append(". ");
         sb.append("Risk level: ").append(riskLevel).append(". ");
-
-        if (Boolean.TRUE.equals(request.getInjuryStatus())) {
-            sb.append("Player is currently injured which impacts score. ");
-        }
-
-        if (request.getGoals() != null && request.getGoals() >= 10) {
-            sb.append("Strong goal contribution. ");
-        }
-
-        if (request.getAssists() != null && request.getAssists() >= 8) {
-            sb.append("Strong assist contribution. ");
-        }
-
-        if (request.getPassAccuracy() != null && request.getPassAccuracy() >= 85) {
-            sb.append("Excellent pass accuracy. ");
-        }
-
-        if (request.getRedCards() != null && request.getRedCards() > 0) {
-            sb.append("Red cards negatively impact score. ");
-        }
-
+        if (Boolean.TRUE.equals(request.getInjuryStatus()))               sb.append("Player is currently injured which impacts score. ");
+        if (request.getGoals() != null && request.getGoals() >= 10)       sb.append("Strong goal contribution. ");
+        if (request.getAssists() != null && request.getAssists() >= 8)    sb.append("Strong assist contribution. ");
+        if (request.getPassAccuracy() != null && request.getPassAccuracy() >= 85) sb.append("Excellent pass accuracy. ");
+        if (request.getRedCards() != null && request.getRedCards() > 0)   sb.append("Red cards negatively impact score. ");
         return sb.toString().trim();
     }
 }
