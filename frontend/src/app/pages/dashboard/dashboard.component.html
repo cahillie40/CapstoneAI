@@ -1,0 +1,49 @@
+<h2>Dashboard</h2>
+
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+@if (stats) {
+  <div class="cards">
+
+    <div class="card blue">
+      <div class="card-label">Total Players</div>
+      <div class="card-value">{{ stats.totalPlayers }}</div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-label">Total Predictions</div>
+      <div class="card-value">{{ stats.totalPredictions }}</div>
+    </div>
+
+    <div class="card green">
+      <div class="card-label">Average Form Rating</div>
+      <div class="card-value">{{ stats.averageFormRating }}</div>
+    </div>
+
+    <div class="card green">
+      <div class="card-label">Highest Rated Player</div>
+      <div class="card-value">{{ stats.highestRatedPlayer }}</div>
+      <div class="card-sub">{{ stats.highestFormRating }}</div>
+    </div>
+
+    <div class="card red">
+      <div class="card-label">High Risk Players</div>
+      <div class="card-value">{{ stats.highRiskCount }}</div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-label">Medium Risk Players</div>
+      <div class="card-value">{{ stats.mediumRiskCount }}</div>
+    </div>
+
+    <div class="card green">
+      <div class="card-label">Low Risk Players</div>
+      <div class="card-value">{{ stats.lowRiskCount }}</div>
+    </div>
+
+  </div>
+} @else if (!error) {
+  <p>Loading stats...</p>
+}

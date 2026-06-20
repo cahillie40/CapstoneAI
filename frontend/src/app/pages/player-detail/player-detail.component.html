@@ -1,0 +1,98 @@
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+@if (player) {
+  <div class="detail-header">
+    <h2>{{ player.name }}</h2>
+    <span class="position-badge">{{ player.position }}</span>
+    <span class="team">{{ player.team }}</span>
+    <button (click)="goToPredict()" class="btn-predict">Predict Performance</button>
+  </div>
+
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <div class="stat-label">Age</div>
+      <div class="stat-value">{{ player.age }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Matches Played</div>
+      <div class="stat-value">{{ player.matchesPlayed }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Goals</div>
+      <div class="stat-value">{{ player.goals }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Assists</div>
+      <div class="stat-value">{{ player.assists }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Minutes Played</div>
+      <div class="stat-value">{{ player.minutesPlayed }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Shots On Target</div>
+      <div class="stat-value">{{ player.shotsOnTarget }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Pass Accuracy</div>
+      <div class="stat-value">{{ player.passAccuracy }}%</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Form Rating</div>
+      <div class="stat-value">{{ player.formRating }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Yellow Cards</div>
+      <div class="stat-value">{{ player.yellowCards }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Red Cards</div>
+      <div class="stat-value">{{ player.redCards }}</div>
+    </div>
+
+    <div class="stat-card" [class.injured]="player.injuryStatus">
+      <div class="stat-label">Injury Status</div>
+      <div class="stat-value">{{ player.injuryStatus ? 'Injured' : 'Fit' }}</div>
+    </div>
+
+  </div>
+
+  <h3>Prediction History</h3>
+
+  @if (predictions.length > 0) {
+    <table class="history-table">
+      <thead>
+      <tr>
+        <th>Predicted Rating</th>
+        <th>Risk Level</th>
+        <th>Summary</th>
+        <th>Date</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (pred of predictions; track pred.id) {
+          <tr [class]="getRiskClass(pred.riskLevel)">
+            <td>{{ pred.predictedFormRating }}</td>
+            <td>{{ pred.riskLevel }}</td>
+            <td>{{ pred.summary }}</td>
+            <td>{{ formatDate(pred.createdAt) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p>No predictions yet for this player.</p>
+  }
+}

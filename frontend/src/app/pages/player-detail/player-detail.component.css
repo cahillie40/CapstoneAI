@@ -1,0 +1,90 @@
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.detail-header h2 {
+  margin: 0;
+}
+
+.position-badge {
+  background-color: #1976d2;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.team {
+  color: #666;
+  font-size: 14px;
+}
+
+.btn-predict {
+  margin-left: auto;
+  padding: 8px 16px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  flex: 1 1 120px;
+  max-width: 160px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.stat-card.injured {
+  background-color: #ffebee;
+  border-color: #ef5350;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.history-table th,
+.history-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.history-table th {
+  background-color: #f5f5f5;
+}
+
+.history-table tr.risk-low    { background-color: #e8f5e9; }
+.history-table tr.risk-medium { background-color: #fff8e1; }
+.history-table tr.risk-high   { background-color: #ffebee; }
+
+.error { color: red; }

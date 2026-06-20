@@ -1,0 +1,59 @@
+<h2>Edit Player</h2>
+
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+<form (ngSubmit)="onSubmit()" class="player-form">
+
+  <label for="name">Name</label>
+  <input id="name" [(ngModel)]="player.name" name="name" required />
+
+  <label for="age">Age</label>
+  <input id="age" [(ngModel)]="player.age" name="age" type="number" required />
+
+  <label for="position">Position</label>
+  <input id="position" [(ngModel)]="player.position" name="position" required />
+
+  <label for="team">Team</label>
+  <input id="team" [(ngModel)]="player.team" name="team" required />
+
+  <label for="matchesPlayed">Matches Played</label>
+  <input id="matchesPlayed" [(ngModel)]="player.matchesPlayed" name="matchesPlayed" type="number" required />
+
+  <label for="goals">Goals</label>
+  <input id="goals" [(ngModel)]="player.goals" name="goals" type="number" required />
+
+  <label for="assists">Assists</label>
+  <input id="assists" [(ngModel)]="player.assists" name="assists" type="number" required />
+
+  <label for="minutesPlayed">Minutes Played</label>
+  <input id="minutesPlayed" [(ngModel)]="player.minutesPlayed" name="minutesPlayed" type="number" required />
+
+  <label for="yellowCards">Yellow Cards</label>
+  <input id="yellowCards" [(ngModel)]="player.yellowCards" name="yellowCards" type="number" required />
+
+  <label for="redCards">Red Cards</label>
+  <input id="redCards" [(ngModel)]="player.redCards" name="redCards" type="number" required />
+
+  <label for="shotsOnTarget">Shots On Target</label>
+  <input id="shotsOnTarget" [(ngModel)]="player.shotsOnTarget" name="shotsOnTarget" type="number" required />
+
+  <label for="passAccuracy">Pass Accuracy</label>
+  <input id="passAccuracy" [(ngModel)]="player.passAccuracy" name="passAccuracy" type="number" step="0.1" required />
+
+  <label for="formRating">Form Rating</label>
+  <input id="formRating" [(ngModel)]="player.formRating" name="formRating" type="number" step="0.1" required />
+
+  <label for="injuryStatus">Injury Status</label>
+  <select id="injuryStatus" [(ngModel)]="player.injuryStatus" name="injuryStatus" required>
+    <option [ngValue]="false">Fit</option>
+    <option [ngValue]="true">Injured</option>
+  </select>
+
+  <div class="form-actions">
+    <button type="submit" class="btn-save">Save Changes</button>
+    <button type="button" (click)="onDelete()" class="btn-delete">Delete Player</button>
+  </div>
+
+</form>
