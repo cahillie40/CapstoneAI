@@ -1,0 +1,38 @@
+<h2>Prediction History</h2>
+
+@if (loading) {
+  <p>Loading...</p>
+}
+
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+@if (!loading && predictions.length > 0) {
+  <table class="history-table">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Player</th>
+      <th>Predicted Rating</th>
+      <th>Risk Level</th>
+      <th>Summary</th>
+      <th>Created At</th>
+    </tr>
+    </thead>
+    <tbody>
+      @for (pred of predictions; track pred.id) {
+        <tr [class]="getRiskClass(pred.riskLevel)">
+          <td>{{ pred.id }}</td>
+          <td>{{ pred.playerName }}</td>
+          <td>{{ pred.predictedFormRating }}</td>
+          <td class="risk-badge">{{ pred.riskLevel }}</td>
+          <td class="summary-cell">{{ pred.summary }}</td>
+          <td>{{ formatDate(pred.createdAt) }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+} @else if (!loading) {
+  <p>No predictions found.</p>
+}

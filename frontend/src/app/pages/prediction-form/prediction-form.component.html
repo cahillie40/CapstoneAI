@@ -1,0 +1,89 @@
+<h2>Player Performance Prediction</h2>
+
+<div class="form-section">
+  <h3>Select Existing Player</h3>
+  <div class="player-selector">
+    <select [(ngModel)]="selectedPlayerId" name="selectedPlayerId">
+      <option [ngValue]="null">Choose a player...</option>
+      @for (player of players; track player.id) {
+        <option [ngValue]="player.id">{{ player.name }} ({{ player.position }})</option>
+      }
+    </select>
+    <button type="button" (click)="fillFromPlayer()" class="btn-secondary">Load Player Stats</button>
+  </div>
+</div>
+
+<form (ngSubmit)="onSubmit()" class="prediction-form">
+
+  <label for="age">Age</label>
+  <input id="age" [(ngModel)]="request.age" name="age" type="number" required />
+
+  <label for="position">Position</label>
+  <select id="position" [(ngModel)]="request.position" name="position" required>
+    <option value="">Select position</option>
+    <option value="Goalkeeper">Goalkeeper</option>
+    <option value="Defender">Defender</option>
+    <option value="Midfielder">Midfielder</option>
+    <option value="Winger">Winger</option>
+    <option value="Forward">Forward</option>
+    <option value="Striker">Striker</option>
+  </select>
+
+  <label for="matchesPlayed">Matches Played</label>
+  <input id="matchesPlayed" [(ngModel)]="request.matchesPlayed" name="matchesPlayed" type="number" required />
+
+  <label for="goals">Goals</label>
+  <input id="goals" [(ngModel)]="request.goals" name="goals" type="number" required />
+
+  <label for="assists">Assists</label>
+  <input id="assists" [(ngModel)]="request.assists" name="assists" type="number" required />
+
+  <label for="minutesPlayed">Minutes Played</label>
+  <input id="minutesPlayed" [(ngModel)]="request.minutesPlayed" name="minutesPlayed" type="number" required />
+
+  <label for="yellowCards">Yellow Cards</label>
+  <input id="yellowCards" [(ngModel)]="request.yellowCards" name="yellowCards" type="number" required />
+
+  <label for="redCards">Red Cards</label>
+  <input id="redCards" [(ngModel)]="request.redCards" name="redCards" type="number" required />
+
+  <label for="shotsOnTarget">Shots On Target</label>
+  <input id="shotsOnTarget" [(ngModel)]="request.shotsOnTarget" name="shotsOnTarget" type="number" required />
+
+  <label for="passAccuracy">Pass Accuracy</label>
+  <input id="passAccuracy" [(ngModel)]="request.passAccuracy" name="passAccuracy" type="number" step="0.1" required />
+
+  <label for="injuryStatus">Injury Status</label>
+  <select id="injuryStatus" [(ngModel)]="request.injuryStatus" name="injuryStatus" required>
+    <option [ngValue]="false">Fit</option>
+    <option [ngValue]="true">Injured</option>
+  </select>
+
+  <button type="submit" [disabled]="loading">
+    {{ loading ? 'Predicting...' : 'Predict Performance' }}
+  </button>
+
+</form>
+
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+@if (saveMessage) {
+  <p class="success">{{ saveMessage }}</p>
+}
+
+@if (result) {
+  <div class="result-card" [class]="getRiskClass()">
+    <h3>Prediction Result</h3>
+    <p><strong>Predicted Form Rating:</strong> {{ result.predictedFormRating }}</p>
+    <p><strong>Risk Level:</strong> {{ result.riskLevel }}</p>
+    <p><strong>Summary:</strong> {{ result.summary }}</p>
+
+    @if (selectedPlayerId) {
+      <button type="button" (click)="savePrediction()" class="btn-save">
+        Save Prediction
+      </button>
+    }
+  </div>
+}
