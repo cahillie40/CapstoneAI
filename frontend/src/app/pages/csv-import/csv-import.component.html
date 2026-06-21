@@ -43,29 +43,47 @@
 
 <div class="format-section">
   <h3>Expected CSV Format</h3>
-  <table class="format-table">
-    <thead>
-    <tr>
-      <th>Column</th>
-      <th>Type</th>
-      <th>Example</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr><td>name</td><td>text</td><td>Bukayo Saka</td></tr>
-    <tr><td>age</td><td>number</td><td>22</td></tr>
-    <tr><td>position</td><td>text</td><td>Winger</td></tr>
-    <tr><td>team</td><td>text</td><td>Arsenal</td></tr>
-    <tr><td>matchesPlayed</td><td>number</td><td>32</td></tr>
-    <tr><td>goals</td><td>number</td><td>14</td></tr>
-    <tr><td>assists</td><td>number</td><td>11</td></tr>
-    <tr><td>minutesPlayed</td><td>number</td><td>2650</td></tr>
-    <tr><td>yellowCards</td><td>number</td><td>4</td></tr>
-    <tr><td>redCards</td><td>number</td><td>0</td></tr>
-    <tr><td>shotsOnTarget</td><td>number</td><td>26</td></tr>
-    <tr><td>passAccuracy</td><td>decimal</td><td>84.7</td></tr>
-    <tr><td>formRating</td><td>decimal</td><td>88.5</td></tr>
-    <tr><td>injuryStatus</td><td>true/false</td><td>false</td></tr>
-    </tbody>
-  </table>
+
+  <div class="table-wrapper">
+    <table class="format-table">
+      <thead>
+      <tr>
+        <th>Column</th>
+        <th>Type</th>
+        <th>Example</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr><td>name</td><td>text</td><td>Bukayo Saka</td></tr>
+      <tr><td>age</td><td>number</td><td>22</td></tr>
+      <tr><td>position</td><td>text</td><td>Winger</td></tr>
+      <tr><td>team</td><td>text</td><td>Arsenal</td></tr>
+      <tr><td>matchesPlayed</td><td>number</td><td>32</td></tr>
+      <tr><td>goals</td><td>number</td><td>14</td></tr>
+      <tr><td>assists</td><td>number</td><td>11</td></tr>
+      <tr><td>minutesPlayed</td><td>number</td><td>2650</td></tr>
+      <tr><td>yellowCards</td><td>number</td><td>4</td></tr>
+      <tr><td>redCards</td><td>number</td><td>0</td></tr>
+      <tr><td>shotsOnTarget</td><td>number</td><td>26</td></tr>
+      <tr><td>passAccuracy</td><td>decimal</td><td>84.7</td></tr>
+      <tr><td>formRating</td><td>decimal</td><td>88.5</td></tr>
+      <tr><td>injuryStatus</td><td>true/false</td><td>false</td></tr>
+      <tr><td>expectedGoals</td><td>decimal</td><td>12.8</td></tr>
+      <tr><td>expectedAssists</td><td>decimal</td><td>9.4</td></tr>
+      <tr><td>keyPasses</td><td>number</td><td>58</td></tr>
+      <tr><td>progressivePasses</td><td>number</td><td>132</td></tr>
+      <tr><td>dribblesCompleted</td><td>number</td><td>47</td></tr>
+      <tr><td>tacklesWon</td><td>number</td><td>18</td></tr>
+      <tr><td>interceptions</td><td>number</td><td>12</td></tr>
+      <tr><td>ballRecoveries</td><td>number</td><td>76</td></tr>
+      <tr><td>matchesMissed</td><td>number</td><td>2</td></tr>
+      <tr><td>recentMatchLoad</td><td>number</td><td>6</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="sample-section">
+  <h3>Sample CSV Row</h3>
+  <pre class="sample-block">Bukayo Saka,22,Winger,Arsenal,32,14,11,2650,4,0,26,84.7,88.5,false,12.8,9.4,58,132,47,18,12,76,2,6</pre>
 </div>

@@ -14,6 +14,18 @@ public class PredictionRequest {
     private Double passAccuracy;
     private Boolean injuryStatus;
 
+    // Advanced / StatsBomb-style fields
+    private Double expectedGoals;
+    private Double expectedAssists;
+    private Integer keyPasses;
+    private Integer progressivePasses;
+    private Integer dribblesCompleted;
+    private Integer tacklesWon;
+    private Integer interceptions;
+    private Integer ballRecoveries;
+    private Integer matchesMissed;
+    private Integer recentMatchLoad;
+
     public PredictionRequest() {
     }
 
@@ -103,5 +115,85 @@ public class PredictionRequest {
 
     public void setInjuryStatus(Boolean injuryStatus) {
         this.injuryStatus = injuryStatus;
+    }
+
+    public Double getExpectedGoals() {
+        return expectedGoals;
+    }
+
+    public void setExpectedGoals(Double expectedGoals) {
+        this.expectedGoals = expectedGoals;
+    }
+
+    public Double getExpectedAssists() {
+        return expectedAssists;
+    }
+
+    public void setExpectedAssists(Double expectedAssists) {
+        this.expectedAssists = expectedAssists;
+    }
+
+    public Integer getKeyPasses() {
+        return keyPasses;
+    }
+
+    public void setKeyPasses(Integer keyPasses) {
+        this.keyPasses = keyPasses;
+    }
+
+    public Integer getProgressivePasses() {
+        return progressivePasses;
+    }
+
+    public void setProgressivePasses(Integer progressivePasses) {
+        this.progressivePasses = progressivePasses;
+    }
+
+    public Integer getDribblesCompleted() {
+        return dribblesCompleted;
+    }
+
+    public void setDribblesCompleted(Integer dribblesCompleted) {
+        this.dribblesCompleted = dribblesCompleted;
+    }
+
+    public Integer getTacklesWon() {
+        return tacklesWon;
+    }
+
+    public void setTacklesWon(Integer tacklesWon) {
+        this.tacklesWon = tacklesWon;
+    }
+
+    public Integer getInterceptions() {
+        return interceptions;
+    }
+
+    public void setInterceptions(Integer interceptions) {
+        this.interceptions = interceptions;
+    }
+
+    public Integer getBallRecoveries() {
+        return ballRecoveries;
+    }
+
+    public void setBallRecoveries(Integer ballRecoveries) {
+        this.ballRecoveries = ballRecoveries;
+    }
+
+    public Integer getMatchesMissed() {
+        return matchesMissed;
+    }
+
+    public void setMatchesMissed(Integer matchesMissed) {
+        this.matchesMissed = matchesMissed;
+    }
+
+    public Integer getRecentMatchLoad() {
+        return recentMatchLoad;
+    }
+
+    public void setRecentMatchLoad(Integer recentMatchLoad) {
+        this.recentMatchLoad = recentMatchLoad;
     }
 }

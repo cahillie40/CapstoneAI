@@ -14,16 +14,6 @@ export class PlayerService {
     return this.http.get<Player[]>(this.apiUrl);
   }
 
-  searchPlayers(name: string, position: string, team: string, page: number, size: number): Observable<any> {
-    const params = new HttpParams()
-      .set('name', name)
-      .set('position', position)
-      .set('team', team)
-      .set('page', page)
-      .set('size', size);
-    return this.http.get<any>(`${this.apiUrl}/search`, { params });
-  }
-
   getPlayer(id: number): Observable<Player> {
     return this.http.get<Player>(`${this.apiUrl}/${id}`);
   }
@@ -38,5 +28,16 @@ export class PlayerService {
 
   deletePlayer(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  searchPlayers(name: string, position: string, team: string, page = 0, size = 10): Observable<any> {
+    let params = new HttpParams()
+      .set('name', name)
+      .set('position', position)
+      .set('team', team)
+      .set('page', page)
+      .set('size', size);
+
+    return this.http.get<any>(`${this.apiUrl}/search`, { params });
   }
 }

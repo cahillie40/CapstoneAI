@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Player } from '../../models/player';
-import { PlayerService } from '../../services/player';
+import { PlayerService } from '../../services/player.service';
 
 @Component({
   selector: 'app-compare',
@@ -14,31 +13,23 @@ export class CompareComponent implements OnInit {
   private playerService = inject(PlayerService);
   private cdr = inject(ChangeDetectorRef);
 
-  players: Player[] = [];
-  player1Id: number | null = null;
-  player2Id: number | null = null;
-  player1: Player | null = null;
-  player2: Player | null = null;
-  compared = false;
+  players: any[] = [];
+  selectedPlayer1Id: number | null = null;
+  selectedPlayer2Id: number | null = null;
+
+  player1: any = null;
+  player2: any = null;
+  winner: string | null = null;
   error: string | null = null;
 
-  stats = [
-    { label: 'Age',            key: 'age',            lowerIsBetter: false },
-    { label: 'Matches Played', key: 'matchesPlayed',  lowerIsBetter: false },
-    { label: 'Goals',          key: 'goals',          lowerIsBetter: false },
-    { label: 'Assists',        key: 'assists',        lowerIsBetter: false },
-    { label: 'Minutes Played', key: 'minutesPlayed',  lowerIsBetter: false },
-    { label: 'Shots On Target',key: 'shotsOnTarget',  lowerIsBetter: false },
-    { label: 'Pass Accuracy',  key: 'passAccuracy',   lowerIsBetter: false },
-    { label: 'Form Rating',    key: 'formRating',     lowerIsBetter: false },
-    { label: 'Yellow Cards',   key: 'yellowCards',    lowerIsBetter: true  },
-    { label: 'Red Cards',      key: 'redCards',       lowerIsBetter: true  }
-  ];
-
   ngOnInit(): void {
+    this.loadPlayers();
+  }
+
+  loadPlayers(): void {
     this.playerService.getPlayers().subscribe({
-      next: (response: any) => {
-        this.players = Array.isArray(response) ? response : [];
+      next: (data) => {
+        this.players = data || [];
         this.cdr.markForCheck();
       },
       error: (err) => {
@@ -49,62 +40,72 @@ export class CompareComponent implements OnInit {
     });
   }
 
-  compare(): void {
-    if (!this.player1Id || !this.player2Id) {
-      this.error = 'Please select two players to compare';
+  comparePlayers(): void {
+    this.error = null;
+    this.winner = null;
+
+    if (!this.selectedPlayer1Id || !this.selectedPlayer2Id) {
+      this.error = 'Please select two players';
       return;
     }
 
-    if (this.player1Id === this.player2Id) {
+    if (this.selectedPlayer1Id === this.selectedPlayer2Id) {
       this.error = 'Please select two different players';
       return;
     }
 
-    this.player1 = this.players.find(p => p.id === this.player1Id) || null;
-    this.player2 = this.players.find(p => p.id === this.player2Id) || null;
-    this.compared = true;
-    this.error = null;
+    this.player1 = this.players.find(p => p.id === Number(this.selectedPlayer1Id));
+    this.player2 = this.players.find(p => p.id === Number(this.selectedPlayer2Id));
+
+    if (!this.player1 || !this.player2) {
+      this.error = 'Could not load selected players';
+      return;
+    }
+
+    const score1 = this.calculateComparisonScore(this.player1);
+    const score2 = this.calculateComparisonScore(this.player2);
+
+    if (score1 > score2) {
+      this.winner = this.player1.name;
+    } else if (score2 > score1) {
+      this.winner = this.player2.name;
+    } else {
+      this.winner = 'Draw';
+    }
+
     this.cdr.markForCheck();
   }
 
-  getValue(player: Player, key: string): any {
-    return (player as any)[key];
-  }
+  calculateComparisonScore(player: any): number {
+    let score = 0;
 
-  isWinner(player: Player, key: string, lowerIsBetter: boolean): boolean {
-    if (!this.player1 || !this.player2) return false;
-    const other = player === this.player1 ? this.player2 : this.player1;
-    const val1 = (player as any)[key];
-    const val2 = (other as any)[key];
-    if (val1 === val2) return false;
-    return lowerIsBetter ? val1 < val2 : val1 > val2;
-  }
+    score += (player.formRating ?? 0) * 2;
+    score += (player.goals ?? 0) * 2.5;
+    score += (player.assists ?? 0) * 2;
+    score += (player.shotsOnTarget ?? 0) * 0.8;
+    score += (player.passAccuracy ?? 0) * 0.2;
 
-  getWinner(): string {
-    if (!this.player1 || !this.player2) return '';
+    score += (player.expectedGoals ?? 0) * 3.0;
+    score += (player.expectedAssists ?? 0) * 2.5;
+    score += (player.keyPasses ?? 0) * 0.4;
+    score += (player.progressivePasses ?? 0) * 0.2;
+    score += (player.dribblesCompleted ?? 0) * 0.3;
+    score += (player.tacklesWon ?? 0) * 0.25;
+    score += (player.interceptions ?? 0) * 0.25;
+    score += (player.ballRecoveries ?? 0) * 0.15;
 
-    let p1Score = 0;
-    let p2Score = 0;
+    score -= (player.yellowCards ?? 0) * 0.5;
+    score -= (player.redCards ?? 0) * 2.0;
+    score -= (player.matchesMissed ?? 0) * 0.6;
 
-    for (const stat of this.stats) {
-      const v1 = (this.player1 as any)[stat.key];
-      const v2 = (this.player2 as any)[stat.key];
-      if (v1 === v2) continue;
-
-      if (stat.lowerIsBetter) {
-        if (v1 < v2) p1Score++; else p2Score++;
-      } else {
-        if (v1 > v2) p1Score++; else p2Score++;
-      }
+    if (player.injuryStatus) {
+      score -= 10;
     }
 
-    // injury bonus
-    if (!this.player1.injuryStatus && this.player2.injuryStatus) p1Score++;
-    if (!this.player2.injuryStatus && this.player1.injuryStatus) p2Score++;
+    if ((player.recentMatchLoad ?? 0) > 5) {
+      score -= 2;
+    }
 
-    if (p1Score === p2Score) return 'Draw';
-    return p1Score > p2Score
-      ? `${this.player1.name} wins (${p1Score} vs ${p2Score})`
-      : `${this.player2.name} wins (${p2Score} vs ${p1Score})`;
+    return Math.round(score * 10) / 10;
   }
 }

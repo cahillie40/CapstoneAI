@@ -1,52 +1,39 @@
-.search-bar {
+.toolbar {
   display: flex;
+  justify-content: space-between;
+  gap: 16px;
   flex-wrap: wrap;
-  gap: 8px;
   margin-bottom: 16px;
-  align-items: center;
 }
 
-.search-bar input,
-.search-bar select {
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  min-width: 160px;
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.btn-search {
-  padding: 8px 16px;
-  background-color: #1976d2;
-  color: white;
+.filters input {
+  padding: 8px 10px;
+  min-width: 180px;
+}
+
+.btn-secondary,
+.btn-toggle,
+.pagination button {
+  padding: 8px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
 }
 
-.btn-search:hover {
-  background-color: #1565c0;
-}
-
-.btn-clear {
-  padding: 8px 16px;
-  background-color: #888;
+.btn-secondary {
+  background: #757575;
   color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
 }
 
-.btn-clear:hover {
-  background-color: #666;
-}
-
-.result-count {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 12px;
+.btn-toggle {
+  background: #1976d2;
+  color: white;
 }
 
 .table-wrapper {
@@ -56,63 +43,59 @@
 .players-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .players-table th,
 .players-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 10px 12px;
   text-align: left;
   white-space: nowrap;
 }
 
 .players-table th {
-  background-color: #f5f5f5;
-  font-weight: bold;
+  background: #f5f5f5;
 }
 
-.players-table tbody tr:hover {
-  background-color: #f9f9f9;
+.actions {
+  display: flex;
+  gap: 8px;
 }
 
-.players-table a {
+.btn-link {
   color: #1976d2;
   text-decoration: none;
-}
-
-.players-table a:hover {
-  text-decoration: underline;
+  font-weight: 600;
 }
 
 .pagination {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   margin-top: 16px;
   flex-wrap: wrap;
   align-items: center;
 }
 
 .pagination button {
-  padding: 6px 12px;
-  font-size: 13px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: white;
-  cursor: pointer;
-}
-
-.pagination button:hover:not(:disabled) {
-  background-color: #e3f2fd;
+  background: #e0e0e0;
 }
 
 .pagination button.active {
-  background-color: #1976d2;
+  background: #1976d2;
   color: white;
-  border-color: #1976d2;
 }
 
 .pagination button:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
+}
+
+.page-summary {
+  margin-top: 8px;
+  color: #555;
+}
+
+.error {
+  color: red;
 }

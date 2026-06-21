@@ -32,21 +32,20 @@ public class CsvIngestController {
         List<String> errors = new ArrayList<>();
         int rowNumber = 1;
 
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(file.getInputStream()))) {
-
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             boolean firstLine = true;
 
             while ((line = reader.readLine()) != null) {
-                // Skip header row
                 if (firstLine) {
                     firstLine = false;
                     continue;
                 }
 
                 rowNumber++;
-                if (line.trim().isEmpty()) continue;
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
 
                 try {
                     Player player = parseLine(line);
@@ -55,7 +54,6 @@ public class CsvIngestController {
                     errors.add("Row " + rowNumber + ": " + e.getMessage());
                 }
             }
-
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new CsvImportResult(0, 0, "Failed to read file: " + e.getMessage()));
@@ -73,10 +71,10 @@ public class CsvIngestController {
     }
 
     private Player parseLine(String line) {
-        String[] cols = line.split(",");
+        String[] cols = splitCsvLineAuto(line);
 
-        if (cols.length < 14) {
-            throw new IllegalArgumentException("Expected 14 columns, found " + cols.length);
+        if (cols.length < 24) {
+            throw new IllegalArgumentException("Expected 24 columns, found " + cols.length);
         }
 
         Player player = new Player();
@@ -95,7 +93,59 @@ public class CsvIngestController {
         player.setFormRating(parseDouble(cols[12], "formRating"));
         player.setInjuryStatus(parseBoolean(cols[13], "injuryStatus"));
 
+        player.setExpectedGoals(parseDouble(cols[14], "expectedGoals"));
+        player.setExpectedAssists(parseDouble(cols[15], "expectedAssists"));
+        player.setKeyPasses(parseInt(cols[16], "keyPasses"));
+        player.setProgressivePasses(parseInt(cols[17], "progressivePasses"));
+        player.setDribblesCompleted(parseInt(cols[18], "dribblesCompleted"));
+        player.setTacklesWon(parseInt(cols[19], "tacklesWon"));
+        player.setInterceptions(parseInt(cols[20], "interceptions"));
+        player.setBallRecoveries(parseInt(cols[21], "ballRecoveries"));
+        player.setMatchesMissed(parseInt(cols[22], "matchesMissed"));
+        player.setRecentMatchLoad(parseInt(cols[23], "recentMatchLoad"));
+
         return player;
+    }
+
+    private String[] splitCsvLineAuto(String line) {
+        String[] commaSplit = splitCsvLine(line, ',');
+        if (commaSplit.length >= 24) {
+            return commaSplit;
+        }
+
+        String[] semicolonSplit = splitCsvLine(line, ';');
+        if (semicolonSplit.length >= 24) {
+            return semicolonSplit;
+        }
+
+        return commaSplit;
+    }
+
+    private String[] splitCsvLine(String line, char delimiter) {
+        List<String> fields = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+
+            if (c == '"') {
+                if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                    current.append('"');
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (c == delimiter && !inQuotes) {
+                fields.add(current.toString());
+                current.setLength(0);
+            } else {
+                current.append(c);
+            }
+        }
+
+        fields.add(current.toString());
+        return fields.toArray(new String[0]);
     }
 
     private String clean(String value) {
@@ -106,7 +156,7 @@ public class CsvIngestController {
         try {
             return Integer.parseInt(clean(value));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid integer for field '" + field + "': " + value);
+            throw new IllegalArgumentException("Invalid integer for '" + field + "': " + value.trim());
         }
     }
 
@@ -114,7 +164,7 @@ public class CsvIngestController {
         try {
             return Double.parseDouble(clean(value));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid decimal for field '" + field + "': " + value);
+            throw new IllegalArgumentException("Invalid decimal for '" + field + "': " + value.trim());
         }
     }
 
@@ -122,10 +172,9 @@ public class CsvIngestController {
         String cleaned = clean(value).toLowerCase();
         if (cleaned.equals("true") || cleaned.equals("1") || cleaned.equals("yes")) return true;
         if (cleaned.equals("false") || cleaned.equals("0") || cleaned.equals("no")) return false;
-        throw new IllegalArgumentException("Invalid boolean for field '" + field + "': " + value);
+        throw new IllegalArgumentException("Invalid boolean for '" + field + "': " + value.trim());
     }
 
-    // Inner result class
     public static class CsvImportResult {
         private int imported;
         private int errors;
@@ -137,8 +186,16 @@ public class CsvIngestController {
             this.message = message;
         }
 
-        public int getImported() { return imported; }
-        public int getErrors() { return errors; }
-        public String getMessage() { return message; }
+        public int getImported() {
+            return imported;
+        }
+
+        public int getErrors() {
+            return errors;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 }

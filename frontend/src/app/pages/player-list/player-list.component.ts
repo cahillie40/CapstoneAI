@@ -1,13 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { PlayerService } from '../../services/player.service';
 import { Player } from '../../models/player';
-import { PlayerService } from '../../services/player';
 
 @Component({
   selector: 'app-player-list',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './player-list.component.html',
   styleUrl: './player-list.component.css'
 })
@@ -16,62 +17,84 @@ export class PlayerListComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   players: Player[] = [];
-  totalElements = 0;
+  loading = false;
+  error: string | null = null;
+
+  name = '';
+  position = '';
+  team = '';
+
+  showAdvanced = false;
+
+  page = 0;
+  size = 10;
   totalPages = 0;
-  currentPage = 0;
-  pageSize = 10;
-
-  searchName = '';
-  searchPosition = '';
-  searchTeam = '';
-
-  positions = ['', 'Goalkeeper', 'Defender', 'Midfielder', 'Winger', 'Forward', 'Striker'];
+  totalElements = 0;
 
   ngOnInit(): void {
     this.loadPlayers();
   }
 
   loadPlayers(): void {
-    this.playerService.searchPlayers(
-      this.searchName,
-      this.searchPosition,
-      this.searchTeam,
-      this.currentPage,
-      this.pageSize
-    ).subscribe({
-      next: (response: any) => {
-        this.players = response.content || [];
-        this.totalElements = response.totalElements || 0;
-        this.totalPages = response.totalPages || 0;
+    this.loading = true;
+    this.error = null;
+
+    this.playerService.searchPlayers(this.name, this.position, this.team, this.page, this.size).subscribe({
+      next: (data) => {
+        this.players = data.content ?? [];
+        this.totalPages = data.totalPages ?? 0;
+        this.totalElements = data.totalElements ?? 0;
+        this.loading = false;
         this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to load players', err);
+        this.error = 'Failed to load players';
+        this.loading = false;
         this.cdr.markForCheck();
       }
     });
   }
 
-  onSearch(): void {
-    this.currentPage = 0;
+  applyFilters(): void {
+    this.page = 0;
     this.loadPlayers();
   }
 
-  onClear(): void {
-    this.searchName = '';
-    this.searchPosition = '';
-    this.searchTeam = '';
-    this.currentPage = 0;
+  clearFilters(): void {
+    this.name = '';
+    this.position = '';
+    this.team = '';
+    this.page = 0;
     this.loadPlayers();
   }
 
-  goToPage(page: number): void {
-    if (page < 0 || page >= this.totalPages) return;
-    this.currentPage = page;
-    this.loadPlayers();
+  toggleAdvanced(): void {
+    this.showAdvanced = !this.showAdvanced;
   }
 
-  getPages(): number[] {
+  previousPage(): void {
+    if (this.page > 0) {
+      this.page--;
+      this.loadPlayers();
+    }
+  }
+
+  nextPage(): void {
+    if (this.page < this.totalPages - 1) {
+      this.page++;
+      this.loadPlayers();
+    }
+  }
+
+  goToPage(pageIndex: number): void {
+    if (pageIndex >= 0 && pageIndex < this.totalPages) {
+      this.page = pageIndex;
+      this.loadPlayers();
+    }
+  }
+
+  get pageNumbers(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i);
   }
 }

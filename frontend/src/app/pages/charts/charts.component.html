@@ -1,40 +1,75 @@
-<h2>Charts</h2>
+<h2>Player Analytics Charts</h2>
+
+@if (loading) {
+  <p>Loading charts...</p>
+}
 
 @if (error) {
   <p class="error">{{ error }}</p>
 }
 
-@if (loaded) {
+@if (!loading && !error) {
   <div class="charts-grid">
 
     <div class="chart-card">
-      <h3>Player Form Ratings</h3>
-      <canvas baseChart
-              [data]="formRatingChartData"
-              [options]="formRatingChartOptions"
-              type="bar">
-      </canvas>
+      <h3>Goals vs Expected Goals (xG)</h3>
+      <div class="chart-container">
+        <canvas
+          baseChart
+          [data]="goalsVsXgScatterData"
+          [type]="goalsVsXgScatterType"
+          [options]="scatterOptions">
+        </canvas>
+      </div>
     </div>
 
     <div class="chart-card">
-      <h3>Goals Per Player</h3>
-      <canvas baseChart
-              [data]="goalsChartData"
-              [options]="goalsChartOptions"
-              type="bar">
-      </canvas>
+      <h3>Assists vs Expected Assists (xA)</h3>
+      <div class="chart-container">
+        <canvas
+          baseChart
+          [data]="assistsVsXaScatterData"
+          [type]="assistsVsXaScatterType"
+          [options]="scatterOptions">
+        </canvas>
+      </div>
     </div>
 
-    <div class="chart-card chart-card--small">
-      <h3>Risk Level Breakdown</h3>
-      <canvas baseChart
-              [data]="riskChartData"
-              [options]="riskChartOptions"
-              type="pie">
-      </canvas>
+    <div class="chart-card">
+      <h3>Progressive Passes by Player</h3>
+      <div class="chart-container">
+        <canvas
+          baseChart
+          [data]="progressivePassesChartData"
+          [type]="progressivePassesChartType"
+          [options]="barChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Ball Recoveries by Player</h3>
+      <div class="chart-container">
+        <canvas
+          baseChart
+          [data]="recoveriesChartData"
+          [type]="recoveriesChartType"
+          [options]="barChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <div class="chart-card full-width">
+      <h3>Prediction Risk Distribution</h3>
+      <div class="chart-container pie-container">
+        <canvas
+          baseChart
+          [data]="riskDistributionChartData"
+          [type]="riskDistributionChartType"
+          [options]="pieChartOptions">
+        </canvas>
+      </div>
     </div>
 
   </div>
-} @else if (!error) {
-  <p>Loading charts...</p>
 }

@@ -1,76 +1,76 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PlayerService } from '../../services/player';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { PlayerService } from '../../services/player.service';
 import { PredictionService } from '../../services/prediction.service';
 import { Player } from '../../models/player';
 
 @Component({
   selector: 'app-player-detail',
   standalone: true,
+  imports: [CommonModule, RouterLink],
   templateUrl: './player-detail.component.html',
   styleUrl: './player-detail.component.css'
 })
 export class PlayerDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private playerService = inject(PlayerService);
   private predictionService = inject(PredictionService);
   private cdr = inject(ChangeDetectorRef);
 
+  playerId!: number;
   player: Player | null = null;
-  predictions: any[] = [];
+  predictionHistory: any[] = [];
+  loading = false;
   error: string | null = null;
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (id) {
-      this.loadPlayer(id);
-      this.loadPredictions(id);
-    }
+    this.playerId = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadPlayer();
+    this.loadPredictionHistory();
   }
 
-  loadPlayer(id: number): void {
-    this.playerService.getPlayer(id).subscribe({
+  loadPlayer(): void {
+    this.loading = true;
+    this.playerService.getPlayer(this.playerId).subscribe({
       next: (data) => {
         this.player = data;
+        this.loading = false;
         this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to load player', err);
-        this.error = 'Failed to load player';
+        this.error = 'Failed to load player details';
+        this.loading = false;
         this.cdr.markForCheck();
       }
     });
   }
 
-  loadPredictions(id: number): void {
-    this.predictionService.getPlayerHistory(id).subscribe({
-      next: (data: any) => {
-        this.predictions = Array.isArray(data) ? data : [];
+  loadPredictionHistory(): void {
+    this.predictionService.getPlayerHistory(this.playerId).subscribe({
+      next: (data) => {
+        this.predictionHistory = Array.isArray(data) ? data : [];
         this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('Failed to load predictions', err);
+        console.error('Failed to load prediction history', err);
         this.cdr.markForCheck();
       }
     });
   }
 
-  goToPredict(): void {
-    this.router.navigateByUrl('/predict');
+  getRiskClass(riskLevel: string): string {
+    switch (riskLevel) {
+      case 'LOW': return 'risk-low';
+      case 'MEDIUM': return 'risk-medium';
+      case 'HIGH': return 'risk-high';
+      default: return '';
+    }
   }
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-  }
-
-  getRiskClass(riskLevel: string): string {
-    switch (riskLevel) {
-      case 'LOW':    return 'risk-low';
-      case 'MEDIUM': return 'risk-medium';
-      case 'HIGH':   return 'risk-high';
-      default:       return '';
-    }
   }
 }

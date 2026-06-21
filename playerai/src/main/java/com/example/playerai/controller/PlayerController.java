@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -69,6 +70,19 @@ public class PlayerController {
             player.setPassAccuracy(updated.getPassAccuracy());
             player.setFormRating(updated.getFormRating());
             player.setInjuryStatus(updated.getInjuryStatus());
+
+            // Advanced / StatsBomb-style fields
+            player.setExpectedGoals(updated.getExpectedGoals());
+            player.setExpectedAssists(updated.getExpectedAssists());
+            player.setKeyPasses(updated.getKeyPasses());
+            player.setProgressivePasses(updated.getProgressivePasses());
+            player.setDribblesCompleted(updated.getDribblesCompleted());
+            player.setTacklesWon(updated.getTacklesWon());
+            player.setInterceptions(updated.getInterceptions());
+            player.setBallRecoveries(updated.getBallRecoveries());
+            player.setMatchesMissed(updated.getMatchesMissed());
+            player.setRecentMatchLoad(updated.getRecentMatchLoad());
+
             return ResponseEntity.ok(playerRepository.save(player));
         }).orElse(ResponseEntity.notFound().build());
     }

@@ -12,4 +12,12 @@ export class DashboardService {
   getStats(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/stats`);
   }
+
+  getValidation(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/validation`);
+  }
+
+  getModelExplanation(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/model-explanation`);
+  }
 }

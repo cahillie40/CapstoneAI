@@ -1,98 +1,102 @@
+@if (loading) {
+  <p>Loading player details...</p>
+}
+
 @if (error) {
   <p class="error">{{ error }}</p>
 }
 
-@if (player) {
+@if (player && !loading) {
   <div class="detail-header">
-    <h2>{{ player.name }}</h2>
-    <span class="position-badge">{{ player.position }}</span>
-    <span class="team">{{ player.team }}</span>
-    <button (click)="goToPredict()" class="btn-predict">Predict Performance</button>
+    <div>
+      <h2>{{ player.name }}</h2>
+      <p class="subheading">{{ player.position }} • {{ player.team }}</p>
+    </div>
+
+    <a [routerLink]="['/players', player.id, 'edit']" class="btn-edit">Edit Player</a>
   </div>
 
-  <div class="stats-grid">
+  <div class="detail-grid">
 
-    <div class="stat-card">
-      <div class="stat-label">Age</div>
-      <div class="stat-value">{{ player.age }}</div>
+    <div class="detail-card">
+      <h3>Basic Info</h3>
+      <p><strong>Age:</strong> {{ player.age }}</p>
+      <p><strong>Position:</strong> {{ player.position }}</p>
+      <p><strong>Team:</strong> {{ player.team }}</p>
+      <p><strong>Injury Status:</strong> {{ player.injuryStatus ? 'Injured' : 'Fit' }}</p>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-label">Matches Played</div>
-      <div class="stat-value">{{ player.matchesPlayed }}</div>
+    <div class="detail-card">
+      <h3>Core Performance</h3>
+      <p><strong>Matches Played:</strong> {{ player.matchesPlayed }}</p>
+      <p><strong>Goals:</strong> {{ player.goals }}</p>
+      <p><strong>Assists:</strong> {{ player.assists }}</p>
+      <p><strong>Minutes Played:</strong> {{ player.minutesPlayed }}</p>
+      <p><strong>Shots On Target:</strong> {{ player.shotsOnTarget }}</p>
+      <p><strong>Pass Accuracy:</strong> {{ player.passAccuracy }}</p>
+      <p><strong>Form Rating:</strong> {{ player.formRating }}</p>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-label">Goals</div>
-      <div class="stat-value">{{ player.goals }}</div>
+    <div class="detail-card">
+      <h3>Discipline</h3>
+      <p><strong>Yellow Cards:</strong> {{ player.yellowCards }}</p>
+      <p><strong>Red Cards:</strong> {{ player.redCards }}</p>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-label">Assists</div>
-      <div class="stat-value">{{ player.assists }}</div>
+    <div class="detail-card">
+      <h3>Advanced Attacking</h3>
+      <p><strong>Expected Goals (xG):</strong> {{ player.expectedGoals ?? 0 }}</p>
+      <p><strong>Expected Assists (xA):</strong> {{ player.expectedAssists ?? 0 }}</p>
+      <p><strong>Key Passes:</strong> {{ player.keyPasses ?? 0 }}</p>
+      <p><strong>Progressive Passes:</strong> {{ player.progressivePasses ?? 0 }}</p>
+      <p><strong>Dribbles Completed:</strong> {{ player.dribblesCompleted ?? 0 }}</p>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-label">Minutes Played</div>
-      <div class="stat-value">{{ player.minutesPlayed }}</div>
+    <div class="detail-card">
+      <h3>Advanced Defensive</h3>
+      <p><strong>Tackles Won:</strong> {{ player.tacklesWon ?? 0 }}</p>
+      <p><strong>Interceptions:</strong> {{ player.interceptions ?? 0 }}</p>
+      <p><strong>Ball Recoveries:</strong> {{ player.ballRecoveries ?? 0 }}</p>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-label">Shots On Target</div>
-      <div class="stat-value">{{ player.shotsOnTarget }}</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Pass Accuracy</div>
-      <div class="stat-value">{{ player.passAccuracy }}%</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Form Rating</div>
-      <div class="stat-value">{{ player.formRating }}</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Yellow Cards</div>
-      <div class="stat-value">{{ player.yellowCards }}</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Red Cards</div>
-      <div class="stat-value">{{ player.redCards }}</div>
-    </div>
-
-    <div class="stat-card" [class.injured]="player.injuryStatus">
-      <div class="stat-label">Injury Status</div>
-      <div class="stat-value">{{ player.injuryStatus ? 'Injured' : 'Fit' }}</div>
+    <div class="detail-card">
+      <h3>Availability & Load</h3>
+      <p><strong>Matches Missed:</strong> {{ player.matchesMissed ?? 0 }}</p>
+      <p><strong>Recent Match Load:</strong> {{ player.recentMatchLoad ?? 0 }}</p>
     </div>
 
   </div>
 
-  <h3>Prediction History</h3>
+  <div class="history-section">
+    <h3>Prediction History</h3>
 
-  @if (predictions.length > 0) {
-    <table class="history-table">
-      <thead>
-      <tr>
-        <th>Predicted Rating</th>
-        <th>Risk Level</th>
-        <th>Summary</th>
-        <th>Date</th>
-      </tr>
-      </thead>
-      <tbody>
-        @for (pred of predictions; track pred.id) {
-          <tr [class]="getRiskClass(pred.riskLevel)">
-            <td>{{ pred.predictedFormRating }}</td>
-            <td>{{ pred.riskLevel }}</td>
-            <td>{{ pred.summary }}</td>
-            <td>{{ formatDate(pred.createdAt) }}</td>
+    @if (predictionHistory.length > 0) {
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Predicted Rating</th>
+            <th>Risk Level</th>
+            <th>Summary</th>
+            <th>Created At</th>
           </tr>
-        }
-      </tbody>
-    </table>
-  } @else {
-    <p>No predictions yet for this player.</p>
-  }
+          </thead>
+          <tbody>
+            @for (pred of predictionHistory; track pred.id) {
+              <tr [class]="getRiskClass(pred.riskLevel)">
+                <td>{{ pred.id }}</td>
+                <td>{{ pred.predictedFormRating }}</td>
+                <td>{{ pred.riskLevel }}</td>
+                <td>{{ pred.summary }}</td>
+                <td>{{ formatDate(pred.createdAt) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p>No prediction history found for this player.</p>
+    }
+  </div>
 }

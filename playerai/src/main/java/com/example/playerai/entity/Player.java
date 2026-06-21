@@ -31,4 +31,15 @@ public class Player {
     private Double passAccuracy;
     private Double formRating;
     private Boolean injuryStatus;
+
+    private Double expectedGoals;
+    private Double expectedAssists;
+    private Integer keyPasses;
+    private Integer progressivePasses;
+    private Integer dribblesCompleted;
+    private Integer tacklesWon;
+    private Integer interceptions;
+    private Integer ballRecoveries;
+    private Integer matchesMissed;
+    private Integer recentMatchLoad;
 }

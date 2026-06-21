@@ -1,94 +1,125 @@
 <h2>Players</h2>
 
-<div class="search-bar">
-  <input
-    [(ngModel)]="searchName"
-    name="searchName"
-    placeholder="Search by name..."
-    (keyup.enter)="onSearch()" />
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
 
-  <select [(ngModel)]="searchPosition" name="searchPosition">
-    @for (pos of positions; track pos) {
-      <option [value]="pos">{{ pos === '' ? 'All Positions' : pos }}</option>
-    }
-  </select>
+<div class="toolbar">
+  <div class="filters">
+    <input
+      type="text"
+      [(ngModel)]="name"
+      placeholder="Search by name" />
 
-  <input
-    [(ngModel)]="searchTeam"
-    name="searchTeam"
-    placeholder="Search by team..."
-    (keyup.enter)="onSearch()" />
+    <input
+      type="text"
+      [(ngModel)]="position"
+      placeholder="Filter by position" />
 
-  <button (click)="onSearch()" class="btn-search">Search</button>
-  <button (click)="onClear()" class="btn-clear">Clear</button>
+    <input
+      type="text"
+      [(ngModel)]="team"
+      placeholder="Filter by team" />
+
+    <button (click)="applyFilters()" class="btn-secondary">Search</button>
+    <button (click)="clearFilters()" class="btn-secondary">Clear</button>
+  </div>
+
+  <button (click)="toggleAdvanced()" class="btn-toggle">
+    {{ showAdvanced ? 'Hide Advanced Columns' : 'Show Advanced Columns' }}
+  </button>
 </div>
 
-<p class="result-count">{{ totalElements }} player(s) found</p>
+@if (loading) {
+  <p>Loading players...</p>
+}
 
-@if (players.length > 0) {
+@if (!loading) {
   <div class="table-wrapper">
     <table class="players-table">
       <thead>
       <tr>
-        <th>ID</th>
         <th>Name</th>
         <th>Age</th>
         <th>Position</th>
         <th>Team</th>
-        <th>Matches</th>
         <th>Goals</th>
         <th>Assists</th>
-        <th>Minutes</th>
-        <th>Yellow</th>
-        <th>Red</th>
-        <th>Shots On Target</th>
-        <th>Pass Accuracy</th>
-        <th>Form Rating</th>
-        <th>Injury</th>
+        <th>Form</th>
+        <th>Injured</th>
+
+        @if (showAdvanced) {
+          <th>xG</th>
+          <th>xA</th>
+          <th>Key Passes</th>
+          <th>Prog. Passes</th>
+          <th>Dribbles</th>
+          <th>Tackles</th>
+          <th>Interceptions</th>
+          <th>Recoveries</th>
+          <th>Missed</th>
+          <th>Load</th>
+        }
+
         <th>Actions</th>
       </tr>
       </thead>
       <tbody>
         @for (player of players; track player.id) {
           <tr>
-            <td>{{ player.id }}</td>
-            <td><a [routerLink]="['/players', player.id]">{{ player.name }}</a></td>
+            <td>{{ player.name }}</td>
             <td>{{ player.age }}</td>
             <td>{{ player.position }}</td>
             <td>{{ player.team }}</td>
-            <td>{{ player.matchesPlayed }}</td>
             <td>{{ player.goals }}</td>
             <td>{{ player.assists }}</td>
-            <td>{{ player.minutesPlayed }}</td>
-            <td>{{ player.yellowCards }}</td>
-            <td>{{ player.redCards }}</td>
-            <td>{{ player.shotsOnTarget }}</td>
-            <td>{{ player.passAccuracy }}</td>
             <td>{{ player.formRating }}</td>
-            <td>{{ player.injuryStatus ? 'Injured' : 'Fit' }}</td>
-            <td><a [routerLink]="['/players', player.id, 'edit']">Edit</a></td>
+            <td>{{ player.injuryStatus ? 'Yes' : 'No' }}</td>
+
+            @if (showAdvanced) {
+              <td>{{ player.expectedGoals ?? 0 }}</td>
+              <td>{{ player.expectedAssists ?? 0 }}</td>
+              <td>{{ player.keyPasses ?? 0 }}</td>
+              <td>{{ player.progressivePasses ?? 0 }}</td>
+              <td>{{ player.dribblesCompleted ?? 0 }}</td>
+              <td>{{ player.tacklesWon ?? 0 }}</td>
+              <td>{{ player.interceptions ?? 0 }}</td>
+              <td>{{ player.ballRecoveries ?? 0 }}</td>
+              <td>{{ player.matchesMissed ?? 0 }}</td>
+              <td>{{ player.recentMatchLoad ?? 0 }}</td>
+            }
+
+            <td class="actions">
+              <a [routerLink]="['/players', player.id]" class="btn-link">View</a>
+              <a [routerLink]="['/players', player.id, 'edit']" class="btn-link">Edit</a>
+            </td>
           </tr>
         }
       </tbody>
     </table>
   </div>
 
-  <div class="pagination">
-    <button (click)="goToPage(0)" [disabled]="currentPage === 0">«</button>
-    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">‹</button>
+  @if (players.length === 0) {
+    <p>No players found.</p>
+  }
 
-    @for (page of getPages(); track page) {
-      <button
-        (click)="goToPage(page)"
-        [class.active]="page === currentPage">
-        {{ page + 1 }}
-      </button>
-    }
+  @if (totalPages > 1) {
+    <div class="pagination">
+      <button (click)="previousPage()" [disabled]="page === 0">Previous</button>
 
-    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">›</button>
-    <button (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1">»</button>
-  </div>
+      @for (p of pageNumbers; track p) {
+        <button
+          (click)="goToPage(p)"
+          [class.active]="p === page">
+          {{ p + 1 }}
+        </button>
+      }
 
-} @else {
-  <p>No players found.</p>
+      <button (click)="nextPage()" [disabled]="page >= totalPages - 1">Next</button>
+    </div>
+
+    <p class="page-summary">
+      Page {{ page + 1 }} of {{ totalPages }} • {{ totalElements }} total players
+    </p>
+  }
 }

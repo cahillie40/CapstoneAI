@@ -16,7 +16,10 @@ export class PredictionService {
   }
 
   savePrediction(playerId: number, request: PredictionRequest, response: PredictionResponse): Observable<any> {
-    return this.http.post(`${this.apiUrl}/save`, { playerId, predictionRequest: request });
+    return this.http.post<any>(`${this.apiUrl}/save`, {
+      playerId,
+      predictionRequest: request
+    });
   }
 
   getHistory(): Observable<any[]> {
@@ -27,6 +30,7 @@ export class PredictionService {
     const params = new HttpParams()
       .set('page', page)
       .set('size', size);
+
     return this.http.get<any>(`${this.apiUrl}/history/paged`, { params });
   }
 

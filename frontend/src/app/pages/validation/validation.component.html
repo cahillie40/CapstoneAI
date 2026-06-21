@@ -1,112 +1,81 @@
 <h2>Validation & Model Explanation</h2>
 
+@if (loading) {
+  <p>Loading validation data...</p>
+}
+
 @if (error) {
   <p class="error">{{ error }}</p>
 }
 
-@if (summary) {
-  <section class="section">
-    <h3>Validation Summary</h3>
-    <div class="cards">
+@if (!loading && validation) {
+  <div class="validation-grid">
 
-      <div class="card blue">
-        <div class="card-label">Total Predictions</div>
-        <div class="card-value">{{ summary.totalPredictions }}</div>
-      </div>
-
-      <div class="card green">
-        <div class="card-label">Average Form Rating</div>
-        <div class="card-value">{{ summary.averageRating }}</div>
-      </div>
-
-      <div class="card green">
-        <div class="card-label">Highest Rating</div>
-        <div class="card-value">{{ summary.highestRating }}</div>
-      </div>
-
-      <div class="card orange">
-        <div class="card-label">Lowest Rating</div>
-        <div class="card-value">{{ summary.lowestRating }}</div>
-      </div>
-
-      <div class="card red">
-        <div class="card-label">High Risk</div>
-        <div class="card-value">{{ summary.highRiskCount }}</div>
-        <div class="card-sub">{{ summary.highRiskPercentage }}%</div>
-      </div>
-
-      <div class="card orange">
-        <div class="card-label">Medium Risk</div>
-        <div class="card-value">{{ summary.mediumRiskCount }}</div>
-        <div class="card-sub">{{ summary.mediumRiskPercentage }}%</div>
-      </div>
-
-      <div class="card green">
-        <div class="card-label">Low Risk</div>
-        <div class="card-value">{{ summary.lowRiskCount }}</div>
-        <div class="card-sub">{{ summary.lowRiskPercentage }}%</div>
-      </div>
-
-      <div class="card blue">
-        <div class="card-label">Most Common Risk</div>
-        <div class="card-value">{{ summary.mostCommonRiskLevel }}</div>
-      </div>
-
+    <div class="card">
+      <h3>Validation Summary</h3>
+      <p><strong>Model:</strong> {{ validation.modelName }}</p>
+      <p><strong>Status:</strong> {{ validation.validationStatus }}</p>
+      <p><strong>Accuracy Estimate:</strong> {{ validation.accuracyEstimate }}</p>
+      <p><strong>Summary:</strong> {{ validation.summary }}</p>
     </div>
-  </section>
-}
 
-@if (explanation) {
-  <section class="section">
-    <h3>Model Explanation</h3>
-    <p class="model-type"><strong>Model:</strong> {{ explanation.modelType }}</p>
-    <p class="model-desc">{{ explanation.description }}</p>
-    <p class="baseline"><strong>Base Score:</strong> {{ explanation.baselineScore }}</p>
-
-    <h4>Feature Weights</h4>
-    <table class="explanation-table">
-      <thead>
-      <tr>
-        <th>Feature</th>
-        <th>Weight</th>
-        <th>Direction</th>
-        <th>Description</th>
-      </tr>
-      </thead>
-      <tbody>
-        @for (fw of explanation.featureWeights; track fw.feature) {
-          <tr>
-            <td><strong>{{ fw.feature }}</strong></td>
-            <td class="weight">{{ fw.weight }}</td>
-            <td>
-              <span [class]="getDirectionClass(fw.direction)">
-                {{ fw.direction === 'positive' ? '▲ Positive' : '▼ Negative' }}
-              </span>
-            </td>
-            <td>{{ fw.description }}</td>
-          </tr>
+    <div class="card">
+      <h3>Strengths</h3>
+      <ul>
+        @for (item of validation.strengths; track item) {
+          <li>{{ item }}</li>
         }
-      </tbody>
-    </table>
+      </ul>
+    </div>
 
-    <h4>Risk Levels</h4>
-    <table class="explanation-table">
-      <thead>
-      <tr>
-        <th>Level</th>
-        <th>Score Range</th>
-        <th>Meaning</th>
-      </tr>
-      </thead>
-      <tbody>
-        @for (rl of explanation.riskLevels; track rl.level) {
-          <tr [class]="getRiskClass(rl.level)">
-            <td><strong>{{ rl.level }}</strong></td>
-            <td>{{ rl.range }}</td>
-            <td>{{ rl.meaning }}</td>
-          </tr>
+    <div class="card">
+      <h3>Limitations</h3>
+      <ul>
+        @for (item of validation.limitations; track item) {
+          <li>{{ item }}</li>
         }
-      </tbody>
-    </table>
-  </section>
+      </ul>
+    </div>
+
+    @if (explanation) {
+      <div class="card full-width">
+        <h3>Model Explanation</h3>
+        <p><strong>Model Type:</strong> {{ explanation.modelType }}</p>
+        <p><strong>Overview:</strong> {{ explanation.overview }}</p>
+      </div>
+
+      <div class="card full-width">
+        <h3>Feature Weights</h3>
+        <div class="table-wrapper">
+          <table class="weights-table">
+            <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Weight</th>
+              <th>Explanation</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (feature of explanation.featureWeights; track feature.name) {
+                <tr>
+                  <td>{{ feature.name }}</td>
+                  <td>{{ feature.weight }}</td>
+                  <td>{{ feature.explanation }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card full-width">
+        <h3>Risk Levels</h3>
+        <ul>
+          @for (item of explanation.riskLogic; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
 }

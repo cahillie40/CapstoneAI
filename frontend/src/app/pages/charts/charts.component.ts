@@ -1,13 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartData, ChartOptions } from 'chart.js';
-import { PlayerService } from '../../services/player';
+import { ChartConfiguration } from 'chart.js';
+import { PlayerService } from '../../services/player.service';
 import { PredictionService } from '../../services/prediction.service';
 
 @Component({
   selector: 'app-charts',
   standalone: true,
-  imports: [BaseChartDirective],
+  imports: [CommonModule, BaseChartDirective],
   templateUrl: './charts.component.html',
   styleUrl: './charts.component.css'
 })
@@ -16,142 +17,226 @@ export class ChartsComponent implements OnInit {
   private predictionService = inject(PredictionService);
   private cdr = inject(ChangeDetectorRef);
 
-  loaded = false;
+  loading = false;
   error: string | null = null;
+  players: any[] = [];
+  predictions: any[] = [];
 
-  // Bar chart — form ratings
-  formRatingChartData: ChartData<'bar'> = {
+  goalsVsXgScatterType: 'scatter' = 'scatter';
+  assistsVsXaScatterType: 'scatter' = 'scatter';
+  progressivePassesChartType: 'bar' = 'bar';
+  recoveriesChartType: 'bar' = 'bar';
+  riskDistributionChartType: 'pie' = 'pie';
+
+  goalsVsXgScatterData: ChartConfiguration<'scatter'>['data'] = {
+    datasets: []
+  };
+
+  assistsVsXaScatterData: ChartConfiguration<'scatter'>['data'] = {
+    datasets: []
+  };
+
+  progressivePassesChartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
-    datasets: [
-      {
-        label: 'Form Rating',
-        data: [],
-        backgroundColor: '#1976d2'
-      }
-    ]
+    datasets: []
   };
 
-  formRatingChartOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    plugins: {
-      legend: { display: true },
-      title: { display: true, text: 'Player Form Ratings' }
-    },
-    scales: {
-      y: { beginAtZero: true, max: 100 }
-    }
-  };
-
-  // Bar chart — goals per player
-  goalsChartData: ChartData<'bar'> = {
+  recoveriesChartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
-    datasets: [
-      {
-        label: 'Goals',
-        data: [],
-        backgroundColor: '#43a047'
-      }
-    ]
+    datasets: []
   };
 
-  goalsChartOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    plugins: {
-      legend: { display: true },
-      title: { display: true, text: 'Goals Per Player' }
-    },
-    scales: {
-      y: { beginAtZero: true }
-    }
-  };
-
-  // Pie chart — risk level breakdown
-  riskChartData: ChartData<'pie'> = {
-    labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+  riskDistributionChartData: ChartConfiguration<'pie'>['data'] = {
+    labels: ['LOW', 'MEDIUM', 'HIGH'],
     datasets: [
       {
         data: [0, 0, 0],
-        backgroundColor: ['#43a047', '#fb8c00', '#e53935']
+        backgroundColor: ['#43a047', '#fbc02d', '#e53935']
       }
     ]
   };
 
-  riskChartOptions: ChartOptions<'pie'> = {
+  scatterOptions: ChartConfiguration<'scatter'>['options'] = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: { display: true, position: 'bottom' },
-      title: { display: true, text: 'Risk Level Breakdown' }
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = (context.raw as any)?.label ?? 'Player';
+            const x = (context.raw as any)?.x ?? 0;
+            const y = (context.raw as any)?.y ?? 0;
+            return `${label}: (${x}, ${y})`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        type: 'linear',
+        position: 'bottom',
+        title: {
+          display: true,
+          text: 'Expected Value'
+        }
+      },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Actual Value'
+        }
+      }
+    }
+  };
+
+  barChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          autoSkip: false
+        }
+      },
+      y: {
+        beginAtZero: true
+      }
+    }
+  };
+
+  pieChartOptions: ChartConfiguration<'pie'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom'
+      }
     }
   };
 
   ngOnInit(): void {
-    this.loadPlayers();
-    this.loadPredictions();
+    this.loadData();
   }
 
-  loadPlayers(): void {
+  loadData(): void {
+    this.loading = true;
+    this.error = null;
+
+    let playersLoaded = false;
+    let predictionsLoaded = false;
+
+    const finishIfDone = () => {
+      if (playersLoaded && predictionsLoaded) {
+        this.buildCharts();
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
+    };
+
     this.playerService.getPlayers().subscribe({
-      next: (response: any) => {
-        const players = Array.isArray(response) ? response : [];
-
-        this.formRatingChartData = {
-          labels: players.map((p: any) => p.name),
-          datasets: [
-            {
-              label: 'Form Rating',
-              data: players.map((p: any) => p.formRating || 0),
-              backgroundColor: '#1976d2'
-            }
-          ]
-        };
-
-        this.goalsChartData = {
-          labels: players.map((p: any) => p.name),
-          datasets: [
-            {
-              label: 'Goals',
-              data: players.map((p: any) => p.goals || 0),
-              backgroundColor: '#43a047'
-            }
-          ]
-        };
-
-        this.loaded = true;
-        this.cdr.markForCheck();
+      next: (data) => {
+        this.players = Array.isArray(data) ? data : [];
+        playersLoaded = true;
+        finishIfDone();
       },
       error: (err) => {
-        console.error('Failed to load players', err);
-        this.error = 'Failed to load player data';
+        console.error('Failed to load players for charts', err);
+        this.error = 'Failed to load player chart data';
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
+    });
+
+    this.predictionService.getHistory().subscribe({
+      next: (data) => {
+        this.predictions = Array.isArray(data) ? data : [];
+        predictionsLoaded = true;
+        finishIfDone();
+      },
+      error: (err) => {
+        console.error('Failed to load predictions for charts', err);
+        this.error = 'Failed to load prediction chart data';
+        this.loading = false;
         this.cdr.markForCheck();
       }
     });
   }
 
-  loadPredictions(): void {
-    this.predictionService.getHistory().subscribe({
-      next: (data: any) => {
-        const predictions = Array.isArray(data) ? data : [];
+  buildCharts(): void {
+    const labels = this.players.map(player => player.name);
 
-        const low    = predictions.filter((p: any) => p.riskLevel === 'LOW').length;
-        const medium = predictions.filter((p: any) => p.riskLevel === 'MEDIUM').length;
-        const high   = predictions.filter((p: any) => p.riskLevel === 'HIGH').length;
+    this.goalsVsXgScatterData = {
+      datasets: [
+        {
+          label: 'Goals vs xG',
+          data: this.players.map(player => ({
+            x: player.expectedGoals ?? 0,
+            y: player.goals ?? 0,
+            label: player.name
+          })),
+          backgroundColor: '#1976d2'
+        }
+      ]
+    };
 
-        this.riskChartData = {
-          labels: ['Low Risk', 'Medium Risk', 'High Risk'],
-          datasets: [
-            {
-              data: [low, medium, high],
-              backgroundColor: ['#43a047', '#fb8c00', '#e53935']
-            }
-          ]
-        };
+    this.assistsVsXaScatterData = {
+      datasets: [
+        {
+          label: 'Assists vs xA',
+          data: this.players.map(player => ({
+            x: player.expectedAssists ?? 0,
+            y: player.assists ?? 0,
+            label: player.name
+          })),
+          backgroundColor: '#43a047'
+        }
+      ]
+    };
 
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        console.error('Failed to load predictions', err);
-        this.cdr.markForCheck();
-      }
-    });
+    this.progressivePassesChartData = {
+      labels,
+      datasets: [
+        {
+          label: 'Progressive Passes',
+          data: this.players.map(player => player.progressivePasses ?? 0),
+          backgroundColor: '#fb8c00'
+        }
+      ]
+    };
+
+    this.recoveriesChartData = {
+      labels,
+      datasets: [
+        {
+          label: 'Ball Recoveries',
+          data: this.players.map(player => player.ballRecoveries ?? 0),
+          backgroundColor: '#8e24aa'
+        }
+      ]
+    };
+
+    const lowCount = this.predictions.filter(p => p.riskLevel === 'LOW').length;
+    const mediumCount = this.predictions.filter(p => p.riskLevel === 'MEDIUM').length;
+    const highCount = this.predictions.filter(p => p.riskLevel === 'HIGH').length;
+
+    this.riskDistributionChartData = {
+      labels: ['LOW', 'MEDIUM', 'HIGH'],
+      datasets: [
+        {
+          data: [lowCount, mediumCount, highCount],
+          backgroundColor: ['#43a047', '#fbc02d', '#e53935']
+        }
+      ]
+    };
   }
 }

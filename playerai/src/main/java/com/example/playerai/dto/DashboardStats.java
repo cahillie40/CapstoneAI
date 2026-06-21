@@ -2,52 +2,82 @@ package com.example.playerai.dto;
 
 public class DashboardStats {
 
-    private Long totalPlayers;
-    private Long totalPredictions;
-    private Double averageFormRating;
-    private String highestRatedPlayer;
-    private Double highestFormRating;
-    private Long highRiskCount;
-    private Long mediumRiskCount;
-    private Long lowRiskCount;
+    private long totalPlayers;
+    private long injuredPlayers;
+    private long totalPredictions;
+    private double averageFormRating;
+    private double averageExpectedGoals;
+    private double averageExpectedAssists;
+    private double averageBallRecoveries;
 
     public DashboardStats() {
     }
 
-    public DashboardStats(Long totalPlayers, Long totalPredictions, Double averageFormRating,
-                          String highestRatedPlayer, Double highestFormRating,
-                          Long highRiskCount, Long mediumRiskCount, Long lowRiskCount) {
+    public DashboardStats(long totalPlayers, long injuredPlayers, long totalPredictions,
+                          double averageFormRating, double averageExpectedGoals,
+                          double averageExpectedAssists, double averageBallRecoveries) {
         this.totalPlayers = totalPlayers;
+        this.injuredPlayers = injuredPlayers;
         this.totalPredictions = totalPredictions;
         this.averageFormRating = averageFormRating;
-        this.highestRatedPlayer = highestRatedPlayer;
-        this.highestFormRating = highestFormRating;
-        this.highRiskCount = highRiskCount;
-        this.mediumRiskCount = mediumRiskCount;
-        this.lowRiskCount = lowRiskCount;
+        this.averageExpectedGoals = averageExpectedGoals;
+        this.averageExpectedAssists = averageExpectedAssists;
+        this.averageBallRecoveries = averageBallRecoveries;
     }
 
-    public Long getTotalPlayers() { return totalPlayers; }
-    public void setTotalPlayers(Long totalPlayers) { this.totalPlayers = totalPlayers; }
+    public long getTotalPlayers() {
+        return totalPlayers;
+    }
 
-    public Long getTotalPredictions() { return totalPredictions; }
-    public void setTotalPredictions(Long totalPredictions) { this.totalPredictions = totalPredictions; }
+    public void setTotalPlayers(long totalPlayers) {
+        this.totalPlayers = totalPlayers;
+    }
 
-    public Double getAverageFormRating() { return averageFormRating; }
-    public void setAverageFormRating(Double averageFormRating) { this.averageFormRating = averageFormRating; }
+    public long getInjuredPlayers() {
+        return injuredPlayers;
+    }
 
-    public String getHighestRatedPlayer() { return highestRatedPlayer; }
-    public void setHighestRatedPlayer(String highestRatedPlayer) { this.highestRatedPlayer = highestRatedPlayer; }
+    public void setInjuredPlayers(long injuredPlayers) {
+        this.injuredPlayers = injuredPlayers;
+    }
 
-    public Double getHighestFormRating() { return highestFormRating; }
-    public void setHighestFormRating(Double highestFormRating) { this.highestFormRating = highestFormRating; }
+    public long getTotalPredictions() {
+        return totalPredictions;
+    }
 
-    public Long getHighRiskCount() { return highRiskCount; }
-    public void setHighRiskCount(Long highRiskCount) { this.highRiskCount = highRiskCount; }
+    public void setTotalPredictions(long totalPredictions) {
+        this.totalPredictions = totalPredictions;
+    }
 
-    public Long getMediumRiskCount() { return mediumRiskCount; }
-    public void setMediumRiskCount(Long mediumRiskCount) { this.mediumRiskCount = mediumRiskCount; }
+    public double getAverageFormRating() {
+        return averageFormRating;
+    }
 
-    public Long getLowRiskCount() { return lowRiskCount; }
-    public void setLowRiskCount(Long lowRiskCount) { this.lowRiskCount = lowRiskCount; }
+    public void setAverageFormRating(double averageFormRating) {
+        this.averageFormRating = averageFormRating;
+    }
+
+    public double getAverageExpectedGoals() {
+        return averageExpectedGoals;
+    }
+
+    public void setAverageExpectedGoals(double averageExpectedGoals) {
+        this.averageExpectedGoals = averageExpectedGoals;
+    }
+
+    public double getAverageExpectedAssists() {
+        return averageExpectedAssists;
+    }
+
+    public void setAverageExpectedAssists(double averageExpectedAssists) {
+        this.averageExpectedAssists = averageExpectedAssists;
+    }
+
+    public double getAverageBallRecoveries() {
+        return averageBallRecoveries;
+    }
+
+    public void setAverageBallRecoveries(double averageBallRecoveries) {
+        this.averageBallRecoveries = averageBallRecoveries;
+    }
 }

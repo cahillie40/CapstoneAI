@@ -4,72 +4,79 @@
   <p class="error">{{ error }}</p>
 }
 
-<div class="selector">
-  <div class="selector-group">
+<div class="compare-controls">
+  <div class="form-group">
     <label>Player 1</label>
-    <select [(ngModel)]="player1Id" name="player1">
-      <option [ngValue]="null">Select player...</option>
+    <select [(ngModel)]="selectedPlayer1Id" name="selectedPlayer1Id">
+      <option [ngValue]="null">Choose player 1</option>
       @for (player of players; track player.id) {
-        <option [ngValue]="player.id">{{ player.name }} ({{ player.position }})</option>
+        <option [ngValue]="player.id">{{ player.name }} - {{ player.team }}</option>
       }
     </select>
   </div>
 
-  <div class="vs">VS</div>
-
-  <div class="selector-group">
+  <div class="form-group">
     <label>Player 2</label>
-    <select [(ngModel)]="player2Id" name="player2">
-      <option [ngValue]="null">Select player...</option>
+    <select [(ngModel)]="selectedPlayer2Id" name="selectedPlayer2Id">
+      <option [ngValue]="null">Choose player 2</option>
       @for (player of players; track player.id) {
-        <option [ngValue]="player.id">{{ player.name }} ({{ player.position }})</option>
+        <option [ngValue]="player.id">{{ player.name }} - {{ player.team }}</option>
       }
     </select>
   </div>
 
-  <button (click)="compare()" class="btn-compare">Compare</button>
+  <button (click)="comparePlayers()" class="btn-compare">Compare</button>
 </div>
 
-@if (compared && player1 && player2) {
-  <div class="compare-header">
-    <div class="player-name">{{ player1.name }}</div>
-    <div class="stat-label-col"></div>
-    <div class="player-name">{{ player2.name }}</div>
-  </div>
+@if (player1 && player2) {
+  <div class="compare-result">
+    <h3>Comparison Result</h3>
+    <p class="winner">
+      <strong>Winner:</strong> {{ winner }}
+    </p>
 
-  <div class="compare-subheader">
-    <div class="player-sub">{{ player1.position }} · {{ player1.team }}</div>
-    <div class="stat-label-col"></div>
-    <div class="player-sub">{{ player2.position }} · {{ player2.team }}</div>
-  </div>
+    <div class="table-wrapper">
+      <table class="compare-table">
+        <thead>
+        <tr>
+          <th>Metric</th>
+          <th>{{ player1.name }}</th>
+          <th>{{ player2.name }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr><td>Age</td><td>{{ player1.age }}</td><td>{{ player2.age }}</td></tr>
+        <tr><td>Position</td><td>{{ player1.position }}</td><td>{{ player2.position }}</td></tr>
+        <tr><td>Team</td><td>{{ player1.team }}</td><td>{{ player2.team }}</td></tr>
+        <tr><td>Matches Played</td><td>{{ player1.matchesPlayed }}</td><td>{{ player2.matchesPlayed }}</td></tr>
+        <tr><td>Goals</td><td>{{ player1.goals }}</td><td>{{ player2.goals }}</td></tr>
+        <tr><td>Assists</td><td>{{ player1.assists }}</td><td>{{ player2.assists }}</td></tr>
+        <tr><td>Minutes Played</td><td>{{ player1.minutesPlayed }}</td><td>{{ player2.minutesPlayed }}</td></tr>
+        <tr><td>Yellow Cards</td><td>{{ player1.yellowCards }}</td><td>{{ player2.yellowCards }}</td></tr>
+        <tr><td>Red Cards</td><td>{{ player1.redCards }}</td><td>{{ player2.redCards }}</td></tr>
+        <tr><td>Shots On Target</td><td>{{ player1.shotsOnTarget }}</td><td>{{ player2.shotsOnTarget }}</td></tr>
+        <tr><td>Pass Accuracy</td><td>{{ player1.passAccuracy }}</td><td>{{ player2.passAccuracy }}</td></tr>
+        <tr><td>Form Rating</td><td>{{ player1.formRating }}</td><td>{{ player2.formRating }}</td></tr>
+        <tr><td>Injured</td><td>{{ player1.injuryStatus ? 'Yes' : 'No' }}</td><td>{{ player2.injuryStatus ? 'Yes' : 'No' }}</td></tr>
 
-  <div class="compare-table">
+        <tr><td>Expected Goals (xG)</td><td>{{ player1.expectedGoals ?? 0 }}</td><td>{{ player2.expectedGoals ?? 0 }}</td></tr>
+        <tr><td>Expected Assists (xA)</td><td>{{ player1.expectedAssists ?? 0 }}</td><td>{{ player2.expectedAssists ?? 0 }}</td></tr>
+        <tr><td>Key Passes</td><td>{{ player1.keyPasses ?? 0 }}</td><td>{{ player2.keyPasses ?? 0 }}</td></tr>
+        <tr><td>Progressive Passes</td><td>{{ player1.progressivePasses ?? 0 }}</td><td>{{ player2.progressivePasses ?? 0 }}</td></tr>
+        <tr><td>Dribbles Completed</td><td>{{ player1.dribblesCompleted ?? 0 }}</td><td>{{ player2.dribblesCompleted ?? 0 }}</td></tr>
+        <tr><td>Tackles Won</td><td>{{ player1.tacklesWon ?? 0 }}</td><td>{{ player2.tacklesWon ?? 0 }}</td></tr>
+        <tr><td>Interceptions</td><td>{{ player1.interceptions ?? 0 }}</td><td>{{ player2.interceptions ?? 0 }}</td></tr>
+        <tr><td>Ball Recoveries</td><td>{{ player1.ballRecoveries ?? 0 }}</td><td>{{ player2.ballRecoveries ?? 0 }}</td></tr>
+        <tr><td>Matches Missed</td><td>{{ player1.matchesMissed ?? 0 }}</td><td>{{ player2.matchesMissed ?? 0 }}</td></tr>
+        <tr><td>Recent Match Load</td><td>{{ player1.recentMatchLoad ?? 0 }}</td><td>{{ player2.recentMatchLoad ?? 0 }}</td></tr>
 
-    @for (stat of stats; track stat.key) {
-      <div class="compare-row">
-        <div class="compare-value" [class.winner]="isWinner(player1, stat.key, stat.lowerIsBetter)">
-          {{ getValue(player1, stat.key) }}
-        </div>
-        <div class="compare-label">{{ stat.label }}</div>
-        <div class="compare-value" [class.winner]="isWinner(player2, stat.key, stat.lowerIsBetter)">
-          {{ getValue(player2, stat.key) }}
-        </div>
-      </div>
-    }
-
-    <div class="compare-row">
-      <div class="compare-value" [class.winner]="!player1.injuryStatus && player2.injuryStatus">
-        {{ player1.injuryStatus ? 'Injured' : 'Fit' }}
-      </div>
-      <div class="compare-label">Injury Status</div>
-      <div class="compare-value" [class.winner]="!player2.injuryStatus && player1.injuryStatus">
-        {{ player2.injuryStatus ? 'Injured' : 'Fit' }}
-      </div>
+        <tr>
+          <td><strong>Comparison Score</strong></td>
+          <td><strong>{{ calculateComparisonScore(player1) }}</strong></td>
+          <td><strong>{{ calculateComparisonScore(player2) }}</strong></td>
+        </tr>
+        </tbody>
+      </table>
     </div>
-
-  </div>
-
-  <div class="winner-banner">
-    🏆 {{ getWinner() }}
   </div>
 }
