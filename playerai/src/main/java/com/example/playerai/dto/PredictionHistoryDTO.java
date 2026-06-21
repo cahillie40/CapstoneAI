@@ -10,6 +10,7 @@ public class PredictionHistoryDTO {
     private Double predictedFormRating;
     private String riskLevel;
     private String summary;
+    private String inputData;
     private LocalDateTime createdAt;
 
     public PredictionHistoryDTO() {
@@ -17,13 +18,15 @@ public class PredictionHistoryDTO {
 
     public PredictionHistoryDTO(Long id, String playerName, Long playerId,
                                 Double predictedFormRating, String riskLevel,
-                                String summary, LocalDateTime createdAt) {
+                                String summary, String inputData,
+                                LocalDateTime createdAt) {
         this.id = id;
         this.playerName = playerName;
         this.playerId = playerId;
         this.predictedFormRating = predictedFormRating;
         this.riskLevel = riskLevel;
         this.summary = summary;
+        this.inputData = inputData;
         this.createdAt = createdAt;
     }
 
@@ -73,6 +76,14 @@ public class PredictionHistoryDTO {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public String getInputData() {
+        return inputData;
+    }
+
+    public void setInputData(String inputData) {
+        this.inputData = inputData;
     }
 
     public LocalDateTime getCreatedAt() {

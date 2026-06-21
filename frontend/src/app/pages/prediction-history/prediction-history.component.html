@@ -26,6 +26,7 @@
         <th>Risk Level</th>
         <th>Summary</th>
         <th>Created At</th>
+        <th>Details</th>
       </tr>
       </thead>
       <tbody>
@@ -37,7 +38,65 @@
             <td>{{ pred.riskLevel }}</td>
             <td class="summary-cell">{{ pred.summary }}</td>
             <td>{{ formatDate(pred.createdAt) }}</td>
+            <td>
+              <button class="btn-details" (click)="toggleBreakdown(pred.id)">
+                {{ isExpanded(pred.id) ? 'Hide Breakdown' : 'View Breakdown' }}
+              </button>
+            </td>
           </tr>
+
+          @if (isExpanded(pred.id)) {
+            <tr class="breakdown-row">
+              <td colspan="7">
+                <div class="breakdown-panel">
+                  <h4>Prediction Breakdown</h4>
+
+                  @if (pred.parsedInputData) {
+                    <div class="breakdown-grid">
+                      <div class="breakdown-card">
+                        <h5>Core Inputs</h5>
+                        <p><strong>Age:</strong> {{ pred.parsedInputData.age }}</p>
+                        <p><strong>Position:</strong> {{ pred.parsedInputData.position }}</p>
+                        <p><strong>Matches Played:</strong> {{ pred.parsedInputData.matchesPlayed }}</p>
+                        <p><strong>Goals:</strong> {{ pred.parsedInputData.goals }}</p>
+                        <p><strong>Assists:</strong> {{ pred.parsedInputData.assists }}</p>
+                        <p><strong>Minutes Played:</strong> {{ pred.parsedInputData.minutesPlayed }}</p>
+                        <p><strong>Shots On Target:</strong> {{ pred.parsedInputData.shotsOnTarget }}</p>
+                        <p><strong>Pass Accuracy:</strong> {{ pred.parsedInputData.passAccuracy }}</p>
+                      </div>
+
+                      <div class="breakdown-card">
+                        <h5>Discipline & Availability</h5>
+                        <p><strong>Yellow Cards:</strong> {{ pred.parsedInputData.yellowCards }}</p>
+                        <p><strong>Red Cards:</strong> {{ pred.parsedInputData.redCards }}</p>
+                        <p><strong>Injured:</strong> {{ pred.parsedInputData.injuryStatus ? 'Yes' : 'No' }}</p>
+                        <p><strong>Matches Missed:</strong> {{ pred.parsedInputData.matchesMissed }}</p>
+                        <p><strong>Recent Match Load:</strong> {{ pred.parsedInputData.recentMatchLoad }}</p>
+                      </div>
+
+                      <div class="breakdown-card">
+                        <h5>Advanced Attacking</h5>
+                        <p><strong>xG:</strong> {{ pred.parsedInputData.expectedGoals }}</p>
+                        <p><strong>xA:</strong> {{ pred.parsedInputData.expectedAssists }}</p>
+                        <p><strong>Key Passes:</strong> {{ pred.parsedInputData.keyPasses }}</p>
+                        <p><strong>Progressive Passes:</strong> {{ pred.parsedInputData.progressivePasses }}</p>
+                        <p><strong>Dribbles Completed:</strong> {{ pred.parsedInputData.dribblesCompleted }}</p>
+                      </div>
+
+                      <div class="breakdown-card">
+                        <h5>Advanced Defensive</h5>
+                        <p><strong>Tackles Won:</strong> {{ pred.parsedInputData.tacklesWon }}</p>
+                        <p><strong>Interceptions:</strong> {{ pred.parsedInputData.interceptions }}</p>
+                        <p><strong>Ball Recoveries:</strong> {{ pred.parsedInputData.ballRecoveries }}</p>
+                      </div>
+                    </div>
+                  } @else {
+                    <p>No input breakdown data available for this prediction.</p>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
         }
       </tbody>
     </table>

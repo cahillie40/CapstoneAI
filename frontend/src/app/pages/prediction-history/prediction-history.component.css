@@ -1,26 +1,29 @@
 .history-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
 }
 
-.history-header h2 {
-  margin: 0;
-}
-
-.btn-export {
-  padding: 8px 18px;
-  font-size: 14px;
-  background-color: #43a047;
+.btn-export,
+.btn-details {
+  background-color: #1976d2;
   color: white;
   border: none;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 13px;
 }
 
-.btn-export:hover {
-  background-color: #388e3c;
+.btn-export:hover,
+.btn-details:hover {
+  background-color: #1565c0;
+}
+
+.result-count {
+  margin-bottom: 12px;
+  color: #555;
 }
 
 .table-wrapper {
@@ -30,28 +33,101 @@
 .history-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  background: white;
 }
 
 .history-table th,
 .history-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 10px 12px;
   text-align: left;
+  vertical-align: top;
 }
 
 .history-table th {
-  background-color: #f5f5f5;
-  font-weight: bold;
+  background: #f5f5f5;
 }
-
-.history-table tr.risk-low    { background-color: #e8f5e9; }
-.history-table tr.risk-medium { background-color: #fff8e1; }
-.history-table tr.risk-high   { background-color: #ffebee; }
 
 .summary-cell {
-  max-width: 300px;
-  word-wrap: break-word;
+  max-width: 320px;
 }
 
-.error { color: red; }
+.breakdown-row td {
+  background: #fafafa;
+  padding: 0;
+}
+
+.breakdown-panel {
+  padding: 20px;
+}
+
+.breakdown-panel h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.breakdown-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.breakdown-card h5 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.breakdown-card p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.pagination {
+  display: flex;
+  gap: 6px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination button.active {
+  background: #1976d2;
+  color: white;
+  border-color: #1976d2;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.risk-low {
+  background-color: #e8f5e9;
+}
+
+.risk-medium {
+  background-color: #fff8e1;
+}
+
+.risk-high {
+  background-color: #ffebee;
+}
+
+.error {
+  color: red;
+}

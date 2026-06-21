@@ -303,6 +303,7 @@ public class PredictionService {
                 prediction.getPredictedFormRating(),
                 prediction.getRiskLevel(),
                 prediction.getSummary(),
+                prediction.getInputData(),
                 prediction.getCreatedAt()
         );
     }
