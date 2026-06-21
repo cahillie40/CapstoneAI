@@ -8,6 +8,8 @@ import { PredictionFormComponent } from './pages/prediction-form/prediction-form
 import { PredictionHistoryComponent } from './pages/prediction-history/prediction-history.component';
 import { ChartsComponent } from './pages/charts/charts.component';
 import { CompareComponent } from './pages/compare/compare.component';
+import { CsvImportComponent } from './pages/csv-import/csv-import.component';
+import { ValidationComponent } from './pages/validation/validation.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -18,5 +20,7 @@ export const routes: Routes = [
   { path: 'predict', component: PredictionFormComponent },
   { path: 'history', component: PredictionHistoryComponent },
   { path: 'charts', component: ChartsComponent },
-  { path: 'compare', component: CompareComponent }
+  { path: 'compare', component: CompareComponent },
+  { path: 'import', component: CsvImportComponent },
+  { path: 'validation', component: ValidationComponent }
 ];

@@ -1,0 +1,71 @@
+<h2>Import Players from CSV</h2>
+
+<div class="template-section">
+  <p>Download the CSV template, fill it in, then upload it below.</p>
+  <button (click)="downloadTemplate()" class="btn-template">⬇ Download Template</button>
+</div>
+
+<div class="upload-section">
+  <h3>Upload CSV</h3>
+
+  <div class="file-row">
+    <input
+      type="file"
+      accept=".csv"
+      (change)="onFileSelected($event)"
+      class="file-input" />
+
+    <button
+      (click)="onUpload()"
+      [disabled]="!selectedFile || uploading"
+      class="btn-upload">
+      {{ uploading ? 'Uploading...' : 'Upload' }}
+    </button>
+  </div>
+
+  @if (selectedFile) {
+    <p class="file-name">Selected: {{ selectedFile.name }}</p>
+  }
+</div>
+
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+@if (result) {
+  <div class="result-card" [class.success]="result.errors === 0" [class.partial]="result.errors > 0">
+    <h3>Import Result</h3>
+    <p><strong>Players imported:</strong> {{ result.imported }}</p>
+    <p><strong>Errors:</strong> {{ result.errors }}</p>
+    <p><strong>Message:</strong> {{ result.message }}</p>
+  </div>
+}
+
+<div class="format-section">
+  <h3>Expected CSV Format</h3>
+  <table class="format-table">
+    <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Example</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>name</td><td>text</td><td>Bukayo Saka</td></tr>
+    <tr><td>age</td><td>number</td><td>22</td></tr>
+    <tr><td>position</td><td>text</td><td>Winger</td></tr>
+    <tr><td>team</td><td>text</td><td>Arsenal</td></tr>
+    <tr><td>matchesPlayed</td><td>number</td><td>32</td></tr>
+    <tr><td>goals</td><td>number</td><td>14</td></tr>
+    <tr><td>assists</td><td>number</td><td>11</td></tr>
+    <tr><td>minutesPlayed</td><td>number</td><td>2650</td></tr>
+    <tr><td>yellowCards</td><td>number</td><td>4</td></tr>
+    <tr><td>redCards</td><td>number</td><td>0</td></tr>
+    <tr><td>shotsOnTarget</td><td>number</td><td>26</td></tr>
+    <tr><td>passAccuracy</td><td>decimal</td><td>84.7</td></tr>
+    <tr><td>formRating</td><td>decimal</td><td>88.5</td></tr>
+    <tr><td>injuryStatus</td><td>true/false</td><td>false</td></tr>
+    </tbody>
+  </table>
+</div>

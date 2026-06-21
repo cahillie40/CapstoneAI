@@ -1,0 +1,112 @@
+<h2>Validation & Model Explanation</h2>
+
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+@if (summary) {
+  <section class="section">
+    <h3>Validation Summary</h3>
+    <div class="cards">
+
+      <div class="card blue">
+        <div class="card-label">Total Predictions</div>
+        <div class="card-value">{{ summary.totalPredictions }}</div>
+      </div>
+
+      <div class="card green">
+        <div class="card-label">Average Form Rating</div>
+        <div class="card-value">{{ summary.averageRating }}</div>
+      </div>
+
+      <div class="card green">
+        <div class="card-label">Highest Rating</div>
+        <div class="card-value">{{ summary.highestRating }}</div>
+      </div>
+
+      <div class="card orange">
+        <div class="card-label">Lowest Rating</div>
+        <div class="card-value">{{ summary.lowestRating }}</div>
+      </div>
+
+      <div class="card red">
+        <div class="card-label">High Risk</div>
+        <div class="card-value">{{ summary.highRiskCount }}</div>
+        <div class="card-sub">{{ summary.highRiskPercentage }}%</div>
+      </div>
+
+      <div class="card orange">
+        <div class="card-label">Medium Risk</div>
+        <div class="card-value">{{ summary.mediumRiskCount }}</div>
+        <div class="card-sub">{{ summary.mediumRiskPercentage }}%</div>
+      </div>
+
+      <div class="card green">
+        <div class="card-label">Low Risk</div>
+        <div class="card-value">{{ summary.lowRiskCount }}</div>
+        <div class="card-sub">{{ summary.lowRiskPercentage }}%</div>
+      </div>
+
+      <div class="card blue">
+        <div class="card-label">Most Common Risk</div>
+        <div class="card-value">{{ summary.mostCommonRiskLevel }}</div>
+      </div>
+
+    </div>
+  </section>
+}
+
+@if (explanation) {
+  <section class="section">
+    <h3>Model Explanation</h3>
+    <p class="model-type"><strong>Model:</strong> {{ explanation.modelType }}</p>
+    <p class="model-desc">{{ explanation.description }}</p>
+    <p class="baseline"><strong>Base Score:</strong> {{ explanation.baselineScore }}</p>
+
+    <h4>Feature Weights</h4>
+    <table class="explanation-table">
+      <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Weight</th>
+        <th>Direction</th>
+        <th>Description</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (fw of explanation.featureWeights; track fw.feature) {
+          <tr>
+            <td><strong>{{ fw.feature }}</strong></td>
+            <td class="weight">{{ fw.weight }}</td>
+            <td>
+              <span [class]="getDirectionClass(fw.direction)">
+                {{ fw.direction === 'positive' ? '▲ Positive' : '▼ Negative' }}
+              </span>
+            </td>
+            <td>{{ fw.description }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <h4>Risk Levels</h4>
+    <table class="explanation-table">
+      <thead>
+      <tr>
+        <th>Level</th>
+        <th>Score Range</th>
+        <th>Meaning</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (rl of explanation.riskLevels; track rl.level) {
+          <tr [class]="getRiskClass(rl.level)">
+            <td><strong>{{ rl.level }}</strong></td>
+            <td>{{ rl.range }}</td>
+            <td>{{ rl.meaning }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+}
