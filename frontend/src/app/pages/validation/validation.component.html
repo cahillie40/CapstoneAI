@@ -11,12 +11,51 @@
 @if (!loading && validation) {
   <div class="validation-grid">
 
+    <div class="card full-width">
+      <h3>What this model does</h3>
+      <p>
+        This prediction model estimates a player's likely performance score using both
+        traditional football statistics and advanced analytics.
+      </p>
+      <p>
+        It combines attacking output, creativity, defensive contribution, discipline,
+        injury status, and workload into a single predicted form rating between 0 and 100.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Model Status</h3>
+      <p><strong>Name:</strong> {{ validation.modelName }}</p>
+      <p><strong>Status:</strong> {{ validation.validationStatus }}</p>
+      <p><strong>Type:</strong> {{ validation.accuracyEstimate }}</p>
+    </div>
+
     <div class="card">
       <h3>Validation Summary</h3>
-      <p><strong>Model:</strong> {{ validation.modelName }}</p>
-      <p><strong>Status:</strong> {{ validation.validationStatus }}</p>
-      <p><strong>Accuracy Estimate:</strong> {{ validation.accuracyEstimate }}</p>
-      <p><strong>Summary:</strong> {{ validation.summary }}</p>
+      <p>{{ validation.summary }}</p>
+    </div>
+
+    <div class="card">
+      <h3>What improves a score</h3>
+      <ul>
+        <li>Goals and assists</li>
+        <li>Expected Goals (xG) and Expected Assists (xA)</li>
+        <li>Key passes and progressive passes</li>
+        <li>Dribbles completed</li>
+        <li>Tackles, interceptions, and ball recoveries</li>
+        <li>Strong pass accuracy</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>What reduces a score</h3>
+      <ul>
+        <li>Injury status</li>
+        <li>Red cards and yellow cards</li>
+        <li>Too many missed matches</li>
+        <li>Heavy recent match load</li>
+        <li>Lower overall attacking or defensive contribution</li>
+      </ul>
     </div>
 
     <div class="card">
@@ -39,27 +78,40 @@
 
     @if (explanation) {
       <div class="card full-width">
-        <h3>Model Explanation</h3>
-        <p><strong>Model Type:</strong> {{ explanation.modelType }}</p>
-        <p><strong>Overview:</strong> {{ explanation.overview }}</p>
+        <h3>How scoring works</h3>
+        <p>
+          The model starts from a baseline score and then adds or subtracts value
+          depending on the player's statistics.
+        </p>
+        <p>
+          Positive contributions increase the predicted form rating, while risk and
+          availability factors reduce it.
+        </p>
       </div>
 
       <div class="card full-width">
         <h3>Feature Weights</h3>
+        <p class="muted">
+          Larger positive weights help increase the score more strongly. Negative weights
+          reduce the score.
+        </p>
+
         <div class="table-wrapper">
           <table class="weights-table">
             <thead>
             <tr>
               <th>Feature</th>
               <th>Weight</th>
-              <th>Explanation</th>
+              <th>Meaning</th>
             </tr>
             </thead>
             <tbody>
               @for (feature of explanation.featureWeights; track feature.name) {
                 <tr>
                   <td>{{ feature.name }}</td>
-                  <td>{{ feature.weight }}</td>
+                  <td [class.positive]="feature.weight > 0" [class.negative]="feature.weight < 0">
+                    {{ feature.weight }}
+                  </td>
                   <td>{{ feature.explanation }}</td>
                 </tr>
               }
@@ -70,6 +122,9 @@
 
       <div class="card full-width">
         <h3>Risk Levels</h3>
+        <p>
+          After the final score is calculated, the model assigns a risk level:
+        </p>
         <ul>
           @for (item of explanation.riskLogic; track item) {
             <li>{{ item }}</li>

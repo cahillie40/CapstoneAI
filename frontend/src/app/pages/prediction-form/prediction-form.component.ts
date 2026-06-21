@@ -158,4 +158,9 @@ export class PredictionFormComponent implements OnInit {
         return '';
     }
   }
+
+  get selectedPlayerName(): string {
+    const player = this.players.find(p => p.id === Number(this.selectedPlayerId));
+    return player ? player.name : 'Selected Player';
+  }
 }

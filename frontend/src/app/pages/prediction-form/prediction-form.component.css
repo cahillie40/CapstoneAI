@@ -1,122 +1,31 @@
-.form-section {
-  margin-bottom: 24px;
-  padding: 16px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
+.factor-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
 
-.form-section h3 {
-  margin-top: 0;
+.factor-table th,
+.factor-table td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
 }
 
-.player-selector {
-  display: flex;
-  gap: 8px;
+.factor-table th {
+  background: #f5f5f5;
 }
 
-.player-selector select {
-  flex: 1;
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.table-wrapper {
+  overflow-x: auto;
 }
 
-.btn-secondary {
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: #666;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.positive {
+  color: #2e7d32;
+  font-weight: 600;
 }
 
-.btn-secondary:hover {
-  background-color: #555;
-}
-
-.prediction-form {
-  display: flex;
-  flex-direction: column;
-  max-width: 480px;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.prediction-form label {
-  font-weight: bold;
-  margin-top: 8px;
-}
-
-.prediction-form input,
-.prediction-form select {
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.prediction-form button {
-  margin-top: 16px;
-  padding: 10px;
-  font-size: 16px;
-  background-color: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.prediction-form button:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
-}
-
-.result-card {
-  margin-top: 24px;
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  max-width: 480px;
-}
-
-.risk-low {
-  background-color: #e8f5e9;
-  border-color: #66bb6a;
-}
-
-.risk-medium {
-  background-color: #fff8e1;
-  border-color: #ffa726;
-}
-
-.risk-high {
-  background-color: #ffebee;
-  border-color: #ef5350;
-}
-
-.btn-save {
-  margin-top: 12px;
-  padding: 10px;
-  font-size: 14px;
-  background-color: #43a047;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-save:hover {
-  background-color: #388e3c;
-}
-
-.error {
-  color: red;
-  margin-top: 12px;
-}
-
-.success {
-  color: green;
-  margin-top: 12px;
+.negative {
+  color: #c62828;
+  font-weight: 600;
 }

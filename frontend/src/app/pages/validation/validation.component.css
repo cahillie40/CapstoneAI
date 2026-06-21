@@ -9,12 +9,37 @@
   background: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
-  padding: 16px;
+  padding: 18px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  line-height: 1.6;
+}
+
+.card h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #1f1f1f;
+}
+
+.card p {
+  margin: 8px 0;
+}
+
+.card ul {
+  margin: 8px 0 0 18px;
+  padding: 0;
+}
+
+.card li {
+  margin-bottom: 6px;
 }
 
 .full-width {
   grid-column: 1 / -1;
+}
+
+.muted {
+  color: #666;
+  margin-bottom: 12px;
 }
 
 .table-wrapper {
@@ -24,6 +49,7 @@
 .weights-table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 8px;
 }
 
 .weights-table th,
@@ -36,6 +62,16 @@
 
 .weights-table th {
   background: #f5f5f5;
+}
+
+.positive {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.negative {
+  color: #c62828;
+  font-weight: 600;
 }
 
 .error {

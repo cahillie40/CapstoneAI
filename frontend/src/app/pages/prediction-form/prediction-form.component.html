@@ -1,152 +1,72 @@
-<h2>Predict Player Performance</h2>
+@if (predictionResult) {
+  <div class="result-card" [class]="getRiskClass(predictionResult.riskLevel)">
+    <h3>Prediction Result</h3>
+    <p><strong>Player:</strong> {{ predictionResult.playerName || selectedPlayerName }}</p>
+    <p><strong>Baseline Score:</strong> {{ predictionResult.baselineScore }}</p>
+    <p><strong>Predicted Form Rating:</strong> {{ predictionResult.predictedFormRating }}</p>
+    <p><strong>Risk Level:</strong> {{ predictionResult.riskLevel }}</p>
+    <p><strong>Summary:</strong> {{ predictionResult.summary }}</p>
 
-@if (error) {
-  <p class="error">{{ error }}</p>
-}
+    @if (predictionResult.positiveFactors?.length > 0) {
+      <div class="factor-section">
+        <h4>Top Positive Factors</h4>
+        <ul>
+          @for (factor of predictionResult.positiveFactors; track factor.feature) {
+            <li>
+              <strong>{{ factor.feature }}</strong>:
+              {{ factor.contribution }} — {{ factor.explanation }}
+            </li>
+          }
+        </ul>
+      </div>
+    }
 
-<div class="prediction-form">
+    @if (predictionResult.negativeFactors?.length > 0) {
+      <div class="factor-section">
+        <h4>Top Risk Factors</h4>
+        <ul>
+          @for (factor of predictionResult.negativeFactors; track factor.feature) {
+            <li>
+              <strong>{{ factor.feature }}</strong>:
+              {{ factor.contribution }} — {{ factor.explanation }}
+            </li>
+          }
+        </ul>
+      </div>
+    }
 
-  <div class="form-group">
-    <label>Select Player</label>
-    <select [(ngModel)]="selectedPlayerId" name="selectedPlayerId" (change)="onPlayerChange()">
-      <option [ngValue]="null">Choose a player</option>
-      @for (player of players; track player.id) {
-        <option [ngValue]="player.id">{{ player.name }} - {{ player.team }}</option>
-      }
-    </select>
+    @if (predictionResult.allFactors?.length > 0) {
+      <div class="factor-section">
+        <h4>How the Score Was Calculated</h4>
+        <div class="table-wrapper">
+          <table class="factor-table">
+            <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Input Value</th>
+              <th>Contribution</th>
+              <th>Effect</th>
+              <th>Explanation</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (factor of predictionResult.allFactors; track factor.feature) {
+                <tr>
+                  <td>{{ factor.feature }}</td>
+                  <td>{{ factor.value }}</td>
+                  <td [class.positive]="factor.contribution > 0" [class.negative]="factor.contribution < 0">
+                    {{ factor.contribution }}
+                  </td>
+                  <td>
+                    {{ factor.direction === 'positive' ? 'Increases score' : 'Reduces score' }}
+                  </td>
+                  <td>{{ factor.explanation }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
   </div>
-
-  @if (selectedPlayerId) {
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label>Age</label>
-        <input type="number" [(ngModel)]="request.age" name="age" />
-      </div>
-
-      <div class="form-group">
-        <label>Position</label>
-        <input [(ngModel)]="request.position" name="position" />
-      </div>
-
-      <div class="form-group">
-        <label>Matches Played</label>
-        <input type="number" [(ngModel)]="request.matchesPlayed" name="matchesPlayed" />
-      </div>
-
-      <div class="form-group">
-        <label>Goals</label>
-        <input type="number" [(ngModel)]="request.goals" name="goals" />
-      </div>
-
-      <div class="form-group">
-        <label>Assists</label>
-        <input type="number" [(ngModel)]="request.assists" name="assists" />
-      </div>
-
-      <div class="form-group">
-        <label>Minutes Played</label>
-        <input type="number" [(ngModel)]="request.minutesPlayed" name="minutesPlayed" />
-      </div>
-
-      <div class="form-group">
-        <label>Yellow Cards</label>
-        <input type="number" [(ngModel)]="request.yellowCards" name="yellowCards" />
-      </div>
-
-      <div class="form-group">
-        <label>Red Cards</label>
-        <input type="number" [(ngModel)]="request.redCards" name="redCards" />
-      </div>
-
-      <div class="form-group">
-        <label>Shots On Target</label>
-        <input type="number" [(ngModel)]="request.shotsOnTarget" name="shotsOnTarget" />
-      </div>
-
-      <div class="form-group">
-        <label>Pass Accuracy</label>
-        <input type="number" step="0.1" [(ngModel)]="request.passAccuracy" name="passAccuracy" />
-      </div>
-
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" [(ngModel)]="request.injuryStatus" name="injuryStatus" />
-          Injured
-        </label>
-      </div>
-
-      <div class="form-group">
-        <label>Expected Goals (xG)</label>
-        <input type="number" step="0.1" [(ngModel)]="request.expectedGoals" name="expectedGoals" />
-      </div>
-
-      <div class="form-group">
-        <label>Expected Assists (xA)</label>
-        <input type="number" step="0.1" [(ngModel)]="request.expectedAssists" name="expectedAssists" />
-      </div>
-
-      <div class="form-group">
-        <label>Key Passes</label>
-        <input type="number" [(ngModel)]="request.keyPasses" name="keyPasses" />
-      </div>
-
-      <div class="form-group">
-        <label>Progressive Passes</label>
-        <input type="number" [(ngModel)]="request.progressivePasses" name="progressivePasses" />
-      </div>
-
-      <div class="form-group">
-        <label>Dribbles Completed</label>
-        <input type="number" [(ngModel)]="request.dribblesCompleted" name="dribblesCompleted" />
-      </div>
-
-      <div class="form-group">
-        <label>Tackles Won</label>
-        <input type="number" [(ngModel)]="request.tacklesWon" name="tacklesWon" />
-      </div>
-
-      <div class="form-group">
-        <label>Interceptions</label>
-        <input type="number" [(ngModel)]="request.interceptions" name="interceptions" />
-      </div>
-
-      <div class="form-group">
-        <label>Ball Recoveries</label>
-        <input type="number" [(ngModel)]="request.ballRecoveries" name="ballRecoveries" />
-      </div>
-
-      <div class="form-group">
-        <label>Matches Missed</label>
-        <input type="number" [(ngModel)]="request.matchesMissed" name="matchesMissed" />
-      </div>
-
-      <div class="form-group">
-        <label>Recent Match Load</label>
-        <input type="number" [(ngModel)]="request.recentMatchLoad" name="recentMatchLoad" />
-      </div>
-
-    </div>
-
-    <div class="button-row">
-      <button (click)="predict()" [disabled]="predicting" class="btn-predict">
-        {{ predicting ? 'Predicting...' : 'Run Prediction' }}
-      </button>
-
-      @if (predictionResult) {
-        <button (click)="savePrediction()" [disabled]="saving" class="btn-save">
-          {{ saving ? 'Saving...' : 'Save Prediction' }}
-        </button>
-      }
-    </div>
-  }
-
-  @if (predictionResult) {
-    <div class="result-card" [class]="getRiskClass(predictionResult.riskLevel)">
-      <h3>Prediction Result</h3>
-      <p><strong>Predicted Form Rating:</strong> {{ predictionResult.predictedFormRating }}</p>
-      <p><strong>Risk Level:</strong> {{ predictionResult.riskLevel }}</p>
-      <p><strong>Summary:</strong> {{ predictionResult.summary }}</p>
-    </div>
-  }
-</div>
+}
