@@ -1,3 +1,4 @@
+# docker
 docker compose up --build
 
 docker compose down
@@ -6,7 +7,7 @@ docker compose up
 
 
 
-mysql
+# mysql
 
 docker exec -it playerai-mysql mysql -u appuser -p
 
