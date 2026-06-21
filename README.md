@@ -16,3 +16,7 @@ pass - apppass
 USE player_ai;
 SHOW TABLES;
 SELECT * FROM players;
+
+
+# URL
+http://localhost:4200/
