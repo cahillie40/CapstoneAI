@@ -1,31 +1,59 @@
-.factor-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+.score-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0 20px;
 }
 
-.factor-table th,
-.factor-table td {
-  border: 1px solid #ddd;
-  padding: 10px 12px;
-  text-align: left;
-  vertical-align: top;
+.score-step {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fafafa;
 }
 
-.factor-table th {
-  background: #f5f5f5;
+.score-step .label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.table-wrapper {
-  overflow-x: auto;
+.score-step .label small {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
-.positive {
-  color: #2e7d32;
-  font-weight: 600;
+.score-step .value {
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.negative {
-  color: #c62828;
-  font-weight: 600;
+.baseline {
+  background: #e3f2fd;
+  border-color: #bbdefb;
+}
+
+.positive-row {
+  background: #e8f5e9;
+  border-color: #c8e6c9;
+}
+
+.negative-row {
+  background: #ffebee;
+  border-color: #ffcdd2;
+}
+
+.final-score {
+  background: #ede7f6;
+  border-color: #d1c4e9;
+}
+
+.risk-level {
+  background: #fff8e1;
+  border-color: #ffe082;
 }

@@ -12,6 +12,7 @@ public class PredictionResponse {
     private List<FactorContributionDTO> positiveFactors;
     private List<FactorContributionDTO> negativeFactors;
     private List<FactorContributionDTO> allFactors;
+    private List<ScoreStepDTO> scoreSteps;
 
     public PredictionResponse() {
     }
@@ -23,7 +24,8 @@ public class PredictionResponse {
                               String summary,
                               List<FactorContributionDTO> positiveFactors,
                               List<FactorContributionDTO> negativeFactors,
-                              List<FactorContributionDTO> allFactors) {
+                              List<FactorContributionDTO> allFactors,
+                              List<ScoreStepDTO> scoreSteps) {
         this.playerName = playerName;
         this.baselineScore = baselineScore;
         this.predictedFormRating = predictedFormRating;
@@ -32,6 +34,7 @@ public class PredictionResponse {
         this.positiveFactors = positiveFactors;
         this.negativeFactors = negativeFactors;
         this.allFactors = allFactors;
+        this.scoreSteps = scoreSteps;
     }
 
     public String getPlayerName() {
@@ -96,5 +99,13 @@ public class PredictionResponse {
 
     public void setAllFactors(List<FactorContributionDTO> allFactors) {
         this.allFactors = allFactors;
+    }
+
+    public List<ScoreStepDTO> getScoreSteps() {
+        return scoreSteps;
+    }
+
+    public void setScoreSteps(List<ScoreStepDTO> scoreSteps) {
+        this.scoreSteps = scoreSteps;
     }
 }

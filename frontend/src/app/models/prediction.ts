@@ -10,7 +10,6 @@ export interface PredictionRequest {
   shotsOnTarget: number;
   passAccuracy: number;
   injuryStatus: boolean;
-
   expectedGoals: number;
   expectedAssists: number;
   keyPasses: number;
@@ -31,6 +30,14 @@ export interface FactorContribution {
   explanation: string;
 }
 
+export interface ScoreStep {
+  label: string;
+  inputValue: number | null;
+  contribution: number;
+  runningTotal: number;
+  explanation: string;
+}
+
 export interface PredictionResponse {
   playerName?: string | null;
   baselineScore: number;
@@ -40,4 +47,5 @@ export interface PredictionResponse {
   positiveFactors: FactorContribution[];
   negativeFactors: FactorContribution[];
   allFactors: FactorContribution[];
+  scoreSteps: ScoreStep[];
 }
