@@ -1,9 +1,11 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration } from 'chart.js';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { PlayerService } from '../../services/player.service';
 import { PredictionService } from '../../services/prediction.service';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-charts',

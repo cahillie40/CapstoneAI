@@ -1,68 +1,78 @@
 package com.example.playerai.dto;
 
+import java.util.List;
+
 public class ValidationSummaryDTO {
 
-    private long totalPredictions;
-    private long highRiskCount;
-    private long mediumRiskCount;
-    private long lowRiskCount;
-    private double averageRating;
-    private double highRiskPercentage;
-    private double mediumRiskPercentage;
-    private double lowRiskPercentage;
-    private double highestRating;
-    private double lowestRating;
-    private String mostCommonRiskLevel;
+    private String modelName;
+    private String validationStatus;
+    private String accuracyEstimate;
+    private String summary;
+    private List<String> strengths;
+    private List<String> limitations;
 
-    public ValidationSummaryDTO() {}
-
-    public ValidationSummaryDTO(long totalPredictions, long highRiskCount, long mediumRiskCount,
-                                long lowRiskCount, double averageRating, double highestRating,
-                                double lowestRating) {
-        this.totalPredictions   = totalPredictions;
-        this.highRiskCount      = highRiskCount;
-        this.mediumRiskCount    = mediumRiskCount;
-        this.lowRiskCount       = lowRiskCount;
-        this.averageRating      = averageRating;
-        this.highestRating      = highestRating;
-        this.lowestRating       = lowestRating;
-
-        if (totalPredictions > 0) {
-            this.highRiskPercentage   = Math.round((highRiskCount   * 100.0 / totalPredictions) * 10.0) / 10.0;
-            this.mediumRiskPercentage = Math.round((mediumRiskCount * 100.0 / totalPredictions) * 10.0) / 10.0;
-            this.lowRiskPercentage    = Math.round((lowRiskCount    * 100.0 / totalPredictions) * 10.0) / 10.0;
-        }
-
-        if (lowRiskCount >= mediumRiskCount && lowRiskCount >= highRiskCount) {
-            this.mostCommonRiskLevel = "LOW";
-        } else if (mediumRiskCount >= highRiskCount) {
-            this.mostCommonRiskLevel = "MEDIUM";
-        } else {
-            this.mostCommonRiskLevel = "HIGH";
-        }
+    public ValidationSummaryDTO() {
     }
 
-    public long getTotalPredictions()       { return totalPredictions; }
-    public long getHighRiskCount()          { return highRiskCount; }
-    public long getMediumRiskCount()        { return mediumRiskCount; }
-    public long getLowRiskCount()           { return lowRiskCount; }
-    public double getAverageRating()        { return averageRating; }
-    public double getHighRiskPercentage()   { return highRiskPercentage; }
-    public double getMediumRiskPercentage() { return mediumRiskPercentage; }
-    public double getLowRiskPercentage()    { return lowRiskPercentage; }
-    public double getHighestRating()        { return highestRating; }
-    public double getLowestRating()         { return lowestRating; }
-    public String getMostCommonRiskLevel()  { return mostCommonRiskLevel; }
+    public ValidationSummaryDTO(String modelName,
+                                String validationStatus,
+                                String accuracyEstimate,
+                                String summary,
+                                List<String> strengths,
+                                List<String> limitations) {
+        this.modelName = modelName;
+        this.validationStatus = validationStatus;
+        this.accuracyEstimate = accuracyEstimate;
+        this.summary = summary;
+        this.strengths = strengths;
+        this.limitations = limitations;
+    }
 
-    public void setTotalPredictions(long totalPredictions)             { this.totalPredictions = totalPredictions; }
-    public void setHighRiskCount(long highRiskCount)                   { this.highRiskCount = highRiskCount; }
-    public void setMediumRiskCount(long mediumRiskCount)               { this.mediumRiskCount = mediumRiskCount; }
-    public void setLowRiskCount(long lowRiskCount)                     { this.lowRiskCount = lowRiskCount; }
-    public void setAverageRating(double averageRating)                 { this.averageRating = averageRating; }
-    public void setHighRiskPercentage(double highRiskPercentage)       { this.highRiskPercentage = highRiskPercentage; }
-    public void setMediumRiskPercentage(double mediumRiskPercentage)   { this.mediumRiskPercentage = mediumRiskPercentage; }
-    public void setLowRiskPercentage(double lowRiskPercentage)         { this.lowRiskPercentage = lowRiskPercentage; }
-    public void setHighestRating(double highestRating)                 { this.highestRating = highestRating; }
-    public void setLowestRating(double lowestRating)                   { this.lowestRating = lowestRating; }
-    public void setMostCommonRiskLevel(String mostCommonRiskLevel)     { this.mostCommonRiskLevel = mostCommonRiskLevel; }
+    public String getModelName() {
+        return modelName;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
+
+    public String getValidationStatus() {
+        return validationStatus;
+    }
+
+    public void setValidationStatus(String validationStatus) {
+        this.validationStatus = validationStatus;
+    }
+
+    public String getAccuracyEstimate() {
+        return accuracyEstimate;
+    }
+
+    public void setAccuracyEstimate(String accuracyEstimate) {
+        this.accuracyEstimate = accuracyEstimate;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public List<String> getStrengths() {
+        return strengths;
+    }
+
+    public void setStrengths(List<String> strengths) {
+        this.strengths = strengths;
+    }
+
+    public List<String> getLimitations() {
+        return limitations;
+    }
+
+    public void setLimitations(List<String> limitations) {
+        this.limitations = limitations;
+    }
 }
