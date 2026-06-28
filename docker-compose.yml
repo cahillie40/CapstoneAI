@@ -1,9 +1,8 @@
-
-
 services:
   mysql:
     image: mysql:8.0
     container_name: playerai-mysql
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: player_ai
@@ -13,12 +12,19 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uappuser", "-papppass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   playerai:
     build: ./playerai
     container_name: playerai-backend
+    restart: unless-stopped
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
@@ -29,9 +35,11 @@ services:
   frontend:
     build: ./frontend
     container_name: playerai-frontend
+    restart: unless-stopped
     depends_on:
       - playerai
     ports:
       - "4200:80"
+
 volumes:
   mysql_data:

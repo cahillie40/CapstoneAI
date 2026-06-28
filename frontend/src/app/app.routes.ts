@@ -11,7 +11,7 @@ import { CompareComponent } from './pages/compare/compare.component';
 import { CsvImportComponent } from './pages/csv-import/csv-import.component';
 import { ValidationComponent } from './pages/validation/validation.component';
 import { MlPredictorComponent } from './pages/ml-predictor/ml-predictor.component';
-
+import { MlPredictionTribuoComponent } from './pages/ml-prediction-tribuo/ml-prediction-tribuo.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -26,4 +26,5 @@ export const routes: Routes = [
   { path: 'import', component: CsvImportComponent },
   { path: 'validation', component: ValidationComponent },
   { path: 'ml-predictor', title: 'ML Predictor', component: MlPredictorComponent },
-];;
+  { path: 'ml-prediction-tribuo', title: 'ML Prediction Tribuo', component: MlPredictionTribuoComponent }
+];

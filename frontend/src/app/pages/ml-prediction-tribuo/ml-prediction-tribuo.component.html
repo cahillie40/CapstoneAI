@@ -1,0 +1,158 @@
+<div class="page-header">
+  <h2>ML Prediction Tribuo</h2>
+  <p class="subtitle">Separate Tribuo-based machine learning prediction screen</p>
+</div>
+
+@if (loadingModelInfo) {
+  <p>Loading model information...</p>
+}
+
+@if (modelInfo) {
+  <div class="info-card">
+    <h3>Model Overview</h3>
+    <p><strong>Model Name:</strong> {{ modelInfo.modelName }}</p>
+    <p><strong>Model Type:</strong> {{ modelInfo.modelType }}</p>
+    <p><strong>Status:</strong> {{ modelInfo.trainingStatus }}</p>
+    <p><strong>Description:</strong> {{ modelInfo.description }}</p>
+
+    <h4>Supported Features</h4>
+    <ul>
+      @for (feature of modelInfo.supportedFeatures; track feature) {
+        <li>{{ feature }}</li>
+      }
+    </ul>
+  </div>
+}
+
+@if (loadingPlayers) {
+  <p>Loading players...</p>
+}
+
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+@if (!loadingPlayers) {
+  <div class="form-card">
+    <h3>Select Player</h3>
+
+    <div class="form-group">
+      <label>Player</label>
+      <select [(ngModel)]="selectedPlayerId" (change)="onPlayerChange()">
+        <option [ngValue]="null">Choose a player</option>
+        @for (player of players; track player.id) {
+          <option [ngValue]="player.id">{{ player.name }} - {{ player.team }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group"><label>Age</label><input type="number" [(ngModel)]="request.age" /></div>
+      <div class="form-group"><label>Position</label><input type="text" [(ngModel)]="request.position" /></div>
+      <div class="form-group"><label>Goals</label><input type="number" [(ngModel)]="request.goals" /></div>
+      <div class="form-group"><label>Assists</label><input type="number" [(ngModel)]="request.assists" /></div>
+      <div class="form-group"><label>xG</label><input type="number" step="0.1" [(ngModel)]="request.expectedGoals" /></div>
+      <div class="form-group"><label>xA</label><input type="number" step="0.1" [(ngModel)]="request.expectedAssists" /></div>
+      <div class="form-group"><label>Shots On Target</label><input type="number" [(ngModel)]="request.shotsOnTarget" /></div>
+      <div class="form-group"><label>Pass Accuracy</label><input type="number" step="0.1" [(ngModel)]="request.passAccuracy" /></div>
+      <div class="form-group"><label>Key Passes</label><input type="number" [(ngModel)]="request.keyPasses" /></div>
+      <div class="form-group"><label>Progressive Passes</label><input type="number" [(ngModel)]="request.progressivePasses" /></div>
+      <div class="form-group"><label>Dribbles Completed</label><input type="number" [(ngModel)]="request.dribblesCompleted" /></div>
+      <div class="form-group"><label>Tackles Won</label><input type="number" [(ngModel)]="request.tacklesWon" /></div>
+      <div class="form-group"><label>Interceptions</label><input type="number" [(ngModel)]="request.interceptions" /></div>
+      <div class="form-group"><label>Ball Recoveries</label><input type="number" [(ngModel)]="request.ballRecoveries" /></div>
+      <div class="form-group"><label>Matches Missed</label><input type="number" [(ngModel)]="request.matchesMissed" /></div>
+      <div class="form-group"><label>Recent Match Load</label><input type="number" [(ngModel)]="request.recentMatchLoad" /></div>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" [(ngModel)]="request.injuryStatus" />
+        Injured
+      </label>
+    </div>
+
+    <button class="btn-run" (click)="runPrediction()" [disabled]="predicting">
+      {{ predicting ? 'Running Tribuo Prediction...' : 'Run Tribuo Prediction' }}
+    </button>
+  </div>
+}
+
+@if (predictionResult) {
+  <div class="result-card" [class]="getRiskClass(predictionResult.riskLevel)">
+    <h3>Tribuo Prediction Result</h3>
+    <p><strong>Player:</strong> {{ predictionResult.playerName }}</p>
+    <p><strong>Model:</strong> {{ predictionResult.modelName }}</p>
+    <p><strong>Type:</strong> {{ predictionResult.modelType }}</p>
+    <p><strong>Predicted Score:</strong> {{ predictionResult.predictedScore }}</p>
+    <p><strong>Risk Level:</strong> {{ predictionResult.riskLevel }}</p>
+    <p><strong>Confidence:</strong> {{ predictionResult.confidence }}</p>
+    <p><strong>Summary:</strong> {{ predictionResult.summary }}</p>
+
+    <h4>Top Important Features</h4>
+    <div class="table-wrapper">
+      <table class="feature-table">
+        <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Value</th>
+          <th>Importance</th>
+          <th>Effect</th>
+          <th>Explanation</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (feature of predictionResult.topFeatures; track feature.feature) {
+            <tr>
+              <td>{{ feature.feature }}</td>
+              <td>{{ feature.value }}</td>
+              <td>{{ feature.importance }}</td>
+              <td [class.positive]="feature.effect === 'positive'" [class.negative]="feature.effect === 'negative'">
+                {{ feature.effect }}
+              </td>
+              <td>{{ feature.explanation }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
+
+@if (loadingHistory) {
+  <p>Loading Tribuo prediction history...</p>
+}
+
+@if (history.length > 0) {
+  <div class="result-card">
+    <h3>Tribuo Prediction History</h3>
+    <div class="table-wrapper">
+      <table class="feature-table">
+        <thead>
+        <tr>
+          <th>Date</th>
+          <th>Player</th>
+          <th>Model</th>
+          <th>Score</th>
+          <th>Risk</th>
+          <th>Confidence</th>
+          <th>Summary</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (item of history; track item.id) {
+            <tr>
+              <td>{{ item.predictedAt | date:'short' }}</td>
+              <td>{{ item.playerName }}</td>
+              <td>{{ item.modelName }}</td>
+              <td>{{ item.predictedScore }}</td>
+              <td>{{ item.riskLevel }}</td>
+              <td>{{ item.confidence }}</td>
+              <td>{{ item.summary }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
