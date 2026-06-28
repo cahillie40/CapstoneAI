@@ -24,3 +24,25 @@ h1 {
 .nav a:hover {
   text-decoration: underline;
 }
+
+
+.app-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #ffffff;
+}
+
+.app-nav a {
+  text-decoration: none;
+  color: #333;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.app-nav a.active {
+  background: #1976d2;
+  color: #fff;
+}
