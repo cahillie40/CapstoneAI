@@ -1,11 +1,14 @@
 package com.example.playerai.controller;
 
 import com.example.playerai.dto.MlModelInfoTribuoDTO;
+import com.example.playerai.dto.MlPredictionTribuoHistoryResponse;
 import com.example.playerai.dto.MlPredictionTribuoRequest;
 import com.example.playerai.dto.MlPredictionTribuoResponse;
 import com.example.playerai.service.MlPredictionTribuoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/ml/tribuo")
@@ -26,5 +29,10 @@ public class MlPredictionTribuoController {
     @PostMapping("/predict")
     public ResponseEntity<MlPredictionTribuoResponse> predict(@RequestBody MlPredictionTribuoRequest request) {
         return ResponseEntity.ok(mlPredictionTribuoService.predict(request));
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<List<MlPredictionTribuoHistoryResponse>> getHistory() {
+        return ResponseEntity.ok(mlPredictionTribuoService.getPredictionHistory());
     }
 }
