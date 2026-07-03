@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Player } from '../../models/player';
@@ -7,7 +8,7 @@ import { PlayerService } from '../../services/player.service';
 @Component({
   selector: 'app-player-form',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './player-form.component.html',
   styleUrl: './player-form.component.css'
 })
@@ -34,7 +35,6 @@ export class PlayerFormComponent {
     passAccuracy: 0,
     formRating: 0,
     injuryStatus: false,
-
     expectedGoals: 0,
     expectedAssists: 0,
     keyPasses: 0,
