@@ -71,7 +71,6 @@ public class MlPredictionService {
 
         List<MlFeatureImpactDTO> topFeatures = features.stream()
                 .sorted(Comparator.comparing(MlFeatureImpactDTO::getImportance).reversed())
-                .limit(5)
                 .toList();
 
         String summary = "The ML predictor estimates this player's likely performance using attacking, creative, defensive, workload, and availability signals.";

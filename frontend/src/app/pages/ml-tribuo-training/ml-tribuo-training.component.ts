@@ -33,6 +33,9 @@ export class MlTribuoTrainingComponent implements OnInit {
   trainingStatusMessage: string | null = null;
   lastTrainingDurationMs: number | null = null;
 
+  currentPage = 1;
+  pageSize = 5;
+
   private trainingStep1Timer: ReturnType<typeof setTimeout> | null = null;
   private trainingStep2Timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -56,8 +59,42 @@ export class MlTribuoTrainingComponent implements OnInit {
     return this.trainingPreviewRows.length;
   }
 
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.trainingPreviewRows.length / this.pageSize));
+  }
+
+  get paginatedTrainingRows(): MlTribuoTrainingPreviewRow[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.trainingPreviewRows.slice(start, start + this.pageSize);
+  }
+
+  get pageStart(): number {
+    if (this.trainingPreviewRows.length === 0) {
+      return 0;
+    }
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.trainingPreviewRows.length);
+  }
+
   getScoreDelta(row: MlTribuoTrainingPreviewRow): number {
     return Number((row.currentTargetScore - row.previousScore).toFixed(1));
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.cdr.markForCheck();
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.cdr.markForCheck();
+    }
   }
 
   loadModelInfo(): void {
@@ -106,6 +143,7 @@ export class MlTribuoTrainingComponent implements OnInit {
       .subscribe({
         next: (data: MlTribuoTrainingPreviewRow[]) => {
           this.trainingPreviewRows = data;
+          this.currentPage = 1;
         },
         error: (err: unknown) => {
           console.error('Failed to load training preview', err);

@@ -30,6 +30,9 @@ export class MlTribuoEvaluationComponent implements OnInit {
   evaluationStatusMessage: string | null = null;
   lastEvaluationDurationMs: number | null = null;
 
+  currentPage = 1;
+  pageSize = 10;
+
   private evalStep1Timer: ReturnType<typeof setTimeout> | null = null;
   private evalStep2Timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -49,30 +52,24 @@ export class MlTribuoEvaluationComponent implements OnInit {
     return this.evaluationPlayers.filter((row) => row.trend === 'STABLE').length;
   }
 
-  get qualityLabel(): string {
-    if (!this.evaluation || this.evaluation.r2 == null) {
-      return 'Not Evaluated';
-    }
-    if (this.evaluation.r2 >= 0.8) {
-      return 'Strong';
-    }
-    if (this.evaluation.r2 >= 0.6) {
-      return 'Moderate';
-    }
-    return 'Weak';
+  get paginatedEvaluationPlayers(): MlTribuoEvaluationPlayerRow[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.evaluationPlayers.slice(start, start + this.pageSize);
   }
 
-  get qualityClass(): string {
-    if (!this.evaluation || this.evaluation.r2 == null) {
-      return 'quality-neutral';
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.evaluationPlayers.length / this.pageSize));
+  }
+
+  get pageStart(): number {
+    if (this.evaluationPlayers.length === 0) {
+      return 0;
     }
-    if (this.evaluation.r2 >= 0.8) {
-      return 'quality-strong';
-    }
-    if (this.evaluation.r2 >= 0.6) {
-      return 'quality-moderate';
-    }
-    return 'quality-weak';
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get pageEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.evaluationPlayers.length);
   }
 
   getScoreDelta(row: MlTribuoEvaluationPlayerRow): number {
@@ -110,6 +107,7 @@ export class MlTribuoEvaluationComponent implements OnInit {
       .subscribe({
         next: (data: MlTribuoEvaluationPlayerRow[]) => {
           this.evaluationPlayers = data;
+          this.currentPage = 1;
         },
         error: (err: unknown) => {
           console.error('Failed to load evaluation players', err);
@@ -140,7 +138,7 @@ export class MlTribuoEvaluationComponent implements OnInit {
 
     this.evalStep2Timer = setTimeout(() => {
       if (this.evaluating) {
-        this.evaluationStatusMessage = 'Refreshing player trends and metrics...';
+        this.evaluationStatusMessage = 'Refreshing player trends...';
         this.cdr.markForCheck();
       }
     }, 900);
@@ -173,11 +171,26 @@ export class MlTribuoEvaluationComponent implements OnInit {
     this.loadEvaluationPlayers();
   }
 
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.cdr.markForCheck();
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.cdr.markForCheck();
+    }
+  }
+
   private clearEvaluationTimers(): void {
     if (this.evalStep1Timer) {
       clearTimeout(this.evalStep1Timer);
       this.evalStep1Timer = null;
     }
+
     if (this.evalStep2Timer) {
       clearTimeout(this.evalStep2Timer);
       this.evalStep2Timer = null;

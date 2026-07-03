@@ -3,6 +3,8 @@ package com.example.playerai.service;
 import com.example.playerai.dto.MlModelInfoTribuoDTO;
 import com.example.playerai.dto.MlTribuoTrainingInfoResponse;
 import com.example.playerai.dto.MlTribuoTrainingPreviewRowDTO;
+import com.example.playerai.entity.Player;
+import com.example.playerai.repository.PlayerRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 import org.tribuo.MutableDataset;
@@ -12,20 +14,33 @@ import org.tribuo.regression.sgd.linear.LinearSGDTrainer;
 import org.tribuo.regression.sgd.objectives.SquaredLoss;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
 public class MlTribuoTrainingService {
 
     private final MlTribuoModelManager modelManager;
+    private final TribuoPlayerDatasetFactory tribuoPlayerDatasetFactory;
+    private final PlayerRepository playerRepository;
 
-    public MlTribuoTrainingService(MlTribuoModelManager modelManager) {
+    public MlTribuoTrainingService(MlTribuoModelManager modelManager,
+                                   TribuoPlayerDatasetFactory tribuoPlayerDatasetFactory,
+                                   PlayerRepository playerRepository) {
         this.modelManager = modelManager;
+        this.tribuoPlayerDatasetFactory = tribuoPlayerDatasetFactory;
+        this.playerRepository = playerRepository;
     }
 
     @PostConstruct
     public void init() {
-        trainModel();
+        try {
+            if (!playerRepository.findAll().isEmpty()) {
+                trainModel();
+            }
+        } catch (Exception ignored) {
+            // Avoid blocking app startup if database data is not ready yet.
+        }
     }
 
     public MlTribuoTrainingInfoResponse getTrainingInfo() {
@@ -63,7 +78,7 @@ public class MlTribuoTrainingService {
                 "Tribuo Regression Predictor",
                 "Tribuo Linear SGD Regression",
                 modelManager.isTrained() ? "Model trained and ready" : "Model not trained",
-                "This separate screen uses a Tribuo linear regression pipeline in Java Spring Boot without native XGBoost dependencies.",
+                "This training screen uses real players from the MySQL database and trains a Tribuo linear regression model to learn player form rating from football performance features.",
                 List.of(
                         "age",
                         "goals",
@@ -87,96 +102,51 @@ public class MlTribuoTrainingService {
     }
 
     public List<MlTribuoTrainingPreviewRowDTO> getTrainingDataPreview() {
-        return List.of(
-                new MlTribuoTrainingPreviewRowDTO(
-                        "Bukayo Saka",
-                        "RW",
-                        24,
-                        12,
-                        9,
-                        2100,
-                        10.4,
-                        6.8,
-                        78.0,
-                        82.0,
-                        "IMPROVING",
-                        "Increased attacking output driven by stronger xG and assist contribution."
-                ),
-                new MlTribuoTrainingPreviewRowDTO(
-                        "Declan Rice",
-                        "CM",
-                        27,
-                        6,
-                        8,
-                        2450,
-                        4.1,
-                        5.2,
-                        80.0,
-                        83.0,
-                        "IMPROVING",
-                        "Better all-round contribution with strong minutes and creative support."
-                ),
-                new MlTribuoTrainingPreviewRowDTO(
-                        "Marcus Rashford",
-                        "LW",
-                        27,
-                        8,
-                        4,
-                        1980,
-                        7.1,
-                        3.0,
-                        81.0,
-                        74.0,
-                        "DECLINING",
-                        "Lower recent output and reduced attacking efficiency decreased projected score."
-                ),
-                new MlTribuoTrainingPreviewRowDTO(
-                        "Reece James",
-                        "RB",
-                        25,
-                        2,
-                        5,
-                        1600,
-                        1.5,
-                        4.7,
-                        76.0,
-                        71.0,
-                        "DECLINING",
-                        "Availability concerns and reduced minutes lowered readiness and impact."
-                ),
-                new MlTribuoTrainingPreviewRowDTO(
-                        "Martin Odegaard",
-                        "AM",
-                        26,
-                        10,
-                        11,
-                        2250,
-                        8.6,
-                        7.9,
-                        84.0,
-                        84.0,
-                        "STABLE",
-                        "Performance profile remains consistently strong with balanced creative output."
-                ),
-                new MlTribuoTrainingPreviewRowDTO(
-                        "William Saliba",
-                        "CB",
-                        24,
-                        3,
-                        2,
-                        2500,
-                        1.2,
-                        1.5,
-                        79.0,
-                        81.0,
-                        "IMPROVING",
-                        "Defensive consistency and availability improved overall model confidence."
-                )
-        );
+        return playerRepository.findAll().stream()
+                .filter(player -> player.getFormRating() != null)
+                .sorted(Comparator.comparing(Player::getName, Comparator.nullsLast(String::compareToIgnoreCase)))
+                .map(player -> {
+                    double currentScore = player.getFormRating();
+                    double previousScore = round1(currentScore - deriveTrendShift(player));
+
+                    String trend;
+                    String trendReason;
+
+                    if (currentScore > previousScore) {
+                        trend = "IMPROVING";
+                        trendReason = buildImprovingReason(player);
+                    } else if (currentScore < previousScore) {
+                        trend = "DECLINING";
+                        trendReason = buildDecliningReason(player);
+                    } else {
+                        trend = "STABLE";
+                        trendReason = "Recent performance profile is broadly unchanged.";
+                    }
+
+                    return new MlTribuoTrainingPreviewRowDTO(
+                            safeText(player.getName(), "Unknown Player"),
+                            safeText(player.getPosition(), "N/A"),
+                            safeInteger(player.getAge()),
+                            safeInteger(player.getGoals()),
+                            safeInteger(player.getAssists()),
+                            safeInteger(player.getMinutesPlayed()),
+                            safeDouble(player.getExpectedGoals()),
+                            safeDouble(player.getExpectedAssists()),
+                            previousScore,
+                            round1(currentScore),
+                            trend,
+                            trendReason
+                    );
+                })
+                .toList();
     }
 
     public MlTribuoTrainingInfoResponse trainModel() {
-        MutableDataset<Regressor> dataset = DemoMlTrainingFactory.buildDemoDataset();
+        MutableDataset<Regressor> dataset = tribuoPlayerDatasetFactory.buildDatasetFromPlayers();
+
+        if (dataset.size() < 3) {
+            throw new IllegalStateException("Not enough complete player records to train the Tribuo model.");
+        }
 
         LinearSGDTrainer trainer = new LinearSGDTrainer(
                 new SquaredLoss(),
@@ -188,9 +158,89 @@ public class MlTribuoTrainingService {
         modelManager.setModel(trainer.train(dataset));
         modelManager.setTrained(true);
         modelManager.setTrainingRowCount(dataset.size());
-        modelManager.setTrainingSource("DemoMlTrainingFactory");
+        modelManager.setTrainingSource("MySQL players table");
         modelManager.setLastTrainedAt(LocalDateTime.now());
 
         return getTrainingInfo();
+    }
+
+    private double deriveTrendShift(Player player) {
+        double shift = 0.0;
+
+        if (safeInteger(player.getGoals()) >= 10) {
+            shift += 2.0;
+        }
+        if (safeInteger(player.getAssists()) >= 7) {
+            shift += 1.5;
+        }
+        if (safeDouble(player.getExpectedGoals()) >= 8.0) {
+            shift += 1.0;
+        }
+        if (safeDouble(player.getExpectedAssists()) >= 6.0) {
+            shift += 1.0;
+        }
+        if (safeInteger(player.getMinutesPlayed()) < 1500) {
+            shift -= 1.5;
+        }
+        if (Boolean.TRUE.equals(player.getInjuryStatus())) {
+            shift -= 2.5;
+        }
+        if (safeInteger(player.getMatchesMissed()) >= 5) {
+            shift -= 1.5;
+        }
+
+        if (shift == 0.0) {
+            return 0.0;
+        }
+
+        return shift;
+    }
+
+    private String buildImprovingReason(Player player) {
+        if (Boolean.TRUE.equals(player.getInjuryStatus())) {
+            return "Despite injury risk, recent output still supports an improving trend.";
+        }
+
+        if (safeInteger(player.getGoals()) >= 10 && safeDouble(player.getExpectedGoals()) >= 8.0) {
+            return "Strong goal output and expected goals are lifting the current training score.";
+        }
+
+        if (safeInteger(player.getAssists()) >= 7 && safeDouble(player.getExpectedAssists()) >= 6.0) {
+            return "Creative contribution and expected assists indicate an upward trend.";
+        }
+
+        return "Recent performance indicators are stronger than the earlier baseline.";
+    }
+
+    private String buildDecliningReason(Player player) {
+        if (Boolean.TRUE.equals(player.getInjuryStatus())) {
+            return "Injury status is reducing availability and lowering the current training outlook.";
+        }
+
+        if (safeInteger(player.getMatchesMissed()) >= 5) {
+            return "Missed matches have reduced continuity and lowered the projected score.";
+        }
+
+        if (safeInteger(player.getMinutesPlayed()) < 1500) {
+            return "Lower minutes played have weakened the current training profile.";
+        }
+
+        return "Recent performance indicators are below the earlier baseline.";
+    }
+
+    private int safeInteger(Integer value) {
+        return value != null ? value : 0;
+    }
+
+    private double safeDouble(Double value) {
+        return value != null ? value : 0.0;
+    }
+
+    private String safeText(String value, String fallback) {
+        return value != null && !value.isBlank() ? value : fallback;
+    }
+
+    private double round1(double value) {
+        return Math.round(value * 10.0) / 10.0;
     }
 }

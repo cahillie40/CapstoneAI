@@ -54,8 +54,8 @@
     </div>
 
     <div class="summary-card">
-      <span class="summary-label">Model Quality</span>
-      <span class="quality-badge" [class]="qualityClass">{{ qualityLabel }}</span>
+      <span class="summary-label">Last Evaluated</span>
+      <span class="summary-value small">{{ evaluation?.evaluatedAt || 'Not evaluated yet' }}</span>
     </div>
   </div>
 
@@ -65,7 +65,16 @@
 
   @if (evaluationPlayers.length > 0) {
     <div class="card">
-      <h3>Player Trend Evaluation</h3>
+      <div class="section-header">
+        <div>
+          <h3>Player Trend Evaluation</h3>
+          <p>Real players from the database evaluated by the Tribuo model.</p>
+        </div>
+        <div class="table-meta">
+          Showing {{ pageStart }}-{{ pageEnd }} of {{ evaluationPlayers.length }}
+        </div>
+      </div>
+
       <div class="table-wrapper">
         <table class="preview-table">
           <thead>
@@ -80,7 +89,7 @@
           </tr>
           </thead>
           <tbody>
-            @for (row of evaluationPlayers; track $index) {
+            @for (row of paginatedEvaluationPlayers; track $index) {
               <tr>
                 <td><strong>{{ row.playerName }}</strong></td>
                 <td>{{ row.position }}</td>
@@ -110,17 +119,30 @@
           </tbody>
         </table>
       </div>
+
+      <div class="pagination-bar">
+        <button class="secondary-btn" (click)="goToPreviousPage()" [disabled]="currentPage === 1">
+          Previous
+        </button>
+
+        <span class="pagination-text">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+
+        <button class="secondary-btn" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
+          Next
+        </button>
+      </div>
     </div>
   }
 
   @if (evaluation) {
-
     <div class="card highlight-card">
-      <h3>Evaluation Details</h3>
+      <h3>Evaluation Summary</h3>
+      <p>{{ evaluation.summary }}</p>
       <p><strong>Training Rows:</strong> {{ evaluation.trainingRows ?? 'N/A' }}</p>
       <p><strong>Test Rows:</strong> {{ evaluation.testRows ?? 'N/A' }}</p>
       <p><strong>Evaluated At:</strong> {{ evaluation.evaluatedAt || 'Not evaluated yet' }}</p>
-      <p><strong>Summary:</strong> {{ evaluation.summary }}</p>
     </div>
   }
 </div>

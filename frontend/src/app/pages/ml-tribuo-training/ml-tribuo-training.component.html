@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h2>Tribuo Training</h2>
-      <p>Retrain the regression model and review player training trends.</p>
+      <p>Retrain the regression model using real player data from the database and review player training trends.</p>
     </div>
 
     <div class="header-actions">
@@ -92,7 +92,10 @@
       <div class="section-header">
         <div>
           <h3>Training Data Preview</h3>
-          <p>Sample players used to illustrate trend movement in the training set.</p>
+          <p>Real player records currently being used by the Tribuo training screen.</p>
+        </div>
+        <div class="table-meta">
+          Showing {{ pageStart }}-{{ pageEnd }} of {{ trainingPreviewRows.length }}
         </div>
       </div>
 
@@ -116,7 +119,7 @@
           </tr>
           </thead>
           <tbody>
-            @for (row of trainingPreviewRows; track $index) {
+            @for (row of paginatedTrainingRows; track $index) {
               <tr>
                 <td class="player-cell">
                   <strong>{{ row.playerName }}</strong>
@@ -154,6 +157,20 @@
           </tbody>
         </table>
       </div>
+
+      <div class="pagination-bar">
+        <button class="secondary-btn" (click)="goToPreviousPage()" [disabled]="currentPage === 1">
+          Previous
+        </button>
+
+        <span class="pagination-text">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+
+        <button class="secondary-btn" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
+          Next
+        </button>
+      </div>
     </div>
   }
 
@@ -174,6 +191,7 @@
           <p>{{ modelInfo.trainingStatus }}</p>
         </div>
       </div>
+
       <div class="description-block">
         <span class="detail-label">Description</span>
         <p>{{ modelInfo.description }}</p>

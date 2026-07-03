@@ -223,13 +223,11 @@ public class PredictionService {
         List<FactorContributionDTO> positiveFactors = allFactors.stream()
                 .filter(f -> f.getContribution() != null && f.getContribution() > 0)
                 .sorted(Comparator.comparing(FactorContributionDTO::getContribution).reversed())
-                .limit(3)
                 .collect(Collectors.toList());
 
         List<FactorContributionDTO> negativeFactors = allFactors.stream()
                 .filter(f -> f.getContribution() != null && f.getContribution() < 0)
                 .sorted(Comparator.comparing((FactorContributionDTO f) -> Math.abs(f.getContribution())).reversed())
-                .limit(3)
                 .collect(Collectors.toList());
 
         List<FactorContributionDTO> sortedAllFactors = allFactors.stream()
