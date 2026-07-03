@@ -2,7 +2,10 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs/operators';
 import { MlPredictionTribuoService } from '../../services/ml-prediction-tribuo.service';
-import { MlTribuoEvaluationResponse } from '../../models/ml-prediction-tribuo';
+import {
+  MlTribuoEvaluationPlayerRow,
+  MlTribuoEvaluationResponse
+} from '../../models/ml-prediction-tribuo';
 
 @Component({
   selector: 'app-ml-tribuo-evaluation',
@@ -16,8 +19,12 @@ export class MlTribuoEvaluationComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   evaluation: MlTribuoEvaluationResponse | null = null;
+  evaluationPlayers: MlTribuoEvaluationPlayerRow[] = [];
+
   loading = false;
+  loadingPlayers = false;
   evaluating = false;
+
   error: string | null = null;
   successMessage: string | null = null;
   evaluationStatusMessage: string | null = null;
@@ -27,22 +34,31 @@ export class MlTribuoEvaluationComponent implements OnInit {
   private evalStep2Timer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
-    this.loadEvaluation();
+    this.refreshAll();
+  }
+
+  get improvingCount(): number {
+    return this.evaluationPlayers.filter((row) => row.trend === 'IMPROVING').length;
+  }
+
+  get decliningCount(): number {
+    return this.evaluationPlayers.filter((row) => row.trend === 'DECLINING').length;
+  }
+
+  get stableCount(): number {
+    return this.evaluationPlayers.filter((row) => row.trend === 'STABLE').length;
   }
 
   get qualityLabel(): string {
     if (!this.evaluation || this.evaluation.r2 == null) {
       return 'Not Evaluated';
     }
-
     if (this.evaluation.r2 >= 0.8) {
       return 'Strong';
     }
-
     if (this.evaluation.r2 >= 0.6) {
       return 'Moderate';
     }
-
     return 'Weak';
   }
 
@@ -50,64 +66,17 @@ export class MlTribuoEvaluationComponent implements OnInit {
     if (!this.evaluation || this.evaluation.r2 == null) {
       return 'quality-neutral';
     }
-
     if (this.evaluation.r2 >= 0.8) {
       return 'quality-strong';
     }
-
     if (this.evaluation.r2 >= 0.6) {
       return 'quality-moderate';
     }
-
     return 'quality-weak';
   }
 
-  get maeMeaning(): string {
-    if (!this.evaluation || this.evaluation.mae == null) {
-      return 'No MAE available yet.';
-    }
-
-    if (this.evaluation.mae <= 5) {
-      return 'Low average error across predictions.';
-    }
-
-    if (this.evaluation.mae <= 10) {
-      return 'Moderate average prediction error.';
-    }
-
-    return 'Higher average prediction error.';
-  }
-
-  get rmseMeaning(): string {
-    if (!this.evaluation || this.evaluation.rmse == null) {
-      return 'No RMSE available yet.';
-    }
-
-    if (this.evaluation.rmse <= 6) {
-      return 'Prediction variance is fairly controlled.';
-    }
-
-    if (this.evaluation.rmse <= 12) {
-      return 'Prediction spread is moderate.';
-    }
-
-    return 'Large prediction misses are occurring more often.';
-  }
-
-  get r2Meaning(): string {
-    if (!this.evaluation || this.evaluation.r2 == null) {
-      return 'No R² available yet.';
-    }
-
-    if (this.evaluation.r2 >= 0.8) {
-      return 'The model explains most of the score variation well.';
-    }
-
-    if (this.evaluation.r2 >= 0.6) {
-      return 'The model explains a reasonable amount of score variation.';
-    }
-
-    return 'The model explains only a limited amount of score variation.';
+  getScoreDelta(row: MlTribuoEvaluationPlayerRow): number {
+    return Number((row.evaluatedScore - row.previousScore).toFixed(1));
   }
 
   loadEvaluation(): void {
@@ -130,6 +99,25 @@ export class MlTribuoEvaluationComponent implements OnInit {
       });
   }
 
+  loadEvaluationPlayers(): void {
+    this.loadingPlayers = true;
+
+    this.tribuoService.getEvaluationPlayers()
+      .pipe(finalize(() => {
+        this.loadingPlayers = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (data: MlTribuoEvaluationPlayerRow[]) => {
+          this.evaluationPlayers = data;
+        },
+        error: (err: unknown) => {
+          console.error('Failed to load evaluation players', err);
+          this.error = 'Failed to load evaluation player trends';
+        }
+      });
+  }
+
   evaluateModel(): void {
     if (this.evaluating) {
       return;
@@ -145,14 +133,14 @@ export class MlTribuoEvaluationComponent implements OnInit {
 
     this.evalStep1Timer = setTimeout(() => {
       if (this.evaluating) {
-        this.evaluationStatusMessage = 'Scoring Tribuo regression model...';
+        this.evaluationStatusMessage = 'Scoring Tribuo player outcomes...';
         this.cdr.markForCheck();
       }
     }, 350);
 
     this.evalStep2Timer = setTimeout(() => {
       if (this.evaluating) {
-        this.evaluationStatusMessage = 'Calculating quality metrics and refreshing results...';
+        this.evaluationStatusMessage = 'Refreshing player trends and metrics...';
         this.cdr.markForCheck();
       }
     }, 900);
@@ -169,6 +157,8 @@ export class MlTribuoEvaluationComponent implements OnInit {
           this.evaluation = data;
           this.lastEvaluationDurationMs = Math.round(performance.now() - startedAt);
           this.successMessage = `Tribuo evaluation completed successfully in ${this.lastEvaluationDurationMs} ms.`;
+          this.loadEvaluation();
+          this.loadEvaluationPlayers();
         },
         error: (err: unknown) => {
           console.error('Failed to evaluate model', err);
@@ -180,6 +170,7 @@ export class MlTribuoEvaluationComponent implements OnInit {
   refreshAll(): void {
     this.successMessage = null;
     this.loadEvaluation();
+    this.loadEvaluationPlayers();
   }
 
   private clearEvaluationTimers(): void {
@@ -187,7 +178,6 @@ export class MlTribuoEvaluationComponent implements OnInit {
       clearTimeout(this.evalStep1Timer);
       this.evalStep1Timer = null;
     }
-
     if (this.evalStep2Timer) {
       clearTimeout(this.evalStep2Timer);
       this.evalStep2Timer = null;

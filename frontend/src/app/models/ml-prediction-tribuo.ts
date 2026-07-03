@@ -100,3 +100,12 @@ export interface MlTribuoTrainingPreviewRow {
   trend: string;
   trendReason: string;
 }
+
+export interface MlTribuoEvaluationPlayerRow {
+  playerName: string;
+  position: string;
+  previousScore: number;
+  evaluatedScore: number;
+  trend: string;
+  trendReason: string;
+}

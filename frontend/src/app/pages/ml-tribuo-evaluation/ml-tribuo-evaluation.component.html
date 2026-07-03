@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h2>Tribuo Evaluation</h2>
-      <p>Measure how well the current regression model performs on the demo evaluation dataset.</p>
+      <p>Review which players are improving, declining, or staying stable under the current Tribuo model.</p>
     </div>
 
     <div class="header-actions">
@@ -37,89 +37,90 @@
     </div>
   }
 
-  @if (loading) {
-    <div class="info-box">Loading evaluation metrics...</div>
+  <div class="summary-row">
+    <div class="summary-card">
+      <span class="summary-label">Improving</span>
+      <span class="summary-value positive">{{ improvingCount }}</span>
+    </div>
+
+    <div class="summary-card">
+      <span class="summary-label">Declining</span>
+      <span class="summary-value negative">{{ decliningCount }}</span>
+    </div>
+
+    <div class="summary-card">
+      <span class="summary-label">Stable</span>
+      <span class="summary-value neutral">{{ stableCount }}</span>
+    </div>
+
+    <div class="summary-card">
+      <span class="summary-label">Model Quality</span>
+      <span class="quality-badge" [class]="qualityClass">{{ qualityLabel }}</span>
+    </div>
+  </div>
+
+  @if (loading || loadingPlayers) {
+    <div class="info-box">Loading evaluation results...</div>
+  }
+
+  @if (evaluationPlayers.length > 0) {
+    <div class="card">
+      <h3>Player Trend Evaluation</h3>
+      <div class="table-wrapper">
+        <table class="preview-table">
+          <thead>
+          <tr>
+            <th>Player</th>
+            <th>Position</th>
+            <th>Previous Score</th>
+            <th>Evaluated Score</th>
+            <th>Change</th>
+            <th>Trend</th>
+            <th>Reason</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (row of evaluationPlayers; track $index) {
+              <tr>
+                <td><strong>{{ row.playerName }}</strong></td>
+                <td>{{ row.position }}</td>
+                <td>{{ row.previousScore }}</td>
+                <td>{{ row.evaluatedScore }}</td>
+                <td>
+                  <span
+                    class="delta"
+                    [class.delta-up]="getScoreDelta(row) > 0"
+                    [class.delta-down]="getScoreDelta(row) < 0"
+                    [class.delta-flat]="getScoreDelta(row) === 0">
+                    {{ getScoreDelta(row) > 0 ? '+' : '' }}{{ getScoreDelta(row) }}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="trend-badge"
+                    [class.trend-up]="row.trend === 'IMPROVING'"
+                    [class.trend-down]="row.trend === 'DECLINING'"
+                    [class.trend-stable]="row.trend === 'STABLE'">
+                    {{ row.trend }}
+                  </span>
+                </td>
+                <td class="reason-cell">{{ row.trendReason }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
   }
 
   @if (evaluation) {
-    <div class="summary-row">
-      <div class="summary-card">
-        <span class="summary-label">Model Quality</span>
-        <span class="quality-badge" [class]="qualityClass">{{ qualityLabel }}</span>
-      </div>
-
-      <div class="summary-card">
-        <span class="summary-label">Training Rows</span>
-        <span class="summary-value">{{ evaluation.trainingRows ?? 'N/A' }}</span>
-      </div>
-
-      <div class="summary-card">
-        <span class="summary-label">Test Rows</span>
-        <span class="summary-value">{{ evaluation.testRows ?? 'N/A' }}</span>
-      </div>
-
-      <div class="summary-card">
-        <span class="summary-label">Last Evaluated</span>
-        <span class="summary-value small">{{ evaluation.evaluatedAt || 'Not evaluated yet' }}</span>
-      </div>
-    </div>
-
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <h4>MAE</h4>
-        <p>{{ evaluation.mae ?? 'N/A' }}</p>
-        <span class="metric-note">{{ maeMeaning }}</span>
-      </div>
-
-      <div class="metric-card">
-        <h4>RMSE</h4>
-        <p>{{ evaluation.rmse ?? 'N/A' }}</p>
-        <span class="metric-note">{{ rmseMeaning }}</span>
-      </div>
-
-      <div class="metric-card">
-        <h4>R²</h4>
-        <p>{{ evaluation.r2 ?? 'N/A' }}</p>
-        <span class="metric-note">{{ r2Meaning }}</span>
-      </div>
-
-      <div class="metric-card">
-        <h4>Split Ratio</h4>
-        <p>{{ evaluation.splitRatio ?? 'N/A' }}</p>
-        <span class="metric-note">Current evaluation uses a training/test split of this ratio.</span>
-      </div>
-    </div>
 
     <div class="card highlight-card">
-      <h3>Evaluation Summary</h3>
-      <p>{{ evaluation.summary }}</p>
-      <div class="detail-grid">
-        <div>
-          <span class="detail-label">Training Rows</span>
-          <p>{{ evaluation.trainingRows ?? 'N/A' }}</p>
-        </div>
-        <div>
-          <span class="detail-label">Test Rows</span>
-          <p>{{ evaluation.testRows ?? 'N/A' }}</p>
-        </div>
-        <div>
-          <span class="detail-label">Split Ratio</span>
-          <p>{{ evaluation.splitRatio ?? 'N/A' }}</p>
-        </div>
-        <div>
-          <span class="detail-label">Evaluated At</span>
-          <p>{{ evaluation.evaluatedAt || 'Not evaluated yet' }}</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>What these metrics mean</h3>
-      <ul class="explanation-list">
-        <li><strong>MAE:</strong> average prediction error. Lower is better.</li>
-        <li><strong>RMSE:</strong> penalises larger misses more heavily. Lower is better.</li>
-        <li><strong>R²:</strong> how much variance the model explains. Higher is better.</li>
-      </ul>
+      <h3>Evaluation Details</h3>
+      <p><strong>Training Rows:</strong> {{ evaluation.trainingRows ?? 'N/A' }}</p>
+      <p><strong>Test Rows:</strong> {{ evaluation.testRows ?? 'N/A' }}</p>
+      <p><strong>Evaluated At:</strong> {{ evaluation.evaluatedAt || 'Not evaluated yet' }}</p>
+      <p><strong>Summary:</strong> {{ evaluation.summary }}</p>
     </div>
   }
 </div>
