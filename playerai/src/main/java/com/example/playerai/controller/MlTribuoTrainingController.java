@@ -2,9 +2,12 @@ package com.example.playerai.controller;
 
 import com.example.playerai.dto.MlModelInfoTribuoDTO;
 import com.example.playerai.dto.MlTribuoTrainingInfoResponse;
+import com.example.playerai.dto.MlTribuoTrainingPreviewRowDTO;
 import com.example.playerai.service.MlTribuoTrainingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/ml/tribuo")
@@ -30,5 +33,10 @@ public class MlTribuoTrainingController {
     @PostMapping("/train")
     public ResponseEntity<MlTribuoTrainingInfoResponse> trainModel() {
         return ResponseEntity.ok(mlTribuoTrainingService.trainModel());
+    }
+
+    @GetMapping("/training-data-preview")
+    public ResponseEntity<List<MlTribuoTrainingPreviewRowDTO>> getTrainingDataPreview() {
+        return ResponseEntity.ok(mlTribuoTrainingService.getTrainingDataPreview());
     }
 }

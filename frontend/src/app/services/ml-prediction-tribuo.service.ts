@@ -7,7 +7,8 @@ import {
   MlPredictionTribuoRequest,
   MlPredictionTribuoResponse,
   MlTribuoEvaluationResponse,
-  MlTribuoTrainingInfoResponse
+  MlTribuoTrainingInfoResponse,
+  MlTribuoTrainingPreviewRow
 } from '../models/ml-prediction-tribuo';
 
 @Injectable({
@@ -47,5 +48,9 @@ export class MlPredictionTribuoService {
 
   getHistory(): Observable<MlPredictionTribuoHistoryResponse[]> {
     return this.http.get<MlPredictionTribuoHistoryResponse[]>(`${this.apiUrl}/history`);
+  }
+
+  getTrainingDataPreview(): Observable<MlTribuoTrainingPreviewRow[]> {
+    return this.http.get<MlTribuoTrainingPreviewRow[]>(`${this.apiUrl}/training-data-preview`);
   }
 }

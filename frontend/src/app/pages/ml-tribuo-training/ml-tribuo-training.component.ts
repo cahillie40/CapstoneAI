@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { MlPredictionTribuoService } from '../../services/ml-prediction-tribuo.service';
 import {
   MlModelInfoTribuo,
-  MlTribuoTrainingInfoResponse
+  MlTribuoTrainingInfoResponse,
+  MlTribuoTrainingPreviewRow
 } from '../../models/ml-prediction-tribuo';
 
 @Component({
@@ -24,23 +25,29 @@ export class MlTribuoTrainingComponent implements OnInit {
   loadingTrainingInfo = false;
   training = false;
   error: string | null = null;
+  successMessage: string | null = null;
+
+  trainingPreviewRows: MlTribuoTrainingPreviewRow[] = [];
+  loadingTrainingPreview = false;
+  trainingStatusMessage: string | null = null;
 
   ngOnInit(): void {
     this.loadModelInfo();
     this.loadTrainingInfo();
+    this.loadTrainingPreview();
   }
 
   loadModelInfo(): void {
     this.loadingModelInfo = true;
-    this.tribuoService.getModelInfo().subscribe({
+    this.tribuoService.getTrainingModelInfo().subscribe({
       next: (data: MlModelInfoTribuo) => {
         this.modelInfo = data;
         this.loadingModelInfo = false;
         this.cdr.markForCheck();
       },
       error: (err: unknown) => {
-        console.error('Failed to load model info', err);
-        this.error = 'Failed to load model info';
+        console.error('Failed to load training model info', err);
+        this.error = 'Failed to load training model info';
         this.loadingModelInfo = false;
         this.cdr.markForCheck();
       }
@@ -67,25 +74,66 @@ export class MlTribuoTrainingComponent implements OnInit {
   trainModel(): void {
     this.training = true;
     this.error = null;
+    this.successMessage = null;
+    this.trainingStatusMessage = 'Preparing training dataset...';
+
+    setTimeout(() => {
+      if (this.training) {
+        this.trainingStatusMessage = 'Running Tribuo regression training...';
+        this.cdr.markForCheck();
+      }
+    }, 500);
+
+    setTimeout(() => {
+      if (this.training) {
+        this.trainingStatusMessage = 'Finalising model and refreshing training metadata...';
+        this.cdr.markForCheck();
+      }
+    }, 1200);
 
     this.tribuoService.trainModel().subscribe({
       next: (data: MlTribuoTrainingInfoResponse) => {
         this.trainingInfo = data;
         this.training = false;
+        this.trainingStatusMessage = null;
+        this.successMessage = 'Tribuo model trained successfully.';
         this.loadModelInfo();
+        this.loadTrainingInfo();
+        this.loadTrainingPreview();
         this.cdr.markForCheck();
       },
       error: (err: unknown) => {
         console.error('Failed to train model', err);
         this.error = 'Failed to train model';
         this.training = false;
+        this.trainingStatusMessage = null;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  loadTrainingPreview(): void {
+    this.loadingTrainingPreview = true;
+    this.tribuoService.getTrainingDataPreview().subscribe({
+      next: (data: MlTribuoTrainingPreviewRow[]) => {
+        this.trainingPreviewRows = data;
+        this.loadingTrainingPreview = false;
+        this.cdr.markForCheck();
+      },
+      error: (err: unknown) => {
+        console.error('Failed to load training preview', err);
+        this.error = 'Failed to load training preview';
+        this.loadingTrainingPreview = false;
         this.cdr.markForCheck();
       }
     });
   }
 
   refreshAll(): void {
+    this.error = null;
+    this.successMessage = null;
     this.loadModelInfo();
     this.loadTrainingInfo();
+    this.loadTrainingPreview();
   }
 }

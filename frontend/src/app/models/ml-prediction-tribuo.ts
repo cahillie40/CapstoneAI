@@ -86,3 +86,17 @@ export interface MlTribuoEvaluationResponse {
 }
 
 
+export interface MlTribuoTrainingPreviewRow {
+  playerName: string;
+  position: string;
+  age: number;
+  goals: number;
+  assists: number;
+  minutesPlayed: number;
+  expectedGoals: number;
+  expectedAssists: number;
+  previousScore: number;
+  currentTargetScore: number;
+  trend: string;
+  trendReason: string;
+}

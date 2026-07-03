@@ -8,6 +8,10 @@
     <div class="error-box">{{ error }}</div>
   }
 
+  @if (successMessage) {
+    <div class="success-box">{{ successMessage }}</div>
+  }
+
   @if (loadingModelInfo || loadingTrainingInfo) {
     <div class="info-box">Loading training page...</div>
   }
@@ -51,3 +55,92 @@
     </button>
   </div>
 </div>
+
+@if (error) {
+  <div class="error-box">{{ error }}</div>
+}
+
+@if (successMessage) {
+  <div class="success-box">{{ successMessage }}</div>
+}
+
+@if (trainingStatusMessage) {
+  <div class="training-status-box">
+    <div class="spinner"></div>
+    <span>{{ trainingStatusMessage }}</span>
+  </div>
+}
+
+@if (training) {
+  <div class="progress-wrap">
+    <div class="progress-bar"></div>
+  </div>
+}
+
+@if (trainingInfo) {
+  <div class="card highlight-card">
+    <h3>Latest Training Result</h3>
+    <p><strong>Status:</strong> {{ trainingInfo.trainingStatus }}</p>
+    <p><strong>Rows Used:</strong> {{ trainingInfo.trainingRowCount }}</p>
+    <p><strong>Source:</strong> {{ trainingInfo.trainingSource }}</p>
+    <p><strong>Last Trained:</strong> {{ trainingInfo.lastTrainedAt || 'Not trained yet' }}</p>
+  </div>
+}
+
+@if (loadingTrainingPreview) {
+  <div class="info-box">Loading training data preview...</div>
+}
+
+@if (trainingPreviewRows.length > 0) {
+  <div class="card">
+    <h3>Training Data Preview</h3>
+    <div class="table-wrapper">
+      <table class="preview-table">
+        <thead>
+        <tr>
+          <th>Player</th>
+          <th>Position</th>
+          <th>Age</th>
+          <th>Goals</th>
+          <th>Assists</th>
+          <th>Minutes</th>
+          <th>xG</th>
+          <th>xA</th>
+          <th>Previous Score</th>
+          <th>Current Score</th>
+          <th>Trend</th>
+          <th>Reason</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (row of trainingPreviewRows; track $index) {
+            <tr>
+              <td>{{ row.playerName }}</td>
+              <td>{{ row.position }}</td>
+              <td>{{ row.age }}</td>
+              <td>{{ row.goals }}</td>
+              <td>{{ row.assists }}</td>
+              <td>{{ row.minutesPlayed }}</td>
+              <td>{{ row.expectedGoals }}</td>
+              <td>{{ row.expectedAssists }}</td>
+              <td>{{ row.previousScore }}</td>
+              <td>{{ row.currentTargetScore }}</td>
+              <td>
+                <span
+                  class="trend-badge"
+                  [class.trend-up]="row.trend === 'IMPROVING'"
+                  [class.trend-down]="row.trend === 'DECLINING'"
+                  [class.trend-stable]="row.trend === 'STABLE'">
+                  {{ row.trend }}
+                </span>
+              </td>
+              <td>{{ row.trendReason }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
+
+
