@@ -1,7 +1,19 @@
 <div class="tribuo-page">
   <div class="page-header">
-    <h2>Tribuo Training</h2>
-    <p>Manage Tribuo model training and inspect training metadata.</p>
+    <div>
+      <h2>Tribuo Training</h2>
+      <p>Retrain the regression model and review player training trends.</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="primary-btn" (click)="trainModel()" [disabled]="training">
+        {{ training ? 'Retraining Tribuo Model...' : 'Retrain Model' }}
+      </button>
+
+      <button class="secondary-btn" (click)="refreshAll()" [disabled]="training">
+        Refresh
+      </button>
+    </div>
   </div>
 
   @if (error) {
@@ -12,135 +24,169 @@
     <div class="success-box">{{ successMessage }}</div>
   }
 
-  @if (loadingModelInfo || loadingTrainingInfo) {
+  @if (trainingStatusMessage) {
+    <div class="training-status-box">
+      <div class="spinner"></div>
+      <span>{{ trainingStatusMessage }}</span>
+    </div>
+  }
+
+  @if (training) {
+    <div class="progress-wrap">
+      <div class="progress-bar"></div>
+    </div>
+  }
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Preview Players</span>
+      <span class="stat-value">{{ previewPlayerCount }}</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Improving</span>
+      <span class="stat-value positive">{{ improvingCount }}</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Declining</span>
+      <span class="stat-value negative">{{ decliningCount }}</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Stable</span>
+      <span class="stat-value neutral">{{ stableCount }}</span>
+    </div>
+  </div>
+
+  @if (loadingModelInfo || loadingTrainingInfo || loadingTrainingPreview) {
     <div class="info-box">Loading training page...</div>
+  }
+
+  @if (trainingInfo) {
+    <div class="card highlight-card">
+      <h3>Latest Training Result</h3>
+      <div class="detail-grid">
+        <div>
+          <span class="detail-label">Status</span>
+          <p>{{ trainingInfo.trainingStatus }}</p>
+        </div>
+        <div>
+          <span class="detail-label">Rows Used</span>
+          <p>{{ trainingInfo.trainingRowCount }}</p>
+        </div>
+        <div>
+          <span class="detail-label">Source</span>
+          <p>{{ trainingInfo.trainingSource }}</p>
+        </div>
+        <div>
+          <span class="detail-label">Last Trained</span>
+          <p>{{ trainingInfo.lastTrainedAt || 'Not trained yet' }}</p>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (trainingPreviewRows.length > 0) {
+    <div class="card">
+      <div class="section-header">
+        <div>
+          <h3>Training Data Preview</h3>
+          <p>Sample players used to illustrate trend movement in the training set.</p>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="preview-table">
+          <thead>
+          <tr>
+            <th>Player</th>
+            <th>Pos</th>
+            <th>Age</th>
+            <th>Goals</th>
+            <th>Assists</th>
+            <th>Minutes</th>
+            <th>xG</th>
+            <th>xA</th>
+            <th>Previous</th>
+            <th>Current</th>
+            <th>Change</th>
+            <th>Trend</th>
+            <th>Reason</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (row of trainingPreviewRows; track $index) {
+              <tr>
+                <td class="player-cell">
+                  <strong>{{ row.playerName }}</strong>
+                </td>
+                <td>{{ row.position }}</td>
+                <td>{{ row.age }}</td>
+                <td>{{ row.goals }}</td>
+                <td>{{ row.assists }}</td>
+                <td>{{ row.minutesPlayed }}</td>
+                <td>{{ row.expectedGoals }}</td>
+                <td>{{ row.expectedAssists }}</td>
+                <td>{{ row.previousScore }}</td>
+                <td>{{ row.currentTargetScore }}</td>
+                <td>
+                  <span
+                    class="delta"
+                    [class.delta-up]="getScoreDelta(row) > 0"
+                    [class.delta-down]="getScoreDelta(row) < 0"
+                    [class.delta-flat]="getScoreDelta(row) === 0">
+                    {{ getScoreDelta(row) > 0 ? '+' : '' }}{{ getScoreDelta(row) }}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="trend-badge"
+                    [class.trend-up]="row.trend === 'IMPROVING'"
+                    [class.trend-down]="row.trend === 'DECLINING'"
+                    [class.trend-stable]="row.trend === 'STABLE'">
+                    {{ row.trend }}
+                  </span>
+                </td>
+                <td class="reason-cell">{{ row.trendReason }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
   }
 
   @if (modelInfo) {
     <div class="card">
       <h3>Model Overview</h3>
-      <p><strong>Model Name:</strong> {{ modelInfo.modelName }}</p>
-      <p><strong>Model Type:</strong> {{ modelInfo.modelType }}</p>
-      <p><strong>Status:</strong> {{ modelInfo.trainingStatus }}</p>
-      <p><strong>Description:</strong> {{ modelInfo.description }}</p>
-    </div>
-  }
-
-  @if (trainingInfo) {
-    <div class="card">
-      <h3>Training Information</h3>
-      <p><strong>Training Rows:</strong> {{ trainingInfo.trainingRowCount }}</p>
-      <p><strong>Training Source:</strong> {{ trainingInfo.trainingSource }}</p>
-      <p><strong>Last Trained:</strong> {{ trainingInfo.lastTrainedAt || 'Not trained yet' }}</p>
+      <div class="detail-grid">
+        <div>
+          <span class="detail-label">Model Name</span>
+          <p>{{ modelInfo.modelName }}</p>
+        </div>
+        <div>
+          <span class="detail-label">Model Type</span>
+          <p>{{ modelInfo.modelType }}</p>
+        </div>
+        <div>
+          <span class="detail-label">Status</span>
+          <p>{{ modelInfo.trainingStatus }}</p>
+        </div>
+      </div>
+      <div class="description-block">
+        <span class="detail-label">Description</span>
+        <p>{{ modelInfo.description }}</p>
+      </div>
     </div>
 
     <div class="card">
       <h3>Supported Features</h3>
       <div class="feature-grid">
-        @for (feature of trainingInfo.supportedFeatures; track feature) {
+        @for (feature of modelInfo.supportedFeatures; track feature) {
           <span class="feature-chip">{{ feature }}</span>
         }
       </div>
     </div>
   }
-
-  <div class="card actions-card">
-    <h3>Actions</h3>
-    <button class="primary-btn" (click)="trainModel()" [disabled]="training">
-      {{ training ? 'Training...' : 'Train Model' }}
-    </button>
-
-    <button class="secondary-btn" (click)="refreshAll()">
-      Refresh
-    </button>
-  </div>
 </div>
-
-@if (error) {
-  <div class="error-box">{{ error }}</div>
-}
-
-@if (successMessage) {
-  <div class="success-box">{{ successMessage }}</div>
-}
-
-@if (trainingStatusMessage) {
-  <div class="training-status-box">
-    <div class="spinner"></div>
-    <span>{{ trainingStatusMessage }}</span>
-  </div>
-}
-
-@if (training) {
-  <div class="progress-wrap">
-    <div class="progress-bar"></div>
-  </div>
-}
-
-@if (trainingInfo) {
-  <div class="card highlight-card">
-    <h3>Latest Training Result</h3>
-    <p><strong>Status:</strong> {{ trainingInfo.trainingStatus }}</p>
-    <p><strong>Rows Used:</strong> {{ trainingInfo.trainingRowCount }}</p>
-    <p><strong>Source:</strong> {{ trainingInfo.trainingSource }}</p>
-    <p><strong>Last Trained:</strong> {{ trainingInfo.lastTrainedAt || 'Not trained yet' }}</p>
-  </div>
-}
-
-@if (loadingTrainingPreview) {
-  <div class="info-box">Loading training data preview...</div>
-}
-
-@if (trainingPreviewRows.length > 0) {
-  <div class="card">
-    <h3>Training Data Preview</h3>
-    <div class="table-wrapper">
-      <table class="preview-table">
-        <thead>
-        <tr>
-          <th>Player</th>
-          <th>Position</th>
-          <th>Age</th>
-          <th>Goals</th>
-          <th>Assists</th>
-          <th>Minutes</th>
-          <th>xG</th>
-          <th>xA</th>
-          <th>Previous Score</th>
-          <th>Current Score</th>
-          <th>Trend</th>
-          <th>Reason</th>
-        </tr>
-        </thead>
-        <tbody>
-          @for (row of trainingPreviewRows; track $index) {
-            <tr>
-              <td>{{ row.playerName }}</td>
-              <td>{{ row.position }}</td>
-              <td>{{ row.age }}</td>
-              <td>{{ row.goals }}</td>
-              <td>{{ row.assists }}</td>
-              <td>{{ row.minutesPlayed }}</td>
-              <td>{{ row.expectedGoals }}</td>
-              <td>{{ row.expectedAssists }}</td>
-              <td>{{ row.previousScore }}</td>
-              <td>{{ row.currentTargetScore }}</td>
-              <td>
-                <span
-                  class="trend-badge"
-                  [class.trend-up]="row.trend === 'IMPROVING'"
-                  [class.trend-down]="row.trend === 'DECLINING'"
-                  [class.trend-stable]="row.trend === 'STABLE'">
-                  {{ row.trend }}
-                </span>
-              </td>
-              <td>{{ row.trendReason }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-}
-
-

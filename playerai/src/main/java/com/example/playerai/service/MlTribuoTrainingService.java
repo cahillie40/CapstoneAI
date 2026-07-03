@@ -86,6 +86,95 @@ public class MlTribuoTrainingService {
         );
     }
 
+    public List<MlTribuoTrainingPreviewRowDTO> getTrainingDataPreview() {
+        return List.of(
+                new MlTribuoTrainingPreviewRowDTO(
+                        "Bukayo Saka",
+                        "RW",
+                        24,
+                        12,
+                        9,
+                        2100,
+                        10.4,
+                        6.8,
+                        78.0,
+                        82.0,
+                        "IMPROVING",
+                        "Increased attacking output driven by stronger xG and assist contribution."
+                ),
+                new MlTribuoTrainingPreviewRowDTO(
+                        "Declan Rice",
+                        "CM",
+                        27,
+                        6,
+                        8,
+                        2450,
+                        4.1,
+                        5.2,
+                        80.0,
+                        83.0,
+                        "IMPROVING",
+                        "Better all-round contribution with strong minutes and creative support."
+                ),
+                new MlTribuoTrainingPreviewRowDTO(
+                        "Marcus Rashford",
+                        "LW",
+                        27,
+                        8,
+                        4,
+                        1980,
+                        7.1,
+                        3.0,
+                        81.0,
+                        74.0,
+                        "DECLINING",
+                        "Lower recent output and reduced attacking efficiency decreased projected score."
+                ),
+                new MlTribuoTrainingPreviewRowDTO(
+                        "Reece James",
+                        "RB",
+                        25,
+                        2,
+                        5,
+                        1600,
+                        1.5,
+                        4.7,
+                        76.0,
+                        71.0,
+                        "DECLINING",
+                        "Availability concerns and reduced minutes lowered readiness and impact."
+                ),
+                new MlTribuoTrainingPreviewRowDTO(
+                        "Martin Odegaard",
+                        "AM",
+                        26,
+                        10,
+                        11,
+                        2250,
+                        8.6,
+                        7.9,
+                        84.0,
+                        84.0,
+                        "STABLE",
+                        "Performance profile remains consistently strong with balanced creative output."
+                ),
+                new MlTribuoTrainingPreviewRowDTO(
+                        "William Saliba",
+                        "CB",
+                        24,
+                        3,
+                        2,
+                        2500,
+                        1.2,
+                        1.5,
+                        79.0,
+                        81.0,
+                        "IMPROVING",
+                        "Defensive consistency and availability improved overall model confidence."
+                )
+        );
+    }
+
     public MlTribuoTrainingInfoResponse trainModel() {
         MutableDataset<Regressor> dataset = DemoMlTrainingFactory.buildDemoDataset();
 
@@ -103,41 +192,5 @@ public class MlTribuoTrainingService {
         modelManager.setLastTrainedAt(LocalDateTime.now());
 
         return getTrainingInfo();
-    }
-
-
-    public List<MlTribuoTrainingPreviewRowDTO> getTrainingDataPreview() {
-        return List.of(
-                new MlTribuoTrainingPreviewRowDTO(
-                        "Bukayo Saka", "RW", 24, 12, 9, 2100,
-                        10.4, 6.8, 78.0, 82.0,
-                        "IMPROVING",
-                        "Increased attacking output driven by stronger xG and assist contribution."
-                ),
-                new MlTribuoTrainingPreviewRowDTO(
-                        "Declan Rice", "CM", 27, 6, 8, 2450,
-                        4.1, 5.2, 80.0, 83.0,
-                        "IMPROVING",
-                        "Better all-round contribution with strong minutes and creative support."
-                ),
-                new MlTribuoTrainingPreviewRowDTO(
-                        "Marcus Rashford", "LW", 27, 8, 4, 1980,
-                        7.1, 3.0, 81.0, 74.0,
-                        "DECLINING",
-                        "Lower recent output and reduced attacking efficiency decreased projected score."
-                ),
-                new MlTribuoTrainingPreviewRowDTO(
-                        "Reece James", "RB", 25, 2, 5, 1600,
-                        1.5, 4.7, 76.0, 71.0,
-                        "DECLINING",
-                        "Availability concerns and reduced minutes lowered readiness and impact."
-                ),
-                new MlTribuoTrainingPreviewRowDTO(
-                        "Martin Odegaard", "AM", 26, 10, 11, 2250,
-                        8.6, 7.9, 84.0, 84.0,
-                        "STABLE",
-                        "Performance profile remains consistently strong with balanced creative output."
-                )
-        );
     }
 }
