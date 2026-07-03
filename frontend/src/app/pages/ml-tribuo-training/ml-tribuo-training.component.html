@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h2>Tribuo Training</h2>
-      <p>Retrain the regression model using real player data from the database and review player training trends.</p>
+      <p>Retrain the regression model using real player data from the database.</p>
     </div>
 
     <div class="header-actions">
@@ -39,29 +39,22 @@
 
   <div class="stats-grid">
     <div class="stat-card">
-      <span class="stat-label">Preview Players</span>
-      <span class="stat-value">{{ previewPlayerCount }}</span>
+      <span class="stat-label">Players Loaded</span>
+      <span class="stat-value">{{ totalElements }}</span>
     </div>
-
     <div class="stat-card">
       <span class="stat-label">Improving</span>
       <span class="stat-value positive">{{ improvingCount }}</span>
     </div>
-
     <div class="stat-card">
       <span class="stat-label">Declining</span>
       <span class="stat-value negative">{{ decliningCount }}</span>
     </div>
-
     <div class="stat-card">
       <span class="stat-label">Stable</span>
       <span class="stat-value neutral">{{ stableCount }}</span>
     </div>
   </div>
-
-  @if (loadingModelInfo || loadingTrainingInfo || loadingTrainingPreview) {
-    <div class="info-box">Loading training page...</div>
-  }
 
   @if (trainingInfo) {
     <div class="card highlight-card">
@@ -87,124 +80,118 @@
     </div>
   }
 
-  @if (trainingPreviewRows.length > 0) {
-    <div class="card">
-      <div class="section-header">
-        <div>
-          <h3>Training Data Preview</h3>
-          <p>Real player records currently being used by the Tribuo training screen.</p>
-        </div>
-        <div class="table-meta">
-          Showing {{ pageStart }}-{{ pageEnd }} of {{ trainingPreviewRows.length }}
-        </div>
-      </div>
-
-      <div class="table-wrapper">
-        <table class="preview-table">
-          <thead>
-          <tr>
-            <th>Player</th>
-            <th>Pos</th>
-            <th>Age</th>
-            <th>Goals</th>
-            <th>Assists</th>
-            <th>Minutes</th>
-            <th>xG</th>
-            <th>xA</th>
-            <th>Previous</th>
-            <th>Current</th>
-            <th>Change</th>
-            <th>Trend</th>
-            <th>Reason</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (row of paginatedTrainingRows; track $index) {
-              <tr>
-                <td class="player-cell">
-                  <strong>{{ row.playerName }}</strong>
-                </td>
-                <td>{{ row.position }}</td>
-                <td>{{ row.age }}</td>
-                <td>{{ row.goals }}</td>
-                <td>{{ row.assists }}</td>
-                <td>{{ row.minutesPlayed }}</td>
-                <td>{{ row.expectedGoals }}</td>
-                <td>{{ row.expectedAssists }}</td>
-                <td>{{ row.previousScore }}</td>
-                <td>{{ row.currentTargetScore }}</td>
-                <td>
-                  <span
-                    class="delta"
-                    [class.delta-up]="getScoreDelta(row) > 0"
-                    [class.delta-down]="getScoreDelta(row) < 0"
-                    [class.delta-flat]="getScoreDelta(row) === 0">
-                    {{ getScoreDelta(row) > 0 ? '+' : '' }}{{ getScoreDelta(row) }}
-                  </span>
-                </td>
-                <td>
-                  <span
-                    class="trend-badge"
-                    [class.trend-up]="row.trend === 'IMPROVING'"
-                    [class.trend-down]="row.trend === 'DECLINING'"
-                    [class.trend-stable]="row.trend === 'STABLE'">
-                    {{ row.trend }}
-                  </span>
-                </td>
-                <td class="reason-cell">{{ row.trendReason }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <div class="pagination-bar">
-        <button class="secondary-btn" (click)="goToPreviousPage()" [disabled]="currentPage === 1">
-          Previous
-        </button>
-
-        <span class="pagination-text">
-          Page {{ currentPage }} of {{ totalPages }}
-        </span>
-
-        <button class="secondary-btn" (click)="goToNextPage()" [disabled]="currentPage === totalPages">
-          Next
-        </button>
-      </div>
+  <div class="toolbar">
+    <div class="filters">
+      <input type="text" [(ngModel)]="name" placeholder="Search by name" />
+      <input type="text" [(ngModel)]="position" placeholder="Filter by position" />
+      <input type="text" [(ngModel)]="team" placeholder="Filter by team" />
+      <button (click)="applyFilters()" class="btn-secondary">Search</button>
+      <button (click)="clearFilters()" class="btn-secondary">Clear</button>
     </div>
+
+    <button (click)="toggleAdvanced()" class="btn-toggle">
+      {{ showAdvanced ? 'Hide Advanced Columns' : 'Show Advanced Columns' }}
+    </button>
+  </div>
+
+  @if (loadingPlayers || loadingModelInfo || loadingTrainingInfo) {
+    <p>Loading training players...</p>
   }
 
-  @if (modelInfo) {
-    <div class="card">
-      <h3>Model Overview</h3>
-      <div class="detail-grid">
-        <div>
-          <span class="detail-label">Model Name</span>
-          <p>{{ modelInfo.modelName }}</p>
-        </div>
-        <div>
-          <span class="detail-label">Model Type</span>
-          <p>{{ modelInfo.modelType }}</p>
-        </div>
-        <div>
-          <span class="detail-label">Status</span>
-          <p>{{ modelInfo.trainingStatus }}</p>
-        </div>
-      </div>
+  @if (!loadingPlayers) {
+    <div class="table-wrapper">
+      <table class="players-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Position</th>
+          <th>Team</th>
+          <th>Goals</th>
+          <th>Assists</th>
+          <th>Form</th>
+          <th>Injured</th>
+          <th>Trend</th>
 
-      <div class="description-block">
-        <span class="detail-label">Description</span>
-        <p>{{ modelInfo.description }}</p>
-      </div>
+          @if (showAdvanced) {
+            <th>xG</th>
+            <th>xA</th>
+            <th>Key Passes</th>
+            <th>Prog. Passes</th>
+            <th>Dribbles</th>
+            <th>Tackles</th>
+            <th>Interceptions</th>
+            <th>Recoveries</th>
+            <th>Missed</th>
+            <th>Load</th>
+          }
+
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (player of players; track player.id) {
+            <tr>
+              <td>{{ player.name }}</td>
+              <td>{{ player.age }}</td>
+              <td>{{ player.position }}</td>
+              <td>{{ player.team }}</td>
+              <td>{{ player.goals }}</td>
+              <td>{{ player.assists }}</td>
+              <td>{{ player.formRating }}</td>
+              <td>{{ player.injuryStatus ? 'Yes' : 'No' }}</td>
+              <td>
+                <span class="trend-badge"
+                      [class.trend-up]="getTrend(player) === 'IMPROVING'"
+                      [class.trend-down]="getTrend(player) === 'DECLINING'"
+                      [class.trend-stable]="getTrend(player) === 'STABLE'">
+                  {{ getTrend(player) }}
+                </span>
+              </td>
+
+              @if (showAdvanced) {
+                <td>{{ player.expectedGoals ?? 0 }}</td>
+                <td>{{ player.expectedAssists ?? 0 }}</td>
+                <td>{{ player.keyPasses ?? 0 }}</td>
+                <td>{{ player.progressivePasses ?? 0 }}</td>
+                <td>{{ player.dribblesCompleted ?? 0 }}</td>
+                <td>{{ player.tacklesWon ?? 0 }}</td>
+                <td>{{ player.interceptions ?? 0 }}</td>
+                <td>{{ player.ballRecoveries ?? 0 }}</td>
+                <td>{{ player.matchesMissed ?? 0 }}</td>
+                <td>{{ player.recentMatchLoad ?? 0 }}</td>
+              }
+
+              <td class="actions">
+                <a [routerLink]="['/players', player.id]" class="btn-link">View</a>
+                <a [routerLink]="['/players', player.id, 'edit']" class="btn-link">Edit</a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
 
-    <div class="card">
-      <h3>Supported Features</h3>
-      <div class="feature-grid">
-        @for (feature of modelInfo.supportedFeatures; track feature) {
-          <span class="feature-chip">{{ feature }}</span>
+    @if (players.length === 0) {
+      <p>No players found.</p>
+    }
+
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button (click)="previousPage()" [disabled]="page === 0">Previous</button>
+
+        @for (p of pageNumbers; track p) {
+          <button (click)="goToPage(p)" [class.active]="p === page">
+            {{ p + 1 }}
+          </button>
         }
+
+        <button (click)="nextPage()" [disabled]="page >= totalPages - 1">Next</button>
       </div>
-    </div>
+
+      <p class="page-summary">
+        Page {{ page + 1 }} of {{ totalPages }} • {{ totalElements }} total players
+      </p>
+    }
   }
 </div>

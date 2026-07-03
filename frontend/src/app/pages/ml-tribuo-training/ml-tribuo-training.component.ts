@@ -1,31 +1,36 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { MlPredictionTribuoService } from '../../services/ml-prediction-tribuo.service';
+import { PlayerService } from '../../services/player.service';
+import { Player } from '../../models/player';
 import {
   MlModelInfoTribuo,
-  MlTribuoTrainingInfoResponse,
-  MlTribuoTrainingPreviewRow
+  MlTribuoTrainingInfoResponse
 } from '../../models/ml-prediction-tribuo';
 
 @Component({
   selector: 'app-ml-tribuo-training',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './ml-tribuo-training.component.html',
   styleUrl: './ml-tribuo-training.component.css'
 })
 export class MlTribuoTrainingComponent implements OnInit {
   private tribuoService = inject(MlPredictionTribuoService);
+  private playerService = inject(PlayerService);
   private cdr = inject(ChangeDetectorRef);
 
   modelInfo: MlModelInfoTribuo | null = null;
   trainingInfo: MlTribuoTrainingInfoResponse | null = null;
-  trainingPreviewRows: MlTribuoTrainingPreviewRow[] = [];
+
+  players: Player[] = [];
+  loadingPlayers = false;
 
   loadingModelInfo = false;
   loadingTrainingInfo = false;
-  loadingTrainingPreview = false;
   training = false;
 
   error: string | null = null;
@@ -33,8 +38,15 @@ export class MlTribuoTrainingComponent implements OnInit {
   trainingStatusMessage: string | null = null;
   lastTrainingDurationMs: number | null = null;
 
-  currentPage = 1;
-  pageSize = 5;
+  name = '';
+  position = '';
+  team = '';
+  showAdvanced = false;
+
+  page = 0;
+  size = 10;
+  totalPages = 0;
+  totalElements = 0;
 
   private trainingStep1Timer: ReturnType<typeof setTimeout> | null = null;
   private trainingStep2Timer: ReturnType<typeof setTimeout> | null = null;
@@ -44,57 +56,41 @@ export class MlTribuoTrainingComponent implements OnInit {
   }
 
   get improvingCount(): number {
-    return this.trainingPreviewRows.filter((row) => row.trend === 'IMPROVING').length;
+    return this.players.filter((player) => this.getTrend(player) === 'IMPROVING').length;
   }
 
   get decliningCount(): number {
-    return this.trainingPreviewRows.filter((row) => row.trend === 'DECLINING').length;
+    return this.players.filter((player) => this.getTrend(player) === 'DECLINING').length;
   }
 
   get stableCount(): number {
-    return this.trainingPreviewRows.filter((row) => row.trend === 'STABLE').length;
+    return this.players.filter((player) => this.getTrend(player) === 'STABLE').length;
   }
 
-  get previewPlayerCount(): number {
-    return this.trainingPreviewRows.length;
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i);
   }
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.trainingPreviewRows.length / this.pageSize));
-  }
+  loadPlayers(): void {
+    this.loadingPlayers = true;
+    this.error = null;
 
-  get paginatedTrainingRows(): MlTribuoTrainingPreviewRow[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.trainingPreviewRows.slice(start, start + this.pageSize);
-  }
-
-  get pageStart(): number {
-    if (this.trainingPreviewRows.length === 0) {
-      return 0;
-    }
-    return (this.currentPage - 1) * this.pageSize + 1;
-  }
-
-  get pageEnd(): number {
-    return Math.min(this.currentPage * this.pageSize, this.trainingPreviewRows.length);
-  }
-
-  getScoreDelta(row: MlTribuoTrainingPreviewRow): number {
-    return Number((row.currentTargetScore - row.previousScore).toFixed(1));
-  }
-
-  goToPreviousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.cdr.markForCheck();
-    }
-  }
-
-  goToNextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.cdr.markForCheck();
-    }
+    this.playerService.searchPlayers(this.name, this.position, this.team, this.page, this.size)
+      .pipe(finalize(() => {
+        this.loadingPlayers = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (data) => {
+          this.players = data.content ?? [];
+          this.totalPages = data.totalPages ?? 0;
+          this.totalElements = data.totalElements ?? 0;
+        },
+        error: (err) => {
+          console.error('Failed to load players', err);
+          this.error = 'Failed to load players';
+        }
+      });
   }
 
   loadModelInfo(): void {
@@ -133,25 +129,6 @@ export class MlTribuoTrainingComponent implements OnInit {
       });
   }
 
-  loadTrainingPreview(): void {
-    this.loadingTrainingPreview = true;
-    this.tribuoService.getTrainingDataPreview()
-      .pipe(finalize(() => {
-        this.loadingTrainingPreview = false;
-        this.cdr.markForCheck();
-      }))
-      .subscribe({
-        next: (data: MlTribuoTrainingPreviewRow[]) => {
-          this.trainingPreviewRows = data;
-          this.currentPage = 1;
-        },
-        error: (err: unknown) => {
-          console.error('Failed to load training preview', err);
-          this.error = 'Failed to load training preview';
-        }
-      });
-  }
-
   trainModel(): void {
     if (this.training) {
       return;
@@ -175,7 +152,7 @@ export class MlTribuoTrainingComponent implements OnInit {
 
     this.trainingStep2Timer = setTimeout(() => {
       if (this.training) {
-        this.trainingStatusMessage = 'Refreshing model metadata and preview...';
+        this.trainingStatusMessage = 'Refreshing model metadata and player table...';
         this.cdr.markForCheck();
       }
     }, 900);
@@ -194,13 +171,51 @@ export class MlTribuoTrainingComponent implements OnInit {
           this.successMessage = `Tribuo model retrained successfully in ${this.lastTrainingDurationMs} ms.`;
           this.loadModelInfo();
           this.loadTrainingInfo();
-          this.loadTrainingPreview();
+          this.loadPlayers();
         },
         error: (err: unknown) => {
           console.error('Failed to train model', err);
-          this.error = 'Failed to train model. Check backend /ml/tribuo/train response in browser network tab.';
+          this.error = 'Failed to train model.';
         }
       });
+  }
+
+  applyFilters(): void {
+    this.page = 0;
+    this.loadPlayers();
+  }
+
+  clearFilters(): void {
+    this.name = '';
+    this.position = '';
+    this.team = '';
+    this.page = 0;
+    this.loadPlayers();
+  }
+
+  toggleAdvanced(): void {
+    this.showAdvanced = !this.showAdvanced;
+  }
+
+  previousPage(): void {
+    if (this.page > 0) {
+      this.page--;
+      this.loadPlayers();
+    }
+  }
+
+  nextPage(): void {
+    if (this.page < this.totalPages - 1) {
+      this.page++;
+      this.loadPlayers();
+    }
+  }
+
+  goToPage(pageIndex: number): void {
+    if (pageIndex >= 0 && pageIndex < this.totalPages) {
+      this.page = pageIndex;
+      this.loadPlayers();
+    }
   }
 
   refreshAll(): void {
@@ -208,7 +223,21 @@ export class MlTribuoTrainingComponent implements OnInit {
     this.successMessage = null;
     this.loadModelInfo();
     this.loadTrainingInfo();
-    this.loadTrainingPreview();
+    this.loadPlayers();
+  }
+
+  getTrend(player: Player): 'IMPROVING' | 'DECLINING' | 'STABLE' {
+    const form = player.formRating ?? 0;
+
+    if (player.injuryStatus || (player.matchesMissed ?? 0) >= 5 || form < 5) {
+      return 'DECLINING';
+    }
+
+    if ((player.goals ?? 0) >= 10 || (player.assists ?? 0) >= 7 || form >= 7) {
+      return 'IMPROVING';
+    }
+
+    return 'STABLE';
   }
 
   private clearTrainingTimers(): void {
