@@ -1,0 +1,53 @@
+<div class="tribuo-page">
+  <div class="page-header">
+    <h2>Tribuo Training</h2>
+    <p>Manage Tribuo model training and inspect training metadata.</p>
+  </div>
+
+  @if (error) {
+    <div class="error-box">{{ error }}</div>
+  }
+
+  @if (loadingModelInfo || loadingTrainingInfo) {
+    <div class="info-box">Loading training page...</div>
+  }
+
+  @if (modelInfo) {
+    <div class="card">
+      <h3>Model Overview</h3>
+      <p><strong>Model Name:</strong> {{ modelInfo.modelName }}</p>
+      <p><strong>Model Type:</strong> {{ modelInfo.modelType }}</p>
+      <p><strong>Status:</strong> {{ modelInfo.trainingStatus }}</p>
+      <p><strong>Description:</strong> {{ modelInfo.description }}</p>
+    </div>
+  }
+
+  @if (trainingInfo) {
+    <div class="card">
+      <h3>Training Information</h3>
+      <p><strong>Training Rows:</strong> {{ trainingInfo.trainingRowCount }}</p>
+      <p><strong>Training Source:</strong> {{ trainingInfo.trainingSource }}</p>
+      <p><strong>Last Trained:</strong> {{ trainingInfo.lastTrainedAt || 'Not trained yet' }}</p>
+    </div>
+
+    <div class="card">
+      <h3>Supported Features</h3>
+      <div class="feature-grid">
+        @for (feature of trainingInfo.supportedFeatures; track feature) {
+          <span class="feature-chip">{{ feature }}</span>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="card actions-card">
+    <h3>Actions</h3>
+    <button class="primary-btn" (click)="trainModel()" [disabled]="training">
+      {{ training ? 'Training...' : 'Train Model' }}
+    </button>
+
+    <button class="secondary-btn" (click)="refreshAll()">
+      Refresh
+    </button>
+  </div>
+</div>

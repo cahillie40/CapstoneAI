@@ -1,0 +1,57 @@
+<div class="tribuo-page">
+  <div class="page-header">
+    <h2>Tribuo Evaluation</h2>
+    <p>Review regression model quality metrics and evaluation state.</p>
+  </div>
+
+  @if (error) {
+    <div class="error-box">{{ error }}</div>
+  }
+
+  @if (loading) {
+    <div class="info-box">Loading evaluation metrics...</div>
+  }
+
+  @if (evaluation) {
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <h4>MAE</h4>
+        <p>{{ evaluation.mae ?? 'N/A' }}</p>
+      </div>
+
+      <div class="metric-card">
+        <h4>RMSE</h4>
+        <p>{{ evaluation.rmse ?? 'N/A' }}</p>
+      </div>
+
+      <div class="metric-card">
+        <h4>R²</h4>
+        <p>{{ evaluation.r2 ?? 'N/A' }}</p>
+      </div>
+
+      <div class="metric-card">
+        <h4>Split Ratio</h4>
+        <p>{{ evaluation.splitRatio ?? 'N/A' }}</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Evaluation Details</h3>
+      <p><strong>Training Rows:</strong> {{ evaluation.trainingRows ?? 'N/A' }}</p>
+      <p><strong>Test Rows:</strong> {{ evaluation.testRows ?? 'N/A' }}</p>
+      <p><strong>Evaluated At:</strong> {{ evaluation.evaluatedAt || 'Not evaluated yet' }}</p>
+      <p><strong>Summary:</strong> {{ evaluation.summary }}</p>
+    </div>
+  }
+
+  <div class="card actions-card">
+    <h3>Actions</h3>
+    <button class="primary-btn" (click)="evaluateModel()" [disabled]="evaluating">
+      {{ evaluating ? 'Evaluating...' : 'Run Evaluation' }}
+    </button>
+
+    <button class="secondary-btn" (click)="loadEvaluation()">
+      Refresh
+    </button>
+  </div>
+</div>

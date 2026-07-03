@@ -12,6 +12,9 @@ import { CsvImportComponent } from './pages/csv-import/csv-import.component';
 import { ValidationComponent } from './pages/validation/validation.component';
 import { MlPredictorComponent } from './pages/ml-predictor/ml-predictor.component';
 import { MlPredictionTribuoComponent } from './pages/ml-prediction-tribuo/ml-prediction-tribuo.component';
+import { MlTribuoTrainingComponent } from './pages/ml-tribuo-training/ml-tribuo-training.component';
+import { MlTribuoEvaluationComponent } from './pages/ml-tribuo-evaluation/ml-tribuo-evaluation.component';
+
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -26,5 +29,13 @@ export const routes: Routes = [
   { path: 'import', component: CsvImportComponent },
   { path: 'validation', component: ValidationComponent },
   { path: 'ml-predictor', title: 'ML Predictor', component: MlPredictorComponent },
-  { path: 'ml-prediction-tribuo', title: 'ML Prediction Tribuo', component: MlPredictionTribuoComponent }
+  { path: 'ml-prediction-tribuo', title: 'ML Prediction Tribuo', component: MlPredictionTribuoComponent },
+  {
+    path: 'ml-tribuo-training',
+    component: MlTribuoTrainingComponent
+  },
+  {
+    path: 'ml-tribuo-evaluation',
+    component: MlTribuoEvaluationComponent
+  },
 ];
