@@ -1,0 +1,52 @@
+name,age,position,team,matchesPlayed,goals,assists,minutesPlayed,yellowCards,redCards,shotsOnTarget,passAccuracy,formRating,injuryStatus,expectedGoals,expectedAssists,keyPasses,progressivePasses,dribblesCompleted,tacklesWon,interceptions,ballRecoveries,matchesMissed,recentMatchLoad,name,age,position,team,matchesPlayed,goals,assists
+Bukayo Saka,22,Winger,Arsenal,32,14,11,2650,4,0,26,84.7,88.5,FALSE,12.8,9.4,58,132,47,18,12,76,2,6,Bukayo Saka,22,Winger,Arsenal,32,14,11
+Kevin De Bruyne,33,Midfielder,Manchester City,24,6,15,1890,2,0,18,89.4,91.2,FALSE,7.1,13.8,84,210,19,10,16,59,4,5,Kevin De Bruyne,33,Midfielder,Manchester City,24,6,15
+Virgil van Dijk,32,Defender,Liverpool,34,3,2,3060,5,0,7,91.1,87.0,FALSE,2.4,1.1,12,88,6,42,39,121,1,4,Virgil van Dijk,32,Defender,Liverpool,34,3,2
+Pedri,21,Midfielder,Barcelona,20,4,6,1540,3,0,10,90.2,85.6,TRUE,3.8,5.7,41,126,28,15,19,64,8,6,Pedri,21,Midfielder,Barcelona,20,4,6
+Erling Haaland,23,Striker,Manchester City,30,27,5,2400,3,1,64,72.3,94.1,FALSE,25.6,4.2,18,44,21,5,4,23,2,5,Erling Haaland,23,Striker,Manchester City,30,27,5
+Martin Odegaard,25,Midfielder,Arsenal,33,8,10,2788,4,0,19,87.6,89.8,FALSE,7.6,8.9,73,188,32,21,17,68,1,5,Martin Odegaard,25,Midfielder,Arsenal,33,8,10
+Declan Rice,25,Midfielder,Arsenal,34,5,7,2964,6,0,14,88.9,87.9,FALSE,4.8,6.2,49,176,24,53,41,112,0,6,Declan Rice,25,Midfielder,Arsenal,34,5,7
+Gabriel Martinelli,23,Winger,Arsenal,29,11,6,2210,3,0,24,82.4,84.7,FALSE,10.7,5.8,37,98,51,11,9,47,3,6,Gabriel Martinelli,23,Winger,Arsenal,29,11,6
+William Saliba,23,Defender,Arsenal,31,2,1,2790,5,0,4,92.3,86.8,FALSE,1.4,0.9,8,74,5,48,44,129,1,4,William Saliba,23,Defender,Arsenal,31,2,1
+Bruno Fernandes,29,Midfielder,Manchester United,34,10,9,3012,7,0,22,83.8,86.4,FALSE,9.2,10.4,88,205,26,17,21,72,0,6,Bruno Fernandes,29,Midfielder,Manchester United,34,10,9
+Marcus Rashford,26,Forward,Manchester United,30,13,5,2441,4,0,31,79.6,82.2,FALSE,12.4,4.9,29,71,44,10,8,39,2,6,Marcus Rashford,26,Forward,Manchester United,30,13,5
+Casemiro,32,Midfielder,Manchester United,25,4,3,1986,10,1,9,85.1,79.8,TRUE,3.1,2.4,21,84,8,47,35,101,6,7,Casemiro,32,Midfielder,Manchester United,25,4,3
+Lisandro Martinez,26,Defender,Manchester United,22,1,2,1762,6,1,3,89.7,81.9,TRUE,0.8,1.3,14,69,6,39,34,98,9,6,Lisandro Martinez,26,Defender,Manchester United,22,1,2
+Phil Foden,24,Forward,Manchester City,31,16,8,2495,2,0,35,86.2,90.1,FALSE,14.3,6.8,44,117,55,12,10,48,1,5,Phil Foden,24,Forward,Manchester City,31,16,8
+Rodri,28,Midfielder,Manchester City,35,7,8,3128,7,0,16,92.5,91.0,FALSE,5.3,7.2,63,214,18,61,49,136,0,5,Rodri,28,Midfielder,Manchester City,35,7,8
+Bernardo Silva,29,Midfielder,Manchester City,33,6,9,2742,5,0,17,90.6,88.9,FALSE,5.7,8.1,57,174,36,24,23,81,1,5,Bernardo Silva,29,Midfielder,Manchester City,33,6,9
+Ruben Dias,27,Defender,Manchester City,30,2,1,2674,4,0,5,93.1,87.4,FALSE,1.6,0.7,9,82,4,44,40,124,2,4,Ruben Dias,27,Defender,Manchester City,30,2,1
+Mohamed Salah,31,Forward,Liverpool,32,19,10,2768,3,0,42,81.5,90.4,FALSE,17.1,8.6,46,109,52,9,7,41,1,5,Mohamed Salah,31,Forward,Liverpool,32,19,10
+Dominik Szoboszlai,23,Midfielder,Liverpool,30,5,8,2410,5,0,14,86.7,85.1,FALSE,4.9,7.5,54,164,29,22,19,73,2,6,Dominik Szoboszlai,23,Midfielder,Liverpool,30,5,8
+Alexis Mac Allister,25,Midfielder,Liverpool,33,4,6,2879,8,0,11,88.4,84.9,FALSE,3.6,5.2,48,183,17,39,31,97,0,5,Alexis Mac Allister,25,Midfielder,Liverpool,33,4,6
+Trent Alexander-Arnold,25,Defender,Liverpool,28,3,11,2194,6,0,13,87.1,88.3,FALSE,2.8,9.8,79,243,14,16,18,69,4,5,Trent Alexander-Arnold,25,Defender,Liverpool,28,3,11
+Darwin Nunez,24,Forward,Liverpool,31,15,7,2305,7,0,38,74.8,83.5,FALSE,16.2,6.1,24,63,39,8,6,34,3,6,Darwin Nunez,24,Forward,Liverpool,31,15,7
+Cole Palmer,22,Midfielder,Chelsea,32,18,9,2599,4,0,29,84.3,89.7,FALSE,14.8,8.2,61,154,48,13,11,52,1,5,Cole Palmer,22,Midfielder,Chelsea,32,18,9
+Enzo Fernandez,23,Midfielder,Chelsea,29,4,7,2388,8,0,10,88.8,83.2,FALSE,3.7,6.5,52,168,20,31,27,88,3,6,Enzo Fernandez,23,Midfielder,Chelsea,29,4,7
+Conor Gallagher,24,Midfielder,Chelsea,34,6,7,2890,9,0,15,85.7,84.5,FALSE,5.1,6.0,44,139,27,36,29,93,0,6,Conor Gallagher,24,Midfielder,Chelsea,34,6,7
+Reece James,24,Defender,Chelsea,12,1,3,864,3,0,4,86.5,78.8,TRUE,0.9,2.1,18,52,6,14,11,34,14,4,Reece James,24,Defender,Chelsea,12,1,3
+Nicolas Jackson,23,Forward,Chelsea,30,14,5,2360,8,0,33,76.4,81.0,FALSE,13.6,4.7,19,51,34,7,5,29,2,6,Nicolas Jackson,23,Forward,Chelsea,30,14,5
+Son Heung-min,31,Forward,Tottenham,31,17,8,2551,2,0,34,83.1,88.6,FALSE,14.7,7.0,39,92,43,9,6,38,1,5,Son Heung-min,31,Forward,Tottenham,31,17,8
+James Maddison,27,Midfielder,Tottenham,27,7,9,2064,4,0,17,86.9,86.0,TRUE,6.2,8.4,66,173,31,15,13,57,5,6,James Maddison,27,Midfielder,Tottenham,27,7,9
+Dejan Kulusevski,24,Winger,Tottenham,33,8,7,2711,5,0,20,82.8,84.2,FALSE,7.5,6.9,42,118,49,14,12,61,1,6,Dejan Kulusevski,24,Winger,Tottenham,33,8,7
+Cristian Romero,26,Defender,Tottenham,30,4,1,2622,11,1,6,90.1,82.7,FALSE,2.0,0.8,7,61,5,46,38,118,2,5,Cristian Romero,26,Defender,Tottenham,30,4,1
+Yves Bissouma,27,Midfielder,Tottenham,29,2,3,2280,9,1,5,89.3,80.1,FALSE,1.7,2.4,26,121,19,44,33,99,3,6,Yves Bissouma,27,Midfielder,Tottenham,29,2,3
+Ollie Watkins,28,Forward,Aston Villa,34,19,12,2875,5,0,37,78.9,89.5,FALSE,16.8,9.1,33,81,41,11,8,36,0,5,Ollie Watkins,28,Forward,Aston Villa,34,19,12
+Douglas Luiz,26,Midfielder,Aston Villa,33,9,6,2810,10,0,12,88.1,85.9,FALSE,6.4,5.8,40,147,22,42,30,96,0,6,Douglas Luiz,26,Midfielder,Aston Villa,33,9,6
+Moussa Diaby,24,Winger,Aston Villa,30,7,8,2256,3,0,18,82.2,82.4,FALSE,6.1,7.2,38,103,46,10,7,40,2,6,Moussa Diaby,24,Winger,Aston Villa,30,7,8
+Pau Torres,27,Defender,Aston Villa,31,1,2,2691,6,0,3,91.4,84.6,FALSE,0.9,1.4,15,96,4,33,29,109,1,5,Pau Torres,27,Defender,Aston Villa,31,1,2
+John McGinn,29,Midfielder,Aston Villa,34,6,7,2920,8,0,14,84.9,84.8,FALSE,5.6,5.9,43,135,25,38,28,91,0,6,John McGinn,29,Midfielder,Aston Villa,34,6,7
+Jarrod Bowen,27,Forward,West Ham,32,18,6,2708,4,0,36,79.8,88.1,FALSE,15.9,5.4,28,74,37,12,9,42,1,5,Jarrod Bowen,27,Forward,West Ham,32,18,6
+James Ward-Prowse,29,Midfielder,West Ham,34,7,10,2971,6,0,16,86.3,85.7,FALSE,5.8,8.3,71,169,18,24,20,77,0,5,James Ward-Prowse,29,Midfielder,West Ham,34,7,10
+Mohammed Kudus,23,Winger,West Ham,29,10,5,2234,5,0,23,81.4,84.0,FALSE,9.6,4.7,31,88,57,13,10,46,3,6,Mohammed Kudus,23,Winger,West Ham,29,10,5
+Tomas Soucek,29,Midfielder,West Ham,31,6,3,2560,7,0,12,82.0,81.8,FALSE,5.2,2.8,20,94,11,41,32,104,2,6,Tomas Soucek,29,Midfielder,West Ham,31,6,3
+Nayef Aguerd,28,Defender,West Ham,28,2,1,2418,8,1,4,89.8,80.9,FALSE,1.3,0.7,9,67,3,37,34,111,4,5,Nayef Aguerd,28,Defender,West Ham,28,2,1
+Eberechi Eze,25,Midfielder,Crystal Palace,27,9,4,2110,3,0,21,84.0,85.2,FALSE,8.4,4.1,35,101,62,9,8,33,4,6,Eberechi Eze,25,Midfielder,Crystal Palace,27,9,4
+Michael Olise,22,Winger,Crystal Palace,19,8,6,1411,2,0,17,85.5,87.3,TRUE,7.2,5.8,33,89,54,7,6,28,10,5,Michael Olise,22,Winger,Crystal Palace,19,8,6
+Joachim Andersen,28,Defender,Crystal Palace,33,2,2,2970,6,0,4,90.8,84.1,FALSE,1.1,1.0,11,92,2,35,31,118,1,4,Joachim Andersen,28,Defender,Crystal Palace,33,2,2
+Cheick Doucoure,24,Midfielder,Crystal Palace,20,1,2,1638,8,0,5,87.2,79.5,TRUE,0.9,1.5,18,77,9,38,29,97,11,5,Cheick Doucoure,24,Midfielder,Crystal Palace,20,1,2
+Jean-Philippe Mateta,26,Forward,Crystal Palace,30,13,4,2248,5,0,28,75.9,83.8,FALSE,11.7,3.6,17,49,26,8,5,31,2,6,Jean-Philippe Mateta,26,Forward,Crystal Palace,30,13,4
+Bruno Guimaraes,26,Midfielder,Newcastle United,34,5,8,3015,11,0,13,87.9,86.6,FALSE,4.6,6.8,47,182,23,39,34,106,0,6,Bruno Guimaraes,26,Midfielder,Newcastle United,34,5,8
+Anthony Gordon,23,Winger,Newcastle United,33,11,10,2719,4,0,27,81.2,87.5,FALSE,10.5,8.1,36,97,45,12,9,44,1,6,Anthony Gordon,23,Winger,Newcastle United,33,11,10
+Kieran Trippier,33,Defender,Newcastle United,30,1,10,2526,7,0,9,86.8,85.4,FALSE,1.9,8.8,68,201,8,19,21,74,3,5,Kieran Trippier,33,Defender,Newcastle United,30,1,10
+Alexander Isak,24,Forward,Newcastle United,29,20,3,2215,2,0,39,77.4,90.0,FALSE,17.6,3.1,20,56,33,7,5,27,4,5,Alexander Isak,24,Forward,Newcastle United,29,20,3
