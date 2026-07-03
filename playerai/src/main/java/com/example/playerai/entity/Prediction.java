@@ -17,6 +17,8 @@ public class Prediction {
 
     private Double predictedFormRating;
     private String riskLevel;
+
+    @Column(columnDefinition = "TEXT")
     private String summary;
 
     @Column(columnDefinition = "TEXT")
