@@ -113,10 +113,6 @@
   margin-bottom: 16px;
 }
 
-.metrics-grid {
-  margin-top: 0;
-}
-
 .stat-card,
 .card {
   background: white;
@@ -285,3 +281,10 @@
   0% { margin-left: -40%; }
   100% { margin-left: 100%; }
 }
+
+.filters select {
+  padding: 8px 10px;
+  min-width: 180px;
+}
+
+

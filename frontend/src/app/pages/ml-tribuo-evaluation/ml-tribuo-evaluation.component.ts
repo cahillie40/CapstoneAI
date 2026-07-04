@@ -9,6 +9,8 @@ import { PlayerService } from '../../services/player.service';
 import { Player } from '../../models/player';
 import { MlTribuoEvaluationResponse } from '../../models/ml-prediction-tribuo';
 
+type TrendFilter = 'ALL' | 'IMPROVING' | 'DECLINING' | 'STABLE';
+
 @Component({
   selector: 'app-ml-tribuo-evaluation',
   standalone: true,
@@ -22,7 +24,7 @@ export class MlTribuoEvaluationComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   evaluation: MlTribuoEvaluationResponse | null = null;
-  players: Player[] = [];
+  allFilteredPlayers: Player[] = [];
 
   loading = false;
   loadingPlayers = false;
@@ -36,18 +38,50 @@ export class MlTribuoEvaluationComponent implements OnInit {
   name = '';
   position = '';
   team = '';
+  trendFilter: TrendFilter = 'ALL';
   showAdvanced = false;
 
   page = 0;
   size = 10;
-  totalPages = 0;
-  totalElements = 0;
 
   private evalStep1Timer: ReturnType<typeof setTimeout> | null = null;
   private evalStep2Timer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
     this.refreshAll();
+  }
+
+  get trendFilteredPlayers(): Player[] {
+    if (this.trendFilter === 'ALL') {
+      return this.allFilteredPlayers;
+    }
+
+    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === this.trendFilter);
+  }
+
+  get pagedPlayers(): Player[] {
+    const start = this.page * this.size;
+    return this.trendFilteredPlayers.slice(start, start + this.size);
+  }
+
+  get totalElements(): number {
+    return this.trendFilteredPlayers.length;
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalElements / this.size);
+  }
+
+  get improvingCount(): number {
+    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === 'IMPROVING').length;
+  }
+
+  get decliningCount(): number {
+    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === 'DECLINING').length;
+  }
+
+  get stableCount(): number {
+    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === 'STABLE').length;
   }
 
   get pageNumbers(): number[] {
@@ -74,24 +108,24 @@ export class MlTribuoEvaluationComponent implements OnInit {
       });
   }
 
-  loadPlayers(): void {
+  loadAllFilteredPlayers(): void {
     this.loadingPlayers = true;
     this.error = null;
 
-    this.playerService.searchPlayers(this.name, this.position, this.team, this.page, this.size)
+    this.playerService.searchPlayers(this.name, this.position, this.team, 0, 1000)
       .pipe(finalize(() => {
         this.loadingPlayers = false;
         this.cdr.markForCheck();
       }))
       .subscribe({
         next: (data) => {
-          this.players = data.content ?? [];
-          this.totalPages = data.totalPages ?? 0;
-          this.totalElements = data.totalElements ?? 0;
+          this.allFilteredPlayers = data.content ?? [];
+          this.page = 0;
         },
         error: (err) => {
           console.error('Failed to load players', err);
           this.error = 'Failed to load players';
+          this.allFilteredPlayers = [];
         }
       });
   }
@@ -112,14 +146,14 @@ export class MlTribuoEvaluationComponent implements OnInit {
 
     this.evalStep1Timer = setTimeout(() => {
       if (this.evaluating) {
-        this.evaluationStatusMessage = 'Building dataset and scoring holdout rows...';
+        this.evaluationStatusMessage = 'Building dataset and evaluating player records...';
         this.cdr.markForCheck();
       }
     }, 900);
 
     this.evalStep2Timer = setTimeout(() => {
       if (this.evaluating) {
-        this.evaluationStatusMessage = 'Finalising evaluation metrics and refreshing results...';
+        this.evaluationStatusMessage = 'Refreshing evaluation summary...';
         this.cdr.markForCheck();
       }
     }, 1800);
@@ -136,8 +170,8 @@ export class MlTribuoEvaluationComponent implements OnInit {
           this.evaluation = data;
           this.lastEvaluationDurationMs = Math.round(performance.now() - startedAt);
           this.successMessage = `Tribuo evaluation completed successfully in ${this.lastEvaluationDurationMs} ms.`;
-          this.loadEvaluation();
-          this.loadPlayers();
+
+          this.loadAllFilteredPlayers();
         },
         error: (err: unknown) => {
           console.error('Failed to run evaluation', err);
@@ -148,20 +182,25 @@ export class MlTribuoEvaluationComponent implements OnInit {
 
   refreshAll(): void {
     this.loadEvaluation();
-    this.loadPlayers();
+    this.loadAllFilteredPlayers();
   }
 
   applyFilters(): void {
     this.page = 0;
-    this.loadPlayers();
+    this.loadAllFilteredPlayers();
   }
 
   clearFilters(): void {
     this.name = '';
     this.position = '';
     this.team = '';
+    this.trendFilter = 'ALL';
     this.page = 0;
-    this.loadPlayers();
+    this.loadAllFilteredPlayers();
+  }
+
+  onTrendFilterChange(): void {
+    this.page = 0;
   }
 
   goToPage(pageNumber: number): void {
@@ -170,20 +209,17 @@ export class MlTribuoEvaluationComponent implements OnInit {
     }
 
     this.page = pageNumber;
-    this.loadPlayers();
   }
 
   previousPage(): void {
     if (this.page > 0) {
       this.page--;
-      this.loadPlayers();
     }
   }
 
   nextPage(): void {
     if (this.page < this.totalPages - 1) {
       this.page++;
-      this.loadPlayers();
     }
   }
 
