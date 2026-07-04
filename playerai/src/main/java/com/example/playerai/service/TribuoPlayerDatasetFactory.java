@@ -41,7 +41,27 @@ public class TribuoPlayerDatasetFactory {
         return dataset;
     }
 
-    private boolean isTrainable(Player player) {
+    public int getTotalPlayerCount() {
+        return playerRepository.findAll().size();
+    }
+
+    public int getTrainablePlayerCount() {
+        return (int) playerRepository.findAll().stream()
+                .filter(this::isTrainable)
+                .count();
+    }
+
+    public int getExcludedPlayerCount() {
+        return getTotalPlayerCount() - getTrainablePlayerCount();
+    }
+
+    public List<Player> getTrainablePlayers() {
+        return playerRepository.findAll().stream()
+                .filter(this::isTrainable)
+                .toList();
+    }
+
+    public boolean isTrainable(Player player) {
         return player.getFormRating() != null
                 && player.getAge() != null
                 && player.getGoals() != null

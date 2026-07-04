@@ -44,6 +44,10 @@ public class MlTribuoTrainingService {
     }
 
     public MlTribuoTrainingInfoResponse getTrainingInfo() {
+        int totalPlayers = tribuoPlayerDatasetFactory.getTotalPlayerCount();
+        int trainablePlayers = tribuoPlayerDatasetFactory.getTrainablePlayerCount();
+        int excludedPlayers = tribuoPlayerDatasetFactory.getExcludedPlayerCount();
+
         return new MlTribuoTrainingInfoResponse(
                 "Tribuo Regression Predictor",
                 "Tribuo Linear SGD Regression",
@@ -51,6 +55,9 @@ public class MlTribuoTrainingService {
                 modelManager.getTrainingRowCount(),
                 modelManager.getTrainingSource(),
                 modelManager.getLastTrainedAt() != null ? modelManager.getLastTrainedAt().toString() : null,
+                totalPlayers,
+                trainablePlayers,
+                excludedPlayers,
                 List.of(
                         "age",
                         "goals",
@@ -72,6 +79,7 @@ public class MlTribuoTrainingService {
                 )
         );
     }
+
 
     public MlModelInfoTribuoDTO getModelInfo() {
         return new MlModelInfoTribuoDTO(
