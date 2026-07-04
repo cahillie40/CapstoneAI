@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
+
 import { MlPredictionTribuoService } from '../../services/ml-prediction-tribuo.service';
 import { PlayerService } from '../../services/player.service';
 import { Player } from '../../models/player';
@@ -47,18 +48,6 @@ export class MlTribuoEvaluationComponent implements OnInit {
 
   ngOnInit(): void {
     this.refreshAll();
-  }
-
-  get improvingCount(): number {
-    return this.players.filter((player) => this.getTrend(player) === 'IMPROVING').length;
-  }
-
-  get decliningCount(): number {
-    return this.players.filter((player) => this.getTrend(player) === 'DECLINING').length;
-  }
-
-  get stableCount(): number {
-    return this.players.filter((player) => this.getTrend(player) === 'STABLE').length;
   }
 
   get pageNumbers(): number[] {
@@ -114,31 +103,32 @@ export class MlTribuoEvaluationComponent implements OnInit {
 
     const startedAt = performance.now();
 
+    this.clearTimers();
     this.evaluating = true;
     this.error = null;
     this.successMessage = null;
-    this.evaluationStatusMessage = 'Preparing evaluation dataset...';
-    this.clearEvaluationTimers();
+    this.lastEvaluationDurationMs = null;
+    this.evaluationStatusMessage = 'Preparing database-backed Tribuo evaluation...';
 
     this.evalStep1Timer = setTimeout(() => {
       if (this.evaluating) {
-        this.evaluationStatusMessage = 'Scoring Tribuo player outcomes...';
-        this.cdr.markForCheck();
-      }
-    }, 350);
-
-    this.evalStep2Timer = setTimeout(() => {
-      if (this.evaluating) {
-        this.evaluationStatusMessage = 'Refreshing evaluation summary and player table...';
+        this.evaluationStatusMessage = 'Building dataset and scoring holdout rows...';
         this.cdr.markForCheck();
       }
     }, 900);
 
+    this.evalStep2Timer = setTimeout(() => {
+      if (this.evaluating) {
+        this.evaluationStatusMessage = 'Finalising evaluation metrics and refreshing results...';
+        this.cdr.markForCheck();
+      }
+    }, 1800);
+
     this.tribuoService.evaluateModel()
       .pipe(finalize(() => {
         this.evaluating = false;
+        this.clearTimers();
         this.evaluationStatusMessage = null;
-        this.clearEvaluationTimers();
         this.cdr.markForCheck();
       }))
       .subscribe({
@@ -150,10 +140,15 @@ export class MlTribuoEvaluationComponent implements OnInit {
           this.loadPlayers();
         },
         error: (err: unknown) => {
-          console.error('Failed to evaluate model', err);
-          this.error = 'Failed to evaluate model. Make sure the Tribuo model has been trained first.';
+          console.error('Failed to run evaluation', err);
+          this.error = 'Failed to run Tribuo evaluation';
         }
       });
+  }
+
+  refreshAll(): void {
+    this.loadEvaluation();
+    this.loadPlayers();
   }
 
   applyFilters(): void {
@@ -169,8 +164,13 @@ export class MlTribuoEvaluationComponent implements OnInit {
     this.loadPlayers();
   }
 
-  toggleAdvanced(): void {
-    this.showAdvanced = !this.showAdvanced;
+  goToPage(pageNumber: number): void {
+    if (pageNumber < 0 || pageNumber >= this.totalPages || pageNumber === this.page) {
+      return;
+    }
+
+    this.page = pageNumber;
+    this.loadPlayers();
   }
 
   previousPage(): void {
@@ -187,34 +187,97 @@ export class MlTribuoEvaluationComponent implements OnInit {
     }
   }
 
-  goToPage(pageIndex: number): void {
-    if (pageIndex >= 0 && pageIndex < this.totalPages) {
-      this.page = pageIndex;
-      this.loadPlayers();
-    }
-  }
-
-  refreshAll(): void {
-    this.successMessage = null;
-    this.loadEvaluation();
-    this.loadPlayers();
+  toggleAdvanced(): void {
+    this.showAdvanced = !this.showAdvanced;
   }
 
   getTrend(player: Player): 'IMPROVING' | 'DECLINING' | 'STABLE' {
-    const form = player.formRating ?? 0;
+    const score = this.safe(player.formRating);
+    const shift = this.deriveTrendShift(player);
+    const previous = score - shift;
 
-    if (player.injuryStatus || (player.matchesMissed ?? 0) >= 5 || form < 5) {
-      return 'DECLINING';
+    if (score > previous) {
+      return 'IMPROVING';
     }
 
-    if ((player.goals ?? 0) >= 10 || (player.assists ?? 0) >= 7 || form >= 7) {
-      return 'IMPROVING';
+    if (score < previous) {
+      return 'DECLINING';
     }
 
     return 'STABLE';
   }
 
-  private clearEvaluationTimers(): void {
+  getTrendClass(player: Player): string {
+    const trend = this.getTrend(player);
+
+    if (trend === 'IMPROVING') {
+      return 'trend-up';
+    }
+
+    if (trend === 'DECLINING') {
+      return 'trend-down';
+    }
+
+    return 'trend-stable';
+  }
+
+  getTrendReason(player: Player): string {
+    if (player.injuryStatus) {
+      return 'Injury status is negatively affecting availability and trend outlook.';
+    }
+
+    if (this.safe(player.matchesMissed) >= 5) {
+      return 'Missed matches reduce continuity and weaken the current trend profile.';
+    }
+
+    if (this.safe(player.goals) >= 10 || this.safe(player.assists) >= 7) {
+      return 'Strong attacking output is supporting a positive trend signal.';
+    }
+
+    if (this.safe(player.expectedGoals) >= 8 || this.safe(player.expectedAssists) >= 6) {
+      return 'Underlying expected metrics support stronger current performance.';
+    }
+
+    if (this.safe(player.minutesPlayed) < 1500) {
+      return 'Lower minutes played are limiting the current performance profile.';
+    }
+
+    return 'Trend is based on the current balance of player performance indicators.';
+  }
+
+  private deriveTrendShift(player: Player): number {
+    let shift = 0;
+
+    if (this.safe(player.goals) >= 10) {
+      shift += 2.0;
+    }
+    if (this.safe(player.assists) >= 7) {
+      shift += 1.5;
+    }
+    if (this.safe(player.expectedGoals) >= 8) {
+      shift += 1.0;
+    }
+    if (this.safe(player.expectedAssists) >= 6) {
+      shift += 1.0;
+    }
+    if (this.safe(player.minutesPlayed) < 1500) {
+      shift -= 1.5;
+    }
+    if (player.injuryStatus) {
+      shift -= 2.5;
+    }
+    if (this.safe(player.matchesMissed) >= 5) {
+      shift -= 1.5;
+    }
+
+    return shift;
+  }
+
+  private safe(value: number | null | undefined): number {
+    return value ?? 0;
+  }
+
+  private clearTimers(): void {
     if (this.evalStep1Timer) {
       clearTimeout(this.evalStep1Timer);
       this.evalStep1Timer = null;

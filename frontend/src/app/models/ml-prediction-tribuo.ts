@@ -109,3 +109,17 @@ export interface MlTribuoEvaluationPlayerRow {
   trend: string;
   trendReason: string;
 }
+
+export interface MlTribuoEvaluationResponse {
+  mae: number | null;
+  rmse: number | null;
+  r2: number | null;
+  trainingRows: number | null;
+  testRows: number | null;
+  splitRatio: number | null;
+  evaluatedAt: string | null;
+  totalPlayers: number | null;
+  trainablePlayers: number | null;
+  excludedPlayers: number | null;
+  summary: string;
+}

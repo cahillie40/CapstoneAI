@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h2>Tribuo Evaluation</h2>
-      <p>Evaluate real players from the database and review improvement, decline, and stability trends.</p>
+      <p>Evaluate real players from the database and review regression metrics alongside player trend detail.</p>
     </div>
 
     <div class="header-actions">
@@ -37,29 +37,51 @@
     </div>
   }
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <span class="stat-label">Players Loaded</span>
-      <span class="stat-value">{{ totalElements }}</span>
-    </div>
-
-    <div class="stat-card">
-      <span class="stat-label">Improving</span>
-      <span class="stat-value positive">{{ improvingCount }}</span>
-    </div>
-
-    <div class="stat-card">
-      <span class="stat-label">Declining</span>
-      <span class="stat-value negative">{{ decliningCount }}</span>
-    </div>
-
-    <div class="stat-card">
-      <span class="stat-label">Stable</span>
-      <span class="stat-value neutral">{{ stableCount }}</span>
-    </div>
-  </div>
-
   @if (evaluation) {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Total Players</span>
+        <span class="stat-value">{{ evaluation.totalPlayers ?? 0 }}</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Trainable Players</span>
+        <span class="stat-value positive">{{ evaluation.trainablePlayers ?? 0 }}</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Excluded Players</span>
+        <span class="stat-value negative">{{ evaluation.excludedPlayers ?? 0 }}</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Test Rows</span>
+        <span class="stat-value neutral">{{ evaluation.testRows ?? 0 }}</span>
+      </div>
+    </div>
+
+    <div class="stats-grid metrics-grid">
+      <div class="stat-card">
+        <span class="stat-label">MAE</span>
+        <span class="stat-value">{{ evaluation.mae ?? 'N/A' }}</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">RMSE</span>
+        <span class="stat-value">{{ evaluation.rmse ?? 'N/A' }}</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">R²</span>
+        <span class="stat-value">{{ evaluation.r2 ?? 'N/A' }}</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Split Ratio</span>
+        <span class="stat-value">{{ evaluation.splitRatio ?? 'N/A' }}</span>
+      </div>
+    </div>
+
     <div class="card highlight-card">
       <h3>Evaluation Summary</h3>
       <div class="detail-grid">
@@ -79,9 +101,28 @@
           <span class="detail-label">Last Evaluated</span>
           <p>{{ evaluation.evaluatedAt || 'Not evaluated yet' }}</p>
         </div>
+        <div>
+          <span class="detail-label">Trainable Players</span>
+          <p>{{ evaluation.trainablePlayers ?? 'N/A' }}</p>
+        </div>
+        <div>
+          <span class="detail-label">Excluded Players</span>
+          <p>{{ evaluation.excludedPlayers ?? 'N/A' }}</p>
+        </div>
       </div>
+
+      <p class="helper-text">
+        Excluded players are database records missing one or more required training features.
+      </p>
     </div>
   }
+
+  <div class="card">
+    <h3>Player Trend Detail</h3>
+    <p class="helper-text">
+      These trend labels are heuristic player-level interpretations based on current data fields and are separate from the aggregate Tribuo regression metrics above.
+    </p>
+  </div>
 
   <div class="toolbar">
     <div class="filters">
@@ -109,107 +150,91 @@
     </button>
   </div>
 
-  @if (loading || loadingPlayers) {
-    <p>Loading evaluation players...</p>
-  }
+  <div class="table-wrapper">
+    <table class="players-table">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Position</th>
+        <th>Team</th>
+        <th>Age</th>
+        <th>Form Rating</th>
+        <th>Goals</th>
+        <th>Assists</th>
+        <th>Minutes</th>
+        <th>Trend</th>
+        <th>Trend Reason</th>
 
-  @if (!loadingPlayers) {
-    <div class="table-wrapper">
-      <table class="players-table">
-        <thead>
-        <tr>
-          <th>Name</th>
-          <th>Age</th>
-          <th>Position</th>
-          <th>Team</th>
-          <th>Goals</th>
-          <th>Assists</th>
-          <th>Form</th>
-          <th>Injured</th>
-          <th>Trend</th>
+        @if (showAdvanced) {
+          <th>xG</th>
+          <th>xA</th>
+          <th>Key Passes</th>
+          <th>Progressive Passes</th>
+          <th>Dribbles</th>
+          <th>Tackles</th>
+          <th>Interceptions</th>
+          <th>Ball Recoveries</th>
+          <th>Matches Missed</th>
+          <th>Recent Match Load</th>
+          <th>Injury</th>
+        }
+      </tr>
+      </thead>
 
-          @if (showAdvanced) {
-            <th>xG</th>
-            <th>xA</th>
-            <th>Key Passes</th>
-            <th>Prog. Passes</th>
-            <th>Dribbles</th>
-            <th>Tackles</th>
-            <th>Interceptions</th>
-            <th>Recoveries</th>
-            <th>Missed</th>
-            <th>Load</th>
-          }
+      <tbody>
+        @for (player of players; track player.id) {
+          <tr>
+            <td>{{ player.name }}</td>
+            <td>{{ player.position }}</td>
+            <td>{{ player.team }}</td>
+            <td>{{ player.age ?? 'N/A' }}</td>
+            <td>{{ player.formRating ?? 'N/A' }}</td>
+            <td>{{ player.goals ?? 'N/A' }}</td>
+            <td>{{ player.assists ?? 'N/A' }}</td>
+            <td>{{ player.minutesPlayed ?? 'N/A' }}</td>
+            <td>
+              <span class="trend-badge" [ngClass]="getTrendClass(player)">
+                {{ getTrend(player) }}
+              </span>
+            </td>
+            <td>{{ getTrendReason(player) }}</td>
 
-          <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-          @for (player of players; track player.id) {
-            <tr>
-              <td>{{ player.name }}</td>
-              <td>{{ player.age }}</td>
-              <td>{{ player.position }}</td>
-              <td>{{ player.team }}</td>
-              <td>{{ player.goals }}</td>
-              <td>{{ player.assists }}</td>
-              <td>{{ player.formRating }}</td>
+            @if (showAdvanced) {
+              <td>{{ player.expectedGoals ?? 'N/A' }}</td>
+              <td>{{ player.expectedAssists ?? 'N/A' }}</td>
+              <td>{{ player.keyPasses ?? 'N/A' }}</td>
+              <td>{{ player.progressivePasses ?? 'N/A' }}</td>
+              <td>{{ player.dribblesCompleted ?? 'N/A' }}</td>
+              <td>{{ player.tacklesWon ?? 'N/A' }}</td>
+              <td>{{ player.interceptions ?? 'N/A' }}</td>
+              <td>{{ player.ballRecoveries ?? 'N/A' }}</td>
+              <td>{{ player.matchesMissed ?? 'N/A' }}</td>
+              <td>{{ player.recentMatchLoad ?? 'N/A' }}</td>
               <td>{{ player.injuryStatus ? 'Yes' : 'No' }}</td>
-              <td>
-                <span
-                  class="trend-badge"
-                  [class.trend-up]="getTrend(player) === 'IMPROVING'"
-                  [class.trend-down]="getTrend(player) === 'DECLINING'"
-                  [class.trend-stable]="getTrend(player) === 'STABLE'">
-                  {{ getTrend(player) }}
-                </span>
-              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 
-              @if (showAdvanced) {
-                <td>{{ player.expectedGoals ?? 0 }}</td>
-                <td>{{ player.expectedAssists ?? 0 }}</td>
-                <td>{{ player.keyPasses ?? 0 }}</td>
-                <td>{{ player.progressivePasses ?? 0 }}</td>
-                <td>{{ player.dribblesCompleted ?? 0 }}</td>
-                <td>{{ player.tacklesWon ?? 0 }}</td>
-                <td>{{ player.interceptions ?? 0 }}</td>
-                <td>{{ player.ballRecoveries ?? 0 }}</td>
-                <td>{{ player.matchesMissed ?? 0 }}</td>
-                <td>{{ player.recentMatchLoad ?? 0 }}</td>
-              }
+  @if (totalPages > 1) {
+    <div class="pagination">
+      <button (click)="previousPage()" [disabled]="page === 0">Previous</button>
 
-              <td class="actions">
-                <a [routerLink]="['/players', player.id]" class="btn-link">View</a>
-                <a [routerLink]="['/players', player.id, 'edit']" class="btn-link">Edit</a>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      @for (pageNumber of pageNumbers; track pageNumber) {
+        <button
+          (click)="goToPage(pageNumber)"
+          [class.active]="pageNumber === page">
+          {{ pageNumber + 1 }}
+        </button>
+      }
+
+      <button (click)="nextPage()" [disabled]="page >= totalPages - 1">Next</button>
     </div>
 
-    @if (players.length === 0) {
-      <p>No players found.</p>
-    }
-
-    @if (totalPages > 1) {
-      <div class="pagination">
-        <button (click)="previousPage()" [disabled]="page === 0">Previous</button>
-
-        @for (p of pageNumbers; track p) {
-          <button
-            (click)="goToPage(p)"
-            [class.active]="p === page">
-            {{ p + 1 }}
-          </button>
-        }
-
-        <button (click)="nextPage()" [disabled]="page >= totalPages - 1">Next</button>
-      </div>
-
-      <p class="page-summary">
-        Page {{ page + 1 }} of {{ totalPages }} • {{ totalElements }} total players
-      </p>
-    }
+    <div class="page-summary">
+      Showing page {{ page + 1 }} of {{ totalPages }} · {{ totalElements }} matching players
+    </div>
   }
 </div>
