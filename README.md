@@ -165,8 +165,8 @@ docker compose up
 ```
 
 ---
-### Import players
-go to import CSV and select file in -- src/main/resources/CSV/players-statsbomb-template-50-players.csv
+### Import players - Data for the UI
+go to import CSV UI and select file in -- src/main/resources/CSV/players-statsbomb-template-50-players.csv
 this will upload 50 players into the database and the UI.
 
 
