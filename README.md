@@ -165,6 +165,10 @@ docker compose up
 ```
 
 ---
+### Import players
+go to import CSV and select file in -- src/main/resources/CSV/players-statsbomb-template-50-players.csv
+this will upload 50 players into the database and the UI.
+
 
 ## Option 2: Run locally
 
@@ -277,8 +281,6 @@ Example backend areas include:
 ### Tribuo
 - training and evaluation endpoints under the Tribuo backend routes
 
-> Note: endpoint details may evolve as the project is refined.
-
 ---
 
 ## Known Limitations
@@ -295,7 +297,6 @@ Example backend areas include:
 - Add Flyway or Liquibase migrations
 - Add stronger backend validation
 - Improve test coverage
-- Compute real evaluation metrics from database-backed train/test data
 - Refine trend labeling methodology
 - Improve documentation and screenshots
 - Standardise frontend styling across all pages
@@ -319,13 +320,3 @@ playerai/pom.xml
 ```
 
 ---
-
-## Author
-
-Developed as a capstone project focused on football analytics, player prediction, and full-stack ML application design.
-
----
-
-## License
-
-No license has been specified yet.
