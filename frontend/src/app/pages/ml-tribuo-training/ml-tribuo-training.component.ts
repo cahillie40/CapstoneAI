@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
 import { MlPredictionTribuoService } from '../../services/ml-prediction-tribuo.service';
@@ -17,7 +16,7 @@ type TrendFilter = 'ALL' | 'IMPROVING' | 'DECLINING' | 'STABLE';
 @Component({
   selector: 'app-ml-tribuo-training',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './ml-tribuo-training.component.html',
   styleUrl: './ml-tribuo-training.component.css'
 })
