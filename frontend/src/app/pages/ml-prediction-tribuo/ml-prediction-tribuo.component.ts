@@ -1,9 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
+import { PlayerService } from '../../services/player.service';
 import { MlPredictionTribuoService } from '../../services/ml-prediction-tribuo.service';
+import { Player } from '../../models/player';
 import {
   MlModelInfoTribuo,
   MlPredictionTribuoRequest,
@@ -19,42 +21,116 @@ import {
 })
 export class MlPredictionTribuoComponent implements OnInit {
   private tribuoService = inject(MlPredictionTribuoService);
+  private playerService = inject(PlayerService);
+  private cdr = inject(ChangeDetectorRef);
+
+  players: Player[] = [];
+  selectedPlayerId: number | null = null;
 
   modelInfo: MlModelInfoTribuo | null = null;
   predictionResult: MlPredictionTribuoResponse | null = null;
 
   loading = false;
+  loadingPlayers = false;
+  loadingModelInfo = false;
   error: string | null = null;
   successMessage: string | null = null;
 
   request: MlPredictionTribuoRequest = this.createEmptyRequest();
 
   ngOnInit(): void {
+    this.loadPlayers();
     this.loadModelInfo();
   }
 
-  loadModelInfo(): void {
+  loadPlayers(): void {
+    this.loadingPlayers = true;
     this.error = null;
 
-    this.tribuoService.getModelInfo().subscribe({
-      next: (data: MlModelInfoTribuo) => {
-        this.modelInfo = data;
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load Tribuo model info', err);
-        this.error = 'Failed to load Tribuo model info';
-      }
-    });
+    this.playerService.getPlayers()
+      .pipe(finalize(() => {
+        this.loadingPlayers = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (data: Player[]) => {
+          this.players = data ?? [];
+        },
+        error: (err: unknown) => {
+          console.error('Failed to load players', err);
+          this.error = 'Failed to load players';
+          this.players = [];
+        }
+      });
+  }
+
+  loadModelInfo(): void {
+    this.loadingModelInfo = true;
+    this.error = null;
+
+    this.tribuoService.getModelInfo()
+      .pipe(finalize(() => {
+        this.loadingModelInfo = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (data: MlModelInfoTribuo) => {
+          this.modelInfo = data;
+        },
+        error: (err: unknown) => {
+          console.error('Failed to load Tribuo model info', err);
+          this.error = 'Failed to load Tribuo model info';
+        }
+      });
+  }
+
+  onPlayerChange(): void {
+    const player = this.players.find(p => p.id === Number(this.selectedPlayerId));
+    if (!player) {
+      return;
+    }
+
+    this.request = {
+      playerId: player.id ?? null,
+      playerName: player.name ?? '',
+      age: player.age ?? 0,
+      position: player.position ?? '',
+      matchesPlayed: player.matchesPlayed ?? 0,
+      goals: player.goals ?? 0,
+      assists: player.assists ?? 0,
+      minutesPlayed: player.minutesPlayed ?? 0,
+      yellowCards: player.yellowCards ?? 0,
+      redCards: player.redCards ?? 0,
+      shotsOnTarget: player.shotsOnTarget ?? 0,
+      passAccuracy: player.passAccuracy ?? 0,
+      injuryStatus: player.injuryStatus ?? false,
+      expectedGoals: player.expectedGoals ?? 0,
+      expectedAssists: player.expectedAssists ?? 0,
+      keyPasses: player.keyPasses ?? 0,
+      progressivePasses: player.progressivePasses ?? 0,
+      dribblesCompleted: player.dribblesCompleted ?? 0,
+      tacklesWon: player.tacklesWon ?? 0,
+      interceptions: player.interceptions ?? 0,
+      ballRecoveries: player.ballRecoveries ?? 0,
+      matchesMissed: player.matchesMissed ?? 0,
+      recentMatchLoad: player.recentMatchLoad ?? 0
+    };
+
+    this.predictionResult = null;
+    this.successMessage = null;
+    this.error = null;
   }
 
   predict(): void {
     this.loading = true;
     this.error = null;
     this.successMessage = null;
+    this.predictionResult = null;
 
     this.tribuoService.predict(this.request)
       .pipe(finalize(() => {
         this.loading = false;
+        this.cdr.markForCheck();
       }))
       .subscribe({
         next: (data: MlPredictionTribuoResponse) => {
@@ -64,16 +140,29 @@ export class MlPredictionTribuoComponent implements OnInit {
         error: (err: unknown) => {
           console.error('Failed to generate Tribuo prediction', err);
           this.error = 'Failed to generate Tribuo prediction';
-          this.predictionResult = null;
         }
       });
   }
 
   resetForm(): void {
+    this.selectedPlayerId = null;
     this.request = this.createEmptyRequest();
     this.predictionResult = null;
     this.error = null;
     this.successMessage = null;
+  }
+
+  getRiskClass(riskLevel: string): string {
+    switch (riskLevel) {
+      case 'LOW':
+        return 'risk-low';
+      case 'MEDIUM':
+        return 'risk-medium';
+      case 'HIGH':
+        return 'risk-high';
+      default:
+        return '';
+    }
   }
 
   private createEmptyRequest(): MlPredictionTribuoRequest {
