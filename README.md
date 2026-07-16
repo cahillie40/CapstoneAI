@@ -250,9 +250,8 @@ This project is already functioning as a substantial full-stack capstone system 
 ### Areas still being improved
 - stronger machine learning evaluation
 - clearer improvement/decline temporal logic
-- more formal benchmark comparison between models
 - expanded testing and validation
-- better documentation and UI consistency
+- better UI consistency
 
 ---
 
@@ -280,15 +279,6 @@ Example backend areas include:
 
 ### Tribuo
 - training and evaluation endpoints under the Tribuo backend routes
-
----
-
-## Known Limitations
-
-- Some ML evaluation features are still experimental/in progress.
-- Trend logic currently mixes prediction outputs and heuristic interpretation.
-- Database schema changes should ideally be managed with migrations in future versions.
-- Some advanced proposal goals such as fairness analysis, benchmark comparison, and full quantitative validation are not yet fully complete.
 
 ---
 
