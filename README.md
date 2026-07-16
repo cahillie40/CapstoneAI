@@ -297,8 +297,6 @@ Example backend areas include:
 - Add Flyway or Liquibase migrations
 - Add stronger backend validation
 - Improve test coverage
-- Refine trend labeling methodology
-- Improve documentation and screenshots
 - Standardise frontend styling across all pages
 
 ---
