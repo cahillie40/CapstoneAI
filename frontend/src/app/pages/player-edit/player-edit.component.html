@@ -1,149 +1,181 @@
-<h2>Edit Player</h2>
-
-@if (loading) {
-  <p>Loading...</p>
-}
-
-@if (error) {
-  <p class="error">{{ error }}</p>
-}
-
-@if (!loading) {
-  <form (ngSubmit)="save()" #playerForm="ngForm" class="player-form">
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label>Name</label>
-        <input [(ngModel)]="player.name" name="name" required />
+<div class="player-form-page">
+  <div class="player-form-card">
+    <div class="page-header">
+      <div>
+        <h2>Edit Player</h2>
+        <p>Update an existing player profile, including football performance and advanced metrics.</p>
       </div>
-
-      <div class="form-group">
-        <label>Age</label>
-        <input type="number" [(ngModel)]="player.age" name="age" required />
-      </div>
-
-      <div class="form-group">
-        <label>Position</label>
-        <input [(ngModel)]="player.position" name="position" required />
-      </div>
-
-      <div class="form-group">
-        <label>Team</label>
-        <input [(ngModel)]="player.team" name="team" required />
-      </div>
-
-      <div class="form-group">
-        <label>Matches Played</label>
-        <input type="number" [(ngModel)]="player.matchesPlayed" name="matchesPlayed" />
-      </div>
-
-      <div class="form-group">
-        <label>Goals</label>
-        <input type="number" [(ngModel)]="player.goals" name="goals" />
-      </div>
-
-      <div class="form-group">
-        <label>Assists</label>
-        <input type="number" [(ngModel)]="player.assists" name="assists" />
-      </div>
-
-      <div class="form-group">
-        <label>Minutes Played</label>
-        <input type="number" [(ngModel)]="player.minutesPlayed" name="minutesPlayed" />
-      </div>
-
-      <div class="form-group">
-        <label>Yellow Cards</label>
-        <input type="number" [(ngModel)]="player.yellowCards" name="yellowCards" />
-      </div>
-
-      <div class="form-group">
-        <label>Red Cards</label>
-        <input type="number" [(ngModel)]="player.redCards" name="redCards" />
-      </div>
-
-      <div class="form-group">
-        <label>Shots On Target</label>
-        <input type="number" [(ngModel)]="player.shotsOnTarget" name="shotsOnTarget" />
-      </div>
-
-      <div class="form-group">
-        <label>Pass Accuracy</label>
-        <input type="number" step="0.1" [(ngModel)]="player.passAccuracy" name="passAccuracy" />
-      </div>
-
-      <div class="form-group">
-        <label>Form Rating</label>
-        <input type="number" step="0.1" [(ngModel)]="player.formRating" name="formRating" />
-      </div>
-
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" [(ngModel)]="player.injuryStatus" name="injuryStatus" />
-          Injured
-        </label>
-      </div>
-
-      <div class="form-group">
-        <label>Expected Goals (xG)</label>
-        <input type="number" step="0.1" [(ngModel)]="player.expectedGoals" name="expectedGoals" />
-      </div>
-
-      <div class="form-group">
-        <label>Expected Assists (xA)</label>
-        <input type="number" step="0.1" [(ngModel)]="player.expectedAssists" name="expectedAssists" />
-      </div>
-
-      <div class="form-group">
-        <label>Key Passes</label>
-        <input type="number" [(ngModel)]="player.keyPasses" name="keyPasses" />
-      </div>
-
-      <div class="form-group">
-        <label>Progressive Passes</label>
-        <input type="number" [(ngModel)]="player.progressivePasses" name="progressivePasses" />
-      </div>
-
-      <div class="form-group">
-        <label>Dribbles Completed</label>
-        <input type="number" [(ngModel)]="player.dribblesCompleted" name="dribblesCompleted" />
-      </div>
-
-      <div class="form-group">
-        <label>Tackles Won</label>
-        <input type="number" [(ngModel)]="player.tacklesWon" name="tacklesWon" />
-      </div>
-
-      <div class="form-group">
-        <label>Interceptions</label>
-        <input type="number" [(ngModel)]="player.interceptions" name="interceptions" />
-      </div>
-
-      <div class="form-group">
-        <label>Ball Recoveries</label>
-        <input type="number" [(ngModel)]="player.ballRecoveries" name="ballRecoveries" />
-      </div>
-
-      <div class="form-group">
-        <label>Matches Missed</label>
-        <input type="number" [(ngModel)]="player.matchesMissed" name="matchesMissed" />
-      </div>
-
-      <div class="form-group">
-        <label>Recent Match Load</label>
-        <input type="number" [(ngModel)]="player.recentMatchLoad" name="recentMatchLoad" />
-      </div>
-
     </div>
 
-    <div class="button-row">
-      <button type="submit" [disabled]="saving || !playerForm.form.valid" class="btn-save">
-        {{ saving ? 'Saving...' : 'Save Changes' }}
-      </button>
+    @if (loading) {
+      <p>Loading...</p>
+    }
 
-      <button type="button" (click)="delete()" [disabled]="deleting" class="btn-delete">
-        {{ deleting ? 'Deleting...' : 'Delete Player' }}
-      </button>
-    </div>
-  </form>
-}
+    @if (error) {
+      <div class="error-box">{{ error }}</div>
+    }
+
+    @if (!loading) {
+      <form (ngSubmit)="save()" #playerForm="ngForm" class="player-form">
+        <section class="form-section">
+          <div class="section-heading">
+            <h3>Basic Information</h3>
+            <p>Core player identity and squad details.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input id="name" [(ngModel)]="player.name" name="name" required placeholder="e.g. Bukayo Saka" />
+            </div>
+
+            <div class="form-group">
+              <label for="age">Age</label>
+              <input id="age" type="number" [(ngModel)]="player.age" name="age" required />
+            </div>
+
+            <div class="form-group">
+              <label for="position">Position</label>
+              <input id="position" [(ngModel)]="player.position" name="position" required placeholder="e.g. RW" />
+            </div>
+
+            <div class="form-group">
+              <label for="team">Team</label>
+              <input id="team" [(ngModel)]="player.team" name="team" required placeholder="e.g. Arsenal" />
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-heading">
+            <h3>Match Performance</h3>
+            <p>Standard football output and match contribution metrics.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="matchesPlayed">Matches Played</label>
+              <input id="matchesPlayed" type="number" [(ngModel)]="player.matchesPlayed" name="matchesPlayed" />
+            </div>
+
+            <div class="form-group">
+              <label for="goals">Goals</label>
+              <input id="goals" type="number" [(ngModel)]="player.goals" name="goals" />
+            </div>
+
+            <div class="form-group">
+              <label for="assists">Assists</label>
+              <input id="assists" type="number" [(ngModel)]="player.assists" name="assists" />
+            </div>
+
+            <div class="form-group">
+              <label for="minutesPlayed">Minutes Played</label>
+              <input id="minutesPlayed" type="number" [(ngModel)]="player.minutesPlayed" name="minutesPlayed" />
+            </div>
+
+            <div class="form-group">
+              <label for="yellowCards">Yellow Cards</label>
+              <input id="yellowCards" type="number" [(ngModel)]="player.yellowCards" name="yellowCards" />
+            </div>
+
+            <div class="form-group">
+              <label for="redCards">Red Cards</label>
+              <input id="redCards" type="number" [(ngModel)]="player.redCards" name="redCards" />
+            </div>
+
+            <div class="form-group">
+              <label for="shotsOnTarget">Shots On Target</label>
+              <input id="shotsOnTarget" type="number" [(ngModel)]="player.shotsOnTarget" name="shotsOnTarget" />
+            </div>
+
+            <div class="form-group">
+              <label for="passAccuracy">Pass Accuracy</label>
+              <input id="passAccuracy" type="number" step="0.1" [(ngModel)]="player.passAccuracy" name="passAccuracy" />
+            </div>
+
+            <div class="form-group">
+              <label for="formRating">Form Rating</label>
+              <input id="formRating" type="number" step="0.1" [(ngModel)]="player.formRating" name="formRating" />
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="player.injuryStatus" name="injuryStatus" />
+                <span>Currently injured</span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <div class="section-heading">
+            <h3>Advanced Metrics</h3>
+            <p>Detailed underlying performance indicators used for richer analysis.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="expectedGoals">Expected Goals (xG)</label>
+              <input id="expectedGoals" type="number" step="0.1" [(ngModel)]="player.expectedGoals" name="expectedGoals" />
+            </div>
+
+            <div class="form-group">
+              <label for="expectedAssists">Expected Assists (xA)</label>
+              <input id="expectedAssists" type="number" step="0.1" [(ngModel)]="player.expectedAssists" name="expectedAssists" />
+            </div>
+
+            <div class="form-group">
+              <label for="keyPasses">Key Passes</label>
+              <input id="keyPasses" type="number" [(ngModel)]="player.keyPasses" name="keyPasses" />
+            </div>
+
+            <div class="form-group">
+              <label for="progressivePasses">Progressive Passes</label>
+              <input id="progressivePasses" type="number" [(ngModel)]="player.progressivePasses" name="progressivePasses" />
+            </div>
+
+            <div class="form-group">
+              <label for="dribblesCompleted">Dribbles Completed</label>
+              <input id="dribblesCompleted" type="number" [(ngModel)]="player.dribblesCompleted" name="dribblesCompleted" />
+            </div>
+
+            <div class="form-group">
+              <label for="tacklesWon">Tackles Won</label>
+              <input id="tacklesWon" type="number" [(ngModel)]="player.tacklesWon" name="tacklesWon" />
+            </div>
+
+            <div class="form-group">
+              <label for="interceptions">Interceptions</label>
+              <input id="interceptions" type="number" [(ngModel)]="player.interceptions" name="interceptions" />
+            </div>
+
+            <div class="form-group">
+              <label for="ballRecoveries">Ball Recoveries</label>
+              <input id="ballRecoveries" type="number" [(ngModel)]="player.ballRecoveries" name="ballRecoveries" />
+            </div>
+
+            <div class="form-group">
+              <label for="matchesMissed">Matches Missed</label>
+              <input id="matchesMissed" type="number" [(ngModel)]="player.matchesMissed" name="matchesMissed" />
+            </div>
+
+            <div class="form-group">
+              <label for="recentMatchLoad">Recent Match Load</label>
+              <input id="recentMatchLoad" type="number" [(ngModel)]="player.recentMatchLoad" name="recentMatchLoad" />
+            </div>
+          </div>
+        </section>
+
+        <div class="button-row">
+          <button type="submit" [disabled]="saving || !playerForm.form.valid" class="btn-primary">
+            {{ saving ? 'Saving...' : 'Save Changes' }}
+          </button>
+
+          <button type="button" (click)="delete()" [disabled]="deleting" class="btn-delete">
+            {{ deleting ? 'Deleting...' : 'Delete Player' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>
