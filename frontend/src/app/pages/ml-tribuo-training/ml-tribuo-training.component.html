@@ -10,7 +10,7 @@
         {{ training ? 'Retraining Tribuo Model...' : 'Retrain Model' }}
       </button>
 
-      <button class="secondary-btn" (click)="refreshAll()" [disabled]="training">
+      <button class="secondary-btn" (click)="refreshAll()">
         Refresh
       </button>
     </div>
@@ -146,9 +146,9 @@
   }
 
   <div class="card">
-    <h3>Training Player Detail</h3>
+    <h3>Training Data Preview</h3>
     <p class="helper-text">
-      These trend labels are based on current player performance indicators and are shown to help interpret training input quality.
+      These rows come from the backend training preview and show the trend labels used to interpret training examples.
     </p>
   </div>
 
@@ -156,7 +156,6 @@
     <div class="filters">
       <input type="text" [(ngModel)]="name" placeholder="Search by name" />
       <input type="text" [(ngModel)]="position" placeholder="Filter by position" />
-      <input type="text" [(ngModel)]="team" placeholder="Filter by team" />
 
       <select [(ngModel)]="trendFilter" (ngModelChange)="onTrendFilterChange()">
         <option value="ALL">All Trends</option>
@@ -180,42 +179,33 @@
       <tr>
         <th>Name</th>
         <th>Position</th>
-        <th>Team</th>
         <th>Age</th>
-        <th>Form Rating</th>
         <th>Goals</th>
         <th>Assists</th>
         <th>Minutes</th>
+        <th>Previous Score</th>
+        <th>Current Score</th>
         <th>Trend</th>
         <th>Trend Reason</th>
 
         @if (showAdvanced) {
           <th>xG</th>
           <th>xA</th>
-          <th>Key Passes</th>
-          <th>Progressive Passes</th>
-          <th>Dribbles</th>
-          <th>Tackles</th>
-          <th>Interceptions</th>
-          <th>Ball Recoveries</th>
-          <th>Matches Missed</th>
-          <th>Recent Match Load</th>
-          <th>Injury</th>
         }
       </tr>
       </thead>
 
       <tbody>
-        @for (player of pagedPlayers; track player.id) {
+        @for (player of pagedPlayers; track player.playerName) {
           <tr>
-            <td>{{ player.name }}</td>
+            <td>{{ player.playerName }}</td>
             <td>{{ player.position }}</td>
-            <td>{{ player.team }}</td>
             <td>{{ player.age ?? 'N/A' }}</td>
-            <td>{{ player.formRating ?? 'N/A' }}</td>
             <td>{{ player.goals ?? 'N/A' }}</td>
             <td>{{ player.assists ?? 'N/A' }}</td>
             <td>{{ player.minutesPlayed ?? 'N/A' }}</td>
+            <td>{{ player.previousScore ?? 'N/A' }}</td>
+            <td>{{ player.currentScore ?? 'N/A' }}</td>
             <td>
               <span class="trend-badge" [ngClass]="getTrendClass(player)">
                 {{ getTrend(player) }}
@@ -226,15 +216,6 @@
             @if (showAdvanced) {
               <td>{{ player.expectedGoals ?? 'N/A' }}</td>
               <td>{{ player.expectedAssists ?? 'N/A' }}</td>
-              <td>{{ player.keyPasses ?? 'N/A' }}</td>
-              <td>{{ player.progressivePasses ?? 'N/A' }}</td>
-              <td>{{ player.dribblesCompleted ?? 'N/A' }}</td>
-              <td>{{ player.tacklesWon ?? 'N/A' }}</td>
-              <td>{{ player.interceptions ?? 'N/A' }}</td>
-              <td>{{ player.ballRecoveries ?? 'N/A' }}</td>
-              <td>{{ player.matchesMissed ?? 'N/A' }}</td>
-              <td>{{ player.recentMatchLoad ?? 'N/A' }}</td>
-              <td>{{ player.injuryStatus ? 'Yes' : 'No' }}</td>
             }
           </tr>
         }
@@ -258,13 +239,13 @@
     </div>
 
     <div class="page-summary">
-      Showing page {{ page + 1 }} of {{ totalPages }} · {{ totalElements }} matching players after trend filter
+      Showing page {{ page + 1 }} of {{ totalPages }} · {{ totalElements }} matching training preview rows
     </div>
   }
 
   @if (totalElements === 0) {
     <div class="card">
-      <p>No players match the current filters.</p>
+      <p>No training preview rows match the current filters.</p>
     </div>
   }
 </div>

@@ -60,10 +60,10 @@ export interface MlPredictionTribuoRequest {
 }
 
 export interface MlFeatureImpactTribuo {
-  featureName: string;
-  featureValue: string;
+  feature: string;
+  value: string;
   importance: number;
-  direction: string;
+  effect: string;
   explanation: string;
 }
 
@@ -92,7 +92,7 @@ export interface MlPredictionTribuoHistoryResponse {
 }
 
 export interface MlTribuoTrainingPreviewRow {
-  name: string;
+  playerName: string;
   position: string;
   age: number;
   goals: number;
@@ -107,7 +107,7 @@ export interface MlTribuoTrainingPreviewRow {
 }
 
 export interface MlTribuoEvaluationPlayerRow {
-  name: string;
+  playerName: string;
   position: string;
   previousScore: number;
   evaluatedScore: number;

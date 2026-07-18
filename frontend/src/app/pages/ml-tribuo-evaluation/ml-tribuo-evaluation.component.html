@@ -10,7 +10,7 @@
         {{ evaluating ? 'Running Evaluation...' : 'Run Evaluation' }}
       </button>
 
-      <button class="secondary-btn" (click)="refreshAll()" [disabled]="evaluating">
+      <button class="secondary-btn" (click)="refreshAll()">
         Refresh
       </button>
     </div>
@@ -118,28 +118,16 @@
   }
 
   <div class="card">
-    <h3>Player Trend Detail</h3>
+    <h3>Player Evaluation Detail</h3>
     <p class="helper-text">
-      These trend labels are based on current player performance indicators and are shown to help interpret player form, not as direct Tribuo prediction labels.
+      These rows come from the backend evaluation endpoint and show previous score, evaluated score, and trend summary.
     </p>
   </div>
 
   <div class="toolbar">
     <div class="filters">
-      <input
-        type="text"
-        [(ngModel)]="name"
-        placeholder="Search by name" />
-
-      <input
-        type="text"
-        [(ngModel)]="position"
-        placeholder="Filter by position" />
-
-      <input
-        type="text"
-        [(ngModel)]="team"
-        placeholder="Filter by team" />
+      <input type="text" [(ngModel)]="name" placeholder="Search by name" />
+      <input type="text" [(ngModel)]="position" placeholder="Filter by position" />
 
       <select [(ngModel)]="trendFilter" (ngModelChange)="onTrendFilterChange()">
         <option value="ALL">All Trends</option>
@@ -161,64 +149,28 @@
     <table class="players-table">
       <thead>
       <tr>
-        <th>Name</th>
+        <th>Player Name</th>
         <th>Position</th>
-        <th>Team</th>
-        <th>Age</th>
-        <th>Form Rating</th>
-        <th>Goals</th>
-        <th>Assists</th>
-        <th>Minutes</th>
+        <th>Previous Score</th>
+        <th>Evaluated Score</th>
         <th>Trend</th>
         <th>Trend Reason</th>
-
-        @if (showAdvanced) {
-          <th>xG</th>
-          <th>xA</th>
-          <th>Key Passes</th>
-          <th>Progressive Passes</th>
-          <th>Dribbles</th>
-          <th>Tackles</th>
-          <th>Interceptions</th>
-          <th>Ball Recoveries</th>
-          <th>Matches Missed</th>
-          <th>Recent Match Load</th>
-          <th>Injury</th>
-        }
       </tr>
       </thead>
 
       <tbody>
-        @for (player of pagedPlayers; track player.id) {
+        @for (player of pagedPlayers; track player.playerName) {
           <tr>
-            <td>{{ player.name }}</td>
+            <td>{{ player.playerName }}</td>
             <td>{{ player.position }}</td>
-            <td>{{ player.team }}</td>
-            <td>{{ player.age ?? 'N/A' }}</td>
-            <td>{{ player.formRating ?? 'N/A' }}</td>
-            <td>{{ player.goals ?? 'N/A' }}</td>
-            <td>{{ player.assists ?? 'N/A' }}</td>
-            <td>{{ player.minutesPlayed ?? 'N/A' }}</td>
+            <td>{{ player.previousScore ?? 'N/A' }}</td>
+            <td>{{ player.evaluatedScore ?? 'N/A' }}</td>
             <td>
               <span class="trend-badge" [ngClass]="getTrendClass(player)">
                 {{ getTrend(player) }}
               </span>
             </td>
             <td>{{ getTrendReason(player) }}</td>
-
-            @if (showAdvanced) {
-              <td>{{ player.expectedGoals ?? 'N/A' }}</td>
-              <td>{{ player.expectedAssists ?? 'N/A' }}</td>
-              <td>{{ player.keyPasses ?? 'N/A' }}</td>
-              <td>{{ player.progressivePasses ?? 'N/A' }}</td>
-              <td>{{ player.dribblesCompleted ?? 'N/A' }}</td>
-              <td>{{ player.tacklesWon ?? 'N/A' }}</td>
-              <td>{{ player.interceptions ?? 'N/A' }}</td>
-              <td>{{ player.ballRecoveries ?? 'N/A' }}</td>
-              <td>{{ player.matchesMissed ?? 'N/A' }}</td>
-              <td>{{ player.recentMatchLoad ?? 'N/A' }}</td>
-              <td>{{ player.injuryStatus ? 'Yes' : 'No' }}</td>
-            }
           </tr>
         }
       </tbody>
@@ -241,13 +193,13 @@
     </div>
 
     <div class="page-summary">
-      Showing page {{ page + 1 }} of {{ totalPages }} · {{ totalElements }} matching players after trend filter
+      Showing page {{ page + 1 }} of {{ totalPages }} · {{ totalElements }} matching evaluation rows
     </div>
   }
 
   @if (totalElements === 0) {
     <div class="card">
-      <p>No players match the current filters.</p>
+      <p>No evaluation rows match the current filters.</p>
     </div>
   }
 </div>

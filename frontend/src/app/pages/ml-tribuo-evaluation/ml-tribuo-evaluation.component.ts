@@ -1,13 +1,13 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import { finalize } from 'rxjs/operators';
 
 import { MlPredictionTribuoService } from '../../services/ml-prediction-tribuo.service';
-import { PlayerService } from '../../services/player.service';
-import { Player } from '../../models/player';
-import { MlTribuoEvaluationResponse } from '../../models/ml-prediction-tribuo';
+import {
+  MlTribuoEvaluationPlayerRow,
+  MlTribuoEvaluationResponse
+} from '../../models/ml-prediction-tribuo';
 
 type TrendFilter = 'ALL' | 'IMPROVING' | 'DECLINING' | 'STABLE';
 
@@ -20,46 +20,50 @@ type TrendFilter = 'ALL' | 'IMPROVING' | 'DECLINING' | 'STABLE';
 })
 export class MlTribuoEvaluationComponent implements OnInit {
   private tribuoService = inject(MlPredictionTribuoService);
-  private playerService = inject(PlayerService);
   private cdr = inject(ChangeDetectorRef);
 
   evaluation: MlTribuoEvaluationResponse | null = null;
-  allFilteredPlayers: Player[] = [];
+  allFilteredPlayers: MlTribuoEvaluationPlayerRow[] = [];
 
-  loading = false;
   loadingPlayers = false;
+  loadingEvaluation = false;
   evaluating = false;
 
   error: string | null = null;
   successMessage: string | null = null;
   evaluationStatusMessage: string | null = null;
-  lastEvaluationDurationMs: number | null = null;
 
   name = '';
   position = '';
-  team = '';
   trendFilter: TrendFilter = 'ALL';
   showAdvanced = false;
 
   page = 0;
   size = 10;
 
-  private evalStep1Timer: ReturnType<typeof setTimeout> | null = null;
-  private evalStep2Timer: ReturnType<typeof setTimeout> | null = null;
+  private evaluationStep1Timer: ReturnType<typeof setTimeout> | null = null;
+  private evaluationStep2Timer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
-    this.refreshAll();
+    this.loadInitialData();
   }
 
-  get trendFilteredPlayers(): Player[] {
+  loadInitialData(): void {
+    this.error = null;
+    this.successMessage = null;
+    this.loadEvaluation();
+    this.loadAllFilteredPlayers();
+  }
+
+  get trendFilteredPlayers(): MlTribuoEvaluationPlayerRow[] {
     if (this.trendFilter === 'ALL') {
       return this.allFilteredPlayers;
     }
 
-    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === this.trendFilter);
+    return this.allFilteredPlayers.filter((player) => player.trend === this.trendFilter);
   }
 
-  get pagedPlayers(): Player[] {
+  get pagedPlayers(): MlTribuoEvaluationPlayerRow[] {
     const start = this.page * this.size;
     return this.trendFilteredPlayers.slice(start, start + this.size);
   }
@@ -73,15 +77,15 @@ export class MlTribuoEvaluationComponent implements OnInit {
   }
 
   get improvingCount(): number {
-    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === 'IMPROVING').length;
+    return this.allFilteredPlayers.filter((player) => player.trend === 'IMPROVING').length;
   }
 
   get decliningCount(): number {
-    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === 'DECLINING').length;
+    return this.allFilteredPlayers.filter((player) => player.trend === 'DECLINING').length;
   }
 
   get stableCount(): number {
-    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === 'STABLE').length;
+    return this.allFilteredPlayers.filter((player) => player.trend === 'STABLE').length;
   }
 
   get pageNumbers(): number[] {
@@ -89,12 +93,11 @@ export class MlTribuoEvaluationComponent implements OnInit {
   }
 
   loadEvaluation(): void {
-    this.loading = true;
-    this.error = null;
+    this.loadingEvaluation = true;
 
     this.tribuoService.getEvaluation()
       .pipe(finalize(() => {
-        this.loading = false;
+        this.loadingEvaluation = false;
         this.cdr.markForCheck();
       }))
       .subscribe({
@@ -102,8 +105,8 @@ export class MlTribuoEvaluationComponent implements OnInit {
           this.evaluation = data;
         },
         error: (err: unknown) => {
-          console.error('Failed to load evaluation', err);
-          this.error = 'Failed to load evaluation';
+          console.error('Failed to load evaluation summary', err);
+          this.error = 'Failed to load evaluation summary';
         }
       });
   }
@@ -112,19 +115,33 @@ export class MlTribuoEvaluationComponent implements OnInit {
     this.loadingPlayers = true;
     this.error = null;
 
-    this.playerService.searchPlayers(this.name, this.position, this.team, 0, 1000)
+    this.tribuoService.getEvaluationPlayers()
       .pipe(finalize(() => {
         this.loadingPlayers = false;
         this.cdr.markForCheck();
       }))
       .subscribe({
-        next: (data) => {
-          this.allFilteredPlayers = data.content ?? [];
+        next: (data: MlTribuoEvaluationPlayerRow[]) => {
+          let filtered = data ?? [];
+
+          if (this.name.trim()) {
+            filtered = filtered.filter((player) =>
+              player.playerName?.toLowerCase().includes(this.name.toLowerCase())
+            );
+          }
+
+          if (this.position.trim()) {
+            filtered = filtered.filter((player) =>
+              player.position?.toLowerCase().includes(this.position.toLowerCase())
+            );
+          }
+
+          this.allFilteredPlayers = filtered;
           this.page = 0;
         },
-        error: (err) => {
-          console.error('Failed to load players', err);
-          this.error = 'Failed to load players';
+        error: (err: unknown) => {
+          console.error('Failed to load evaluation players', err);
+          this.error = 'Failed to load evaluation players';
           this.allFilteredPlayers = [];
         }
       });
@@ -135,25 +152,22 @@ export class MlTribuoEvaluationComponent implements OnInit {
       return;
     }
 
-    const startedAt = performance.now();
-
     this.clearTimers();
     this.evaluating = true;
     this.error = null;
     this.successMessage = null;
-    this.lastEvaluationDurationMs = null;
-    this.evaluationStatusMessage = 'Preparing database-backed Tribuo evaluation...';
+    this.evaluationStatusMessage = 'Preparing Tribuo evaluation...';
 
-    this.evalStep1Timer = setTimeout(() => {
+    this.evaluationStep1Timer = setTimeout(() => {
       if (this.evaluating) {
-        this.evaluationStatusMessage = 'Building dataset and evaluating player records...';
+        this.evaluationStatusMessage = 'Building evaluation dataset from player records...';
         this.cdr.markForCheck();
       }
     }, 900);
 
-    this.evalStep2Timer = setTimeout(() => {
+    this.evaluationStep2Timer = setTimeout(() => {
       if (this.evaluating) {
-        this.evaluationStatusMessage = 'Refreshing evaluation summary...';
+        this.evaluationStatusMessage = 'Finalising evaluation metrics and refreshing results...';
         this.cdr.markForCheck();
       }
     }, 1800);
@@ -168,35 +182,28 @@ export class MlTribuoEvaluationComponent implements OnInit {
       .subscribe({
         next: (data: MlTribuoEvaluationResponse) => {
           this.evaluation = data;
-          this.lastEvaluationDurationMs = Math.round(performance.now() - startedAt);
-          this.successMessage = `Tribuo evaluation completed successfully in ${this.lastEvaluationDurationMs} ms.`;
-
+          this.successMessage = 'Tribuo evaluation completed successfully.';
+          this.loadEvaluation();
           this.loadAllFilteredPlayers();
         },
         error: (err: unknown) => {
-          console.error('Failed to run evaluation', err);
-          this.error = 'Failed to run Tribuo evaluation';
+          console.error('Failed to evaluate model', err);
+          this.error = 'Failed to evaluate Tribuo model';
         }
       });
   }
 
   refreshAll(): void {
     this.error = null;
-    this.successMessage = 'Refreshing data...';
 
     this.name = '';
     this.position = '';
-    this.team = '';
     this.trendFilter = 'ALL';
     this.page = 0;
     this.showAdvanced = false;
 
     this.loadEvaluation();
     this.loadAllFilteredPlayers();
-
-    setTimeout(() => {
-      this.successMessage = 'Data refreshed successfully.';
-    }, 300);
   }
 
   applyFilters(): void {
@@ -207,7 +214,6 @@ export class MlTribuoEvaluationComponent implements OnInit {
   clearFilters(): void {
     this.name = '';
     this.position = '';
-    this.team = '';
     this.trendFilter = 'ALL';
     this.page = 0;
     this.loadAllFilteredPlayers();
@@ -241,101 +247,35 @@ export class MlTribuoEvaluationComponent implements OnInit {
     this.showAdvanced = !this.showAdvanced;
   }
 
-  getTrend(player: Player): 'IMPROVING' | 'DECLINING' | 'STABLE' {
-    const score = this.safe(player.formRating);
-    const shift = this.deriveTrendShift(player);
-    const previous = score - shift;
-
-    if (score > previous) {
-      return 'IMPROVING';
-    }
-
-    if (score < previous) {
-      return 'DECLINING';
-    }
-
-    return 'STABLE';
+  getTrend(player: MlTribuoEvaluationPlayerRow): 'IMPROVING' | 'DECLINING' | 'STABLE' {
+    return player.trend;
   }
 
-  getTrendClass(player: Player): string {
-    const trend = this.getTrend(player);
-
-    if (trend === 'IMPROVING') {
+  getTrendClass(player: MlTribuoEvaluationPlayerRow): string {
+    if (player.trend === 'IMPROVING') {
       return 'trend-up';
     }
 
-    if (trend === 'DECLINING') {
+    if (player.trend === 'DECLINING') {
       return 'trend-down';
     }
 
     return 'trend-stable';
   }
 
-  getTrendReason(player: Player): string {
-    if (player.injuryStatus) {
-      return 'Injury status is negatively affecting availability and trend outlook.';
-    }
-
-    if (this.safe(player.matchesMissed) >= 5) {
-      return 'Missed matches reduce continuity and weaken the current trend profile.';
-    }
-
-    if (this.safe(player.goals) >= 10 || this.safe(player.assists) >= 7) {
-      return 'Strong attacking output is supporting a positive trend signal.';
-    }
-
-    if (this.safe(player.expectedGoals) >= 8 || this.safe(player.expectedAssists) >= 6) {
-      return 'Underlying expected metrics support stronger current performance.';
-    }
-
-    if (this.safe(player.minutesPlayed) < 1500) {
-      return 'Lower minutes played are limiting the current performance profile.';
-    }
-
-    return 'Trend is based on the current balance of player performance indicators.';
-  }
-
-  private deriveTrendShift(player: Player): number {
-    let shift = 0;
-
-    if (this.safe(player.goals) >= 10) {
-      shift += 2.0;
-    }
-    if (this.safe(player.assists) >= 7) {
-      shift += 1.5;
-    }
-    if (this.safe(player.expectedGoals) >= 8) {
-      shift += 1.0;
-    }
-    if (this.safe(player.expectedAssists) >= 6) {
-      shift += 1.0;
-    }
-    if (this.safe(player.minutesPlayed) < 1500) {
-      shift -= 1.5;
-    }
-    if (player.injuryStatus) {
-      shift -= 2.5;
-    }
-    if (this.safe(player.matchesMissed) >= 5) {
-      shift -= 1.5;
-    }
-
-    return shift;
-  }
-
-  private safe(value: number | null | undefined): number {
-    return value ?? 0;
+  getTrendReason(player: MlTribuoEvaluationPlayerRow): string {
+    return player.trendReason;
   }
 
   private clearTimers(): void {
-    if (this.evalStep1Timer) {
-      clearTimeout(this.evalStep1Timer);
-      this.evalStep1Timer = null;
+    if (this.evaluationStep1Timer) {
+      clearTimeout(this.evaluationStep1Timer);
+      this.evaluationStep1Timer = null;
     }
 
-    if (this.evalStep2Timer) {
-      clearTimeout(this.evalStep2Timer);
-      this.evalStep2Timer = null;
+    if (this.evaluationStep2Timer) {
+      clearTimeout(this.evaluationStep2Timer);
+      this.evaluationStep2Timer = null;
     }
   }
 }

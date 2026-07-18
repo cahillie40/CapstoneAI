@@ -220,13 +220,13 @@
           </tr>
           </thead>
           <tbody>
-            @for (feature of predictionResult.topFeatures; track feature.featureName) {
+            @for (feature of predictionResult.topFeatures; track feature.feature) {
               <tr>
-                <td>{{ feature.featureName }}</td>
-                <td>{{ feature.featureValue }}</td>
+                <td>{{ feature.feature }}</td>
+                <td>{{ feature.value }}</td>
                 <td>{{ feature.importance }}</td>
-                <td [class.positive]="feature.direction === 'positive'" [class.negative]="feature.direction === 'negative'">
-                  {{ feature.direction }}
+                <td [class.positive]="feature.effect === 'positive'" [class.negative]="feature.effect === 'negative'">
+                  {{ feature.effect }}
                 </td>
                 <td>{{ feature.explanation }}</td>
               </tr>

@@ -8,6 +8,7 @@ import { MlPredictionTribuoService } from '../../services/ml-prediction-tribuo.s
 import { Player } from '../../models/player';
 import {
   MlModelInfoTribuo,
+  MlPredictionTribuoHistoryResponse,
   MlPredictionTribuoRequest,
   MlPredictionTribuoResponse
 } from '../../models/ml-prediction-tribuo';
@@ -25,6 +26,7 @@ export class MlPredictionTribuoComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   players: Player[] = [];
+  history: MlPredictionTribuoHistoryResponse[] = [];
   selectedPlayerId: number | null = null;
 
   modelInfo: MlModelInfoTribuo | null = null;
@@ -33,6 +35,7 @@ export class MlPredictionTribuoComponent implements OnInit {
   loading = false;
   loadingPlayers = false;
   loadingModelInfo = false;
+  loadingHistory = false;
   error: string | null = null;
   successMessage: string | null = null;
 
@@ -41,6 +44,7 @@ export class MlPredictionTribuoComponent implements OnInit {
   ngOnInit(): void {
     this.loadPlayers();
     this.loadModelInfo();
+    this.loadHistory();
   }
 
   loadPlayers(): void {
@@ -80,6 +84,27 @@ export class MlPredictionTribuoComponent implements OnInit {
         error: (err: unknown) => {
           console.error('Failed to load Tribuo model info', err);
           this.error = 'Failed to load Tribuo model info';
+        }
+      });
+  }
+
+  loadHistory(): void {
+    this.loadingHistory = true;
+    this.error = null;
+
+    this.tribuoService.getHistory()
+      .pipe(finalize(() => {
+        this.loadingHistory = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (data: MlPredictionTribuoHistoryResponse[]) => {
+          this.history = data ?? [];
+        },
+        error: (err: unknown) => {
+          console.error('Failed to load Tribuo history', err);
+          this.error = 'Failed to load Tribuo history';
+          this.history = [];
         }
       });
   }
@@ -136,6 +161,7 @@ export class MlPredictionTribuoComponent implements OnInit {
         next: (data: MlPredictionTribuoResponse) => {
           this.predictionResult = data;
           this.successMessage = 'Tribuo prediction generated successfully.';
+          this.loadHistory();
         },
         error: (err: unknown) => {
           console.error('Failed to generate Tribuo prediction', err);

@@ -4,11 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
 import { MlPredictionTribuoService } from '../../services/ml-prediction-tribuo.service';
-import { PlayerService } from '../../services/player.service';
-import { Player } from '../../models/player';
 import {
   MlModelInfoTribuo,
-  MlTribuoTrainingInfoResponse
+  MlTribuoTrainingInfoResponse,
+  MlTribuoTrainingPreviewRow
 } from '../../models/ml-prediction-tribuo';
 
 type TrendFilter = 'ALL' | 'IMPROVING' | 'DECLINING' | 'STABLE';
@@ -22,13 +21,12 @@ type TrendFilter = 'ALL' | 'IMPROVING' | 'DECLINING' | 'STABLE';
 })
 export class MlTribuoTrainingComponent implements OnInit {
   private tribuoService = inject(MlPredictionTribuoService);
-  private playerService = inject(PlayerService);
   private cdr = inject(ChangeDetectorRef);
 
   modelInfo: MlModelInfoTribuo | null = null;
   trainingInfo: MlTribuoTrainingInfoResponse | null = null;
 
-  allFilteredPlayers: Player[] = [];
+  allFilteredPlayers: MlTribuoTrainingPreviewRow[] = [];
 
   loadingPlayers = false;
   loadingModelInfo = false;
@@ -56,15 +54,15 @@ export class MlTribuoTrainingComponent implements OnInit {
     this.refreshAll();
   }
 
-  get trendFilteredPlayers(): Player[] {
+  get trendFilteredPlayers(): MlTribuoTrainingPreviewRow[] {
     if (this.trendFilter === 'ALL') {
       return this.allFilteredPlayers;
     }
 
-    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === this.trendFilter);
+    return this.allFilteredPlayers.filter((player) => player.trend === this.trendFilter);
   }
 
-  get pagedPlayers(): Player[] {
+  get pagedPlayers(): MlTribuoTrainingPreviewRow[] {
     const start = this.page * this.size;
     return this.trendFilteredPlayers.slice(start, start + this.size);
   }
@@ -78,15 +76,15 @@ export class MlTribuoTrainingComponent implements OnInit {
   }
 
   get improvingCount(): number {
-    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === 'IMPROVING').length;
+    return this.allFilteredPlayers.filter((player) => player.trend === 'IMPROVING').length;
   }
 
   get decliningCount(): number {
-    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === 'DECLINING').length;
+    return this.allFilteredPlayers.filter((player) => player.trend === 'DECLINING').length;
   }
 
   get stableCount(): number {
-    return this.allFilteredPlayers.filter((player) => this.getTrend(player) === 'STABLE').length;
+    return this.allFilteredPlayers.filter((player) => player.trend === 'STABLE').length;
   }
 
   get pageNumbers(): number[] {
@@ -97,19 +95,33 @@ export class MlTribuoTrainingComponent implements OnInit {
     this.loadingPlayers = true;
     this.error = null;
 
-    this.playerService.searchPlayers(this.name, this.position, this.team, 0, 1000)
+    this.tribuoService.getTrainingDataPreview()
       .pipe(finalize(() => {
         this.loadingPlayers = false;
         this.cdr.markForCheck();
       }))
       .subscribe({
-        next: (data) => {
-          this.allFilteredPlayers = data.content ?? [];
+        next: (data: MlTribuoTrainingPreviewRow[]) => {
+          let filtered = data ?? [];
+
+          if (this.name.trim()) {
+            filtered = filtered.filter((player) =>
+              player.playerName?.toLowerCase().includes(this.name.toLowerCase())
+            );
+          }
+
+          if (this.position.trim()) {
+            filtered = filtered.filter((player) =>
+              player.position?.toLowerCase().includes(this.position.toLowerCase())
+            );
+          }
+
+          this.allFilteredPlayers = filtered;
           this.page = 0;
         },
-        error: (err) => {
-          console.error('Failed to load players', err);
-          this.error = 'Failed to load players';
+        error: (err: unknown) => {
+          console.error('Failed to load training preview rows', err);
+          this.error = 'Failed to load training preview rows';
           this.allFilteredPlayers = [];
         }
       });
@@ -205,7 +217,6 @@ export class MlTribuoTrainingComponent implements OnInit {
 
   refreshAll(): void {
     this.error = null;
-    this.successMessage = 'Refreshing data...';
 
     this.name = '';
     this.position = '';
@@ -217,14 +228,6 @@ export class MlTribuoTrainingComponent implements OnInit {
     this.loadModelInfo();
     this.loadTrainingInfo();
     this.loadAllFilteredPlayers();
-
-    setTimeout(() => {
-      this.successMessage = 'Data refreshed successfully.';
-    }, 300);
-
-    setTimeout(() => {
-      this.successMessage = null;
-    }, 2500);
   }
 
   applyFilters(): void {
@@ -269,90 +272,24 @@ export class MlTribuoTrainingComponent implements OnInit {
     this.showAdvanced = !this.showAdvanced;
   }
 
-  getTrend(player: Player): 'IMPROVING' | 'DECLINING' | 'STABLE' {
-    const score = this.safe(player.formRating);
-    const shift = this.deriveTrendShift(player);
-    const previous = score - shift;
-
-    if (score > previous) {
-      return 'IMPROVING';
-    }
-
-    if (score < previous) {
-      return 'DECLINING';
-    }
-
-    return 'STABLE';
+  getTrend(player: MlTribuoTrainingPreviewRow): 'IMPROVING' | 'DECLINING' | 'STABLE' {
+    return player.trend;
   }
 
-  getTrendClass(player: Player): string {
-    const trend = this.getTrend(player);
-
-    if (trend === 'IMPROVING') {
+  getTrendClass(player: MlTribuoTrainingPreviewRow): string {
+    if (player.trend === 'IMPROVING') {
       return 'trend-up';
     }
 
-    if (trend === 'DECLINING') {
+    if (player.trend === 'DECLINING') {
       return 'trend-down';
     }
 
     return 'trend-stable';
   }
 
-  getTrendReason(player: Player): string {
-    if (player.injuryStatus) {
-      return 'Injury status is negatively affecting training outlook.';
-    }
-
-    if (this.safe(player.matchesMissed) >= 5) {
-      return 'Missed matches reduce continuity in the player profile.';
-    }
-
-    if (this.safe(player.goals) >= 10 || this.safe(player.assists) >= 7) {
-      return 'Strong attacking contribution supports an improving training trend.';
-    }
-
-    if (this.safe(player.expectedGoals) >= 8 || this.safe(player.expectedAssists) >= 6) {
-      return 'Underlying expected metrics support stronger model input quality.';
-    }
-
-    if (this.safe(player.minutesPlayed) < 1500) {
-      return 'Lower minutes played weaken the current training profile.';
-    }
-
-    return 'Trend is based on the current balance of player performance indicators.';
-  }
-
-  private deriveTrendShift(player: Player): number {
-    let shift = 0;
-
-    if (this.safe(player.goals) >= 10) {
-      shift += 2.0;
-    }
-    if (this.safe(player.assists) >= 7) {
-      shift += 1.5;
-    }
-    if (this.safe(player.expectedGoals) >= 8) {
-      shift += 1.0;
-    }
-    if (this.safe(player.expectedAssists) >= 6) {
-      shift += 1.0;
-    }
-    if (this.safe(player.minutesPlayed) < 1500) {
-      shift -= 1.5;
-    }
-    if (player.injuryStatus) {
-      shift -= 2.5;
-    }
-    if (this.safe(player.matchesMissed) >= 5) {
-      shift -= 1.5;
-    }
-
-    return shift;
-  }
-
-  private safe(value: number | null | undefined): number {
-    return value ?? 0;
+  getTrendReason(player: MlTribuoTrainingPreviewRow): string {
+    return player.trendReason;
   }
 
   private clearTimers(): void {
