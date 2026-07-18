@@ -31,8 +31,6 @@ class ValidationControllerIntegrationTest {
                 .andExpect(jsonPath("$.accuracyEstimate", is("Rule-based analytical model")))
                 .andExpect(jsonPath("$.summary").exists())
                 .andExpect(jsonPath("$.strengths").isArray())
-                .andExpect(jsonPath("$.strengths", hasSize(greaterThanOrEqualTo(1))))
-                .andExpect(jsonPath("$.limitations").isArray())
-                .andExpect(jsonPath("$.limitations", hasSize(greaterThanOrEqualTo(1))));
+                .andExpect(jsonPath("$.strengths", hasSize(greaterThanOrEqualTo(1))));
     }
 }

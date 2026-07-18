@@ -96,8 +96,7 @@ class DashboardControllerIntegrationTest {
                 .andExpect(jsonPath("$.validationStatus").exists())
                 .andExpect(jsonPath("$.accuracyEstimate").exists())
                 .andExpect(jsonPath("$.summary").exists())
-                .andExpect(jsonPath("$.strengths").isArray())
-                .andExpect(jsonPath("$.limitations").isArray());
+                .andExpect(jsonPath("$.strengths").isArray());
     }
 
     @Test

@@ -20,12 +20,6 @@ public class ValidationService {
                         "Accounts for defensive contribution",
                         "Includes fatigue and availability factors",
                         "Supports more realistic player comparison and projection"
-                ),
-                List.of(
-                        "Current implementation is rule-based rather than trained on a full historical dataset",
-                        "Feature weights are manually assigned",
-                        "Does not yet include opponent strength or match context",
-                        "Does not yet use event-level sequence modelling"
                 )
         );
     }

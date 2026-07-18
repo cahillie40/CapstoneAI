@@ -9,7 +9,7 @@ public class ValidationSummaryDTO {
     private String accuracyEstimate;
     private String summary;
     private List<String> strengths;
-    private List<String> limitations;
+
 
     public ValidationSummaryDTO() {
     }
@@ -18,14 +18,12 @@ public class ValidationSummaryDTO {
                                 String validationStatus,
                                 String accuracyEstimate,
                                 String summary,
-                                List<String> strengths,
-                                List<String> limitations) {
+                                List<String> strengths) {
         this.modelName = modelName;
         this.validationStatus = validationStatus;
         this.accuracyEstimate = accuracyEstimate;
         this.summary = summary;
         this.strengths = strengths;
-        this.limitations = limitations;
     }
 
     public String getModelName() {
@@ -66,13 +64,5 @@ public class ValidationSummaryDTO {
 
     public void setStrengths(List<String> strengths) {
         this.strengths = strengths;
-    }
-
-    public List<String> getLimitations() {
-        return limitations;
-    }
-
-    public void setLimitations(List<String> limitations) {
-        this.limitations = limitations;
     }
 }
