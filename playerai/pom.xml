@@ -18,7 +18,7 @@
     <description>playerai</description>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>25</java.version>
         <tribuo.version>4.3.2</tribuo.version>
     </properties>
 
