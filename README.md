@@ -1,191 +1,91 @@
 # CapstoneAI
 
-CapstoneAI is a full-stack football analytics application built with **Spring Boot**, **MySQL**, **Angular**, and **Tribuo**.  
-It is designed to help explore **player performance prediction**, **trend evaluation**, and **data-driven squad analysis** using football statistics and advanced performance metrics.
+CapstoneAI is a full-stack football analytics project built with **Spring Boot**, **Angular**, **MySQL**, and **Tribuo**.
 
-## Project Overview
+The aim of the project is to store football player data, generate prediction-based performance insights, and provide a dashboard for reviewing players, predictions, and machine learning-related outputs.
 
-The main goal of the project is to support the prediction of whether a football player's performance is likely to improve or decline, while also providing a usable dashboard for:
-- storing and managing player records
-- importing player datasets from CSV
-- running performance predictions
-- saving prediction history
-- visualising player data
-- experimenting with Tribuo-based model training and evaluation
+## What the project does
 
-The system combines:
-- a **Java / Spring Boot backend** for REST APIs and business logic
-- an **Angular frontend** for the dashboard and user workflows
-- a **MySQL database** for persistent storage
-- **Tribuo** for machine learning experimentation and evaluation
+The application allows users to:
+- create and manage player records
+- import player data from CSV files
+- run player performance predictions
+- save prediction results to history
+- view dashboard summaries and charts
+- use Tribuo-based training, prediction, and evaluation features
 
----
-
-## Main Features
-
-### Player Management
-- Add new players
-- Edit player records
-- View player details
-- Filter and search players
-- Paginated player tables
-
-### Data Ingestion
-- CSV import for player records
-- Database-backed player storage
-
-### Prediction Workflow
-- Run performance predictions for selected players
-- Show predicted form rating
-- Display explanation factors and score breakdown
-- Save prediction results to history
-
-### Dashboard & Visualisation
-- Dashboard summary statistics
-- Charts and comparison views
-- Prediction history page
-
-### Tribuo Machine Learning Features
-- Tribuo Training page
-- Tribuo Evaluation page
-- Database-backed player data for training/evaluation workflows
-- Experimental model metrics and player trend analysis
-
----
-
-## Tech Stack
+## Tech stack
 
 ### Backend
 - Java 17
 - Spring Boot
-- Spring Web
 - Spring Data JPA
 - MySQL
 - Maven
 - Tribuo
 
 ### Frontend
-- Angular 22
+- Angular
 - TypeScript
 - RxJS
 - Chart.js
 - ng2-charts
 
-### Tooling
+### Other tools
 - Docker / Docker Compose
 - GitHub
-- IntelliJ IDEA
 
----
-
-## Project Structure
+## Project structure
 
 ```text
 CapstoneAI/
-├── frontend/      # Angular frontend
-├── playerai/      # Spring Boot backend
-├── docker-compose.yml
+├── frontend/            # Angular frontend
+├── playerai/            # Spring Boot backend
+├── docker-compose.yml   # container setup
 └── README.md
 ```
 
-### Backend folder
-`playerai/`
-- REST controllers
-- service layer
-- repositories
-- DTOs
-- entities
-- Tribuo-related services
+## Running the project
 
-### Frontend folder
-`frontend/`
-- Angular pages/components
-- services
-- models
-- charts/dashboard UI
-- prediction and training/evaluation screens
+### Option 1: Docker Compose
 
----
+From the project root, run:
 
-## Key Functional Areas
-
-### 1. Player Data Layer
-Stores football player records including:
-- name
-- age
-- team
-- position
-- goals
-- assists
-- minutes played
-- injury status
-- pass accuracy
-- form rating
-- expected goals / expected assists
-- advanced metrics such as key passes, progressive passes, interceptions, ball recoveries, and recent match load
-
-### 2. Prediction Layer
-Provides:
-- rule-based / scoring-based prediction workflows
-- prediction explanation and factor breakdown
-- prediction history persistence
-
-### 3. Tribuo ML Layer
-Provides:
-- model training workflows
-- evaluation workflows
-- machine learning experimentation using player records from the database
-
-### 4. Dashboard Layer
-Provides:
-- aggregate metrics
-- visual summaries
-- player comparison and history views
-
----
-
-## Running the Project
-
-## Option 1: Docker Compose
-
-### Start everything
 ```bash
 docker compose up --build
 ```
 
-### Stop containers
+This starts the frontend, backend, and database containers.
+
+To stop the containers:
+
 ```bash
 docker compose down
 ```
 
-### Rebuild backend without cache
-```bash
-docker compose build --no-cache backend
-docker compose up
-```
+### Option 2: Run locally
 
----
-### Import players - Data for the UI
-go to import CSV UI and select file in -- src/main/resources/CSV/players-statsbomb-template-50-players.csv
-this will upload 50 players into the database and the UI.
-
-
-## Option 2: Run locally
-
-### Backend
+#### Backend
 From the `playerai` folder:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-or on Windows:
+On Windows:
 
 ```bash
 mvnw spring-boot:run
 ```
 
-### Frontend
+You can also build the jar and run it directly:
+
+```bash
+mvn clean package
+java -jar target/playerai-0.0.1-SNAPSHOT.jar
+```
+
+#### Frontend
 From the `frontend` folder:
 
 ```bash
@@ -193,15 +93,13 @@ npm install
 ng serve
 ```
 
-Frontend URL:
+The frontend usually runs at:
 
 ```text
 http://localhost:4200/
 ```
 
----
-
-## Database Access
+## Database access
 
 Example MySQL access inside Docker:
 
@@ -215,7 +113,7 @@ Password:
 apppass
 ```
 
-Then:
+Then you can run:
 
 ```sql
 USE player_ai;
@@ -223,41 +121,65 @@ SHOW TABLES;
 SELECT * FROM players;
 ```
 
----
+## Importing sample player data
 
-## Example User Workflow
+A sample CSV file is included in the project:
 
-1. Import player data using CSV or create players manually.
-2. Browse and filter players in the Players page.
-3. Open the prediction form and select a player.
-4. Run a performance prediction.
-5. Save the prediction result to history.
-6. Review charts, dashboard summaries, and historical predictions.
-7. Use Tribuo Training and Tribuo Evaluation pages to explore ML-based workflows.
+```text
+src/main/resources/CSV/players-statsbomb-template-50-players.csv
+```
 
----
+To use it:
+1. Open the CSV import page in the frontend
+2. Select the sample file
+3. Upload it
 
-## Current Status
+This will load 50 player records into the system.
 
-This project is already functioning as a substantial full-stack capstone system with:
-- CRUD operations for players
-- CSV ingestion
-- prediction history
-- dashboard pages
-- Tribuo training and evaluation views
-- REST API integration between frontend and backend
+## Main features
 
-### Areas still being improved
-- stronger machine learning evaluation
-- clearer improvement/decline temporal logic
-- expanded testing and validation
-- better UI consistency
+### Player management
+- add new players
+- edit player details
+- view individual player records
+- search and filter players
+- browse paginated player tables
 
----
+### CSV support
+- import player records from CSV
+- export prediction history as CSV
 
-## API Overview
+### Prediction workflow
+- generate player performance predictions
+- view prediction scores and explanations
+- save predictions to history
 
-Example backend areas include:
+### Dashboard and visualisation
+- dashboard summary statistics
+- charts and player comparisons
+- prediction history views
+
+### Tribuo features
+- training page
+- evaluation page
+- prediction page
+- model-related summaries based on stored player data
+
+## Example workflow
+
+A typical workflow in the app is:
+
+1. Import player data from CSV or add players manually
+2. Browse and filter player records
+3. Open the prediction page
+4. Run a prediction for a player
+5. Save the prediction result
+6. Review prediction history and dashboard views
+7. Use the Tribuo training and evaluation pages if needed
+
+## API overview
+
+Some of the main backend routes include:
 
 ### Players
 - `GET /players`
@@ -274,37 +196,32 @@ Example backend areas include:
 - `GET /predictions/history/paged`
 - `GET /predictions/history/{playerId}`
 
-### CSV Import
+### CSV import
 - `POST /import/players/csv`
 
 ### Tribuo
-- training and evaluation endpoints under the Tribuo backend routes
+- training, evaluation, prediction, and history routes under `/ml/tribuo`
 
----
+## Notes
 
-## Suggested Improvements / Future Work
+This project was built as a capstone-style full-stack application, so the main focus was on building a working end-to-end system rather than only training a standalone machine learning model.
 
-- Add Flyway or Liquibase migrations
-- Add stronger backend validation
-- Improve test coverage
-- Standardise frontend styling across all pages
+Areas that could still be improved include:
+- stronger model benchmarking
+- more detailed validation
+- cleaner UI consistency across all pages
+- additional automated testing
 
----
+## Useful files
 
-## Development Notes
-
-### Frontend README
-Additional Angular CLI details are available in:
+Frontend-specific notes are available in:
 
 ```text
 frontend/README.md
 ```
 
-### Backend build file
-Backend dependencies and Tribuo configuration are managed in:
+Backend dependencies and configuration are defined in:
 
 ```text
 playerai/pom.xml
 ```
-
----
