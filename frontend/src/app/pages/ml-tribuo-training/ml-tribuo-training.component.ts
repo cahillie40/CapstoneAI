@@ -204,9 +204,27 @@ export class MlTribuoTrainingComponent implements OnInit {
   }
 
   refreshAll(): void {
+    this.error = null;
+    this.successMessage = 'Refreshing data...';
+
+    this.name = '';
+    this.position = '';
+    this.team = '';
+    this.trendFilter = 'ALL';
+    this.page = 0;
+    this.showAdvanced = false;
+
     this.loadModelInfo();
     this.loadTrainingInfo();
     this.loadAllFilteredPlayers();
+
+    setTimeout(() => {
+      this.successMessage = 'Data refreshed successfully.';
+    }, 300);
+
+    setTimeout(() => {
+      this.successMessage = null;
+    }, 2500);
   }
 
   applyFilters(): void {

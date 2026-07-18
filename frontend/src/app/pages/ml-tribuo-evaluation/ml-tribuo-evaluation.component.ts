@@ -181,8 +181,22 @@ export class MlTribuoEvaluationComponent implements OnInit {
   }
 
   refreshAll(): void {
+    this.error = null;
+    this.successMessage = 'Refreshing data...';
+
+    this.name = '';
+    this.position = '';
+    this.team = '';
+    this.trendFilter = 'ALL';
+    this.page = 0;
+    this.showAdvanced = false;
+
     this.loadEvaluation();
     this.loadAllFilteredPlayers();
+
+    setTimeout(() => {
+      this.successMessage = 'Data refreshed successfully.';
+    }, 300);
   }
 
   applyFilters(): void {
