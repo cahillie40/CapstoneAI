@@ -101,7 +101,7 @@ export interface MlTribuoTrainingPreviewRow {
   expectedGoals: number;
   expectedAssists: number;
   previousScore: number;
-  currentScore: number;
+  currentTargetScore: number;
   trend: 'IMPROVING' | 'DECLINING' | 'STABLE';
   trendReason: string;
 }
