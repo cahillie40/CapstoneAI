@@ -29,7 +29,7 @@ class MlPredictionControllerIntegrationTest {
         mockMvc.perform(get("/ml/model-info"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.modelName", is("Capstone ML Predictor")))
-                .andExpect(jsonPath("$.modelType", is("Java ML Predictor (XGBoost-style screen)")))
+                .andExpect(jsonPath("$.modelType", is("Java ML Predictor")))
                 .andExpect(jsonPath("$.trainingStatus", is("Demo / Ready for integration")))
                 .andExpect(jsonPath("$.description").exists())
                 .andExpect(jsonPath("$.supportedFeatures").isArray())

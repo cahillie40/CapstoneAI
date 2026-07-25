@@ -81,8 +81,7 @@ class PredictionControllerIntegrationTest {
                 .andExpect(jsonPath("$.summary").exists())
                 .andExpect(jsonPath("$.positiveFactors").isArray())
                 .andExpect(jsonPath("$.negativeFactors").isArray())
-                .andExpect(jsonPath("$.allFactors").isArray())
-                .andExpect(jsonPath("$.scoreSteps").isArray());
+                .andExpect(jsonPath("$.allFactors").isArray());
     }
 
     @Test

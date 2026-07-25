@@ -181,38 +181,6 @@
         </div>
       }
 
-      @if (predictionResult.scoreSteps?.length > 0) {
-        <div class="factor-section">
-          <h4>How the Score Was Calculated</h4>
-
-          <div class="table-wrapper">
-            <table class="factor-table">
-              <thead>
-              <tr>
-                <th>Step</th>
-                <th>Input</th>
-                <th>Change</th>
-                <th>Running Total</th>
-                <th>Explanation</th>
-              </tr>
-              </thead>
-              <tbody>
-                @for (step of predictionResult.scoreSteps; track step.label + '-' + step.runningTotal) {
-                  <tr>
-                    <td>{{ step.label }}</td>
-                    <td>{{ step.inputValue ?? '-' }}</td>
-                    <td [class.positive]="step.contribution > 0" [class.negative]="step.contribution < 0">
-                      {{ step.contribution > 0 ? '+' : '' }}{{ step.contribution }}
-                    </td>
-                    <td><strong>{{ step.runningTotal }}</strong></td>
-                    <td>{{ step.explanation }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-      }
     </div>
   }
 }

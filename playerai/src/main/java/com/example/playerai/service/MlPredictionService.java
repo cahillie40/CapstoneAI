@@ -16,7 +16,7 @@ public class MlPredictionService {
     public MlModelInfoDTO getModelInfo() {
         return new MlModelInfoDTO(
                 "Capstone ML Predictor",
-                "Java ML Predictor (XGBoost-style screen)",
+                "Java ML Predictor",
                 "Demo / Ready for integration",
                 "This screen is designed for a machine learning prediction workflow in Java Spring Boot. It can later be connected to Tribuo or XGBoost4J for real model inference.",
                 List.of(

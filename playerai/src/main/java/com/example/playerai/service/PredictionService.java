@@ -4,7 +4,6 @@ import com.example.playerai.dto.FactorContributionDTO;
 import com.example.playerai.dto.PredictionHistoryDTO;
 import com.example.playerai.dto.PredictionRequest;
 import com.example.playerai.dto.PredictionResponse;
-import com.example.playerai.dto.ScoreStepDTO;
 import com.example.playerai.entity.Player;
 import com.example.playerai.entity.Prediction;
 import com.example.playerai.repository.PlayerRepository;
@@ -42,116 +41,107 @@ public class PredictionService {
         double score = baselineScore;
 
         List<FactorContributionDTO> allFactors = new ArrayList<>();
-        List<ScoreStepDTO> scoreSteps = new ArrayList<>();
-
-        scoreSteps.add(new ScoreStepDTO(
-                "Baseline score",
-                null,
-                0.0,
-                round1(baselineScore),
-                "The model starts from a base score before player-specific adjustments are applied."
-        ));
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "goals", request.getGoals(), multiply(request.getGoals(), 2.5),
                 "positive", "Goal scoring directly improves attacking output."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "assists", request.getAssists(), multiply(request.getAssists(), 2.0),
                 "positive", "Assists reflect creative contribution."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "shotsOnTarget", request.getShotsOnTarget(), multiply(request.getShotsOnTarget(), 0.8),
                 "positive", "Shots on target indicate threat and finishing involvement."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "passAccuracy", request.getPassAccuracy(), multiply(request.getPassAccuracy(), 0.3),
                 "positive", "Pass accuracy supports retention and technical efficiency."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "minutesPlayed", request.getMinutesPlayed(), multiply(request.getMinutesPlayed(), 0.005),
                 "positive", "Minutes played reflect availability and contribution volume."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "yellowCards", request.getYellowCards(), multiply(request.getYellowCards(), -0.5),
                 "negative", "Yellow cards slightly reduce discipline score."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "redCards", request.getRedCards(), multiply(request.getRedCards(), -2.0),
                 "negative", "Red cards create a stronger discipline penalty."
         );
 
         if (Boolean.TRUE.equals(request.getInjuryStatus())) {
             score = applyFactor(
-                    allFactors, scoreSteps, score,
+                    allFactors, score,
                     "injuryStatus", 1, -10.0,
                     "negative", "Injury status significantly reduces projected readiness."
             );
         }
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "expectedGoals", request.getExpectedGoals(), multiply(request.getExpectedGoals(), 3.0),
                 "positive", "Expected goals reflect chance quality and attacking positioning."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "expectedAssists", request.getExpectedAssists(), multiply(request.getExpectedAssists(), 2.5),
                 "positive", "Expected assists reflect chance creation quality."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "keyPasses", request.getKeyPasses(), multiply(request.getKeyPasses(), 0.4),
                 "positive", "Key passes support chance creation volume."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "progressivePasses", request.getProgressivePasses(), multiply(request.getProgressivePasses(), 0.2),
                 "positive", "Progressive passing improves attacking progression."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "dribblesCompleted", request.getDribblesCompleted(), multiply(request.getDribblesCompleted(), 0.3),
                 "positive", "Completed dribbles support ball progression and attacking pressure."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "tacklesWon", request.getTacklesWon(), multiply(request.getTacklesWon(), 0.25),
                 "positive", "Tackles won improve defensive contribution."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "interceptions", request.getInterceptions(), multiply(request.getInterceptions(), 0.25),
                 "positive", "Interceptions reflect defensive anticipation."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "ballRecoveries", request.getBallRecoveries(), multiply(request.getBallRecoveries(), 0.15),
                 "positive", "Ball recoveries help regain possession and control."
         );
 
         score = applyFactor(
-                allFactors, scoreSteps, score,
+                allFactors, score,
                 "matchesMissed", request.getMatchesMissed(), multiply(request.getMatchesMissed(), -0.6),
                 "negative", "Missed matches reduce availability and continuity."
         );
@@ -160,7 +150,7 @@ public class PredictionService {
             double loadPenalty = calculateLoadPenalty(request.getRecentMatchLoad());
             if (loadPenalty != 0.0) {
                 score = applyFactor(
-                        allFactors, scoreSteps, score,
+                        allFactors, score,
                         "recentMatchLoad", request.getRecentMatchLoad(), loadPenalty,
                         loadPenalty > 0 ? "positive" : "negative",
                         loadPenalty > 0
@@ -174,7 +164,7 @@ public class PredictionService {
             double positionAdjustment = getPositionAdjustment(request.getPosition());
             if (positionAdjustment != 0.0) {
                 score = applyFactor(
-                        allFactors, scoreSteps, score,
+                        allFactors, score,
                         "position", 1, positionAdjustment,
                         positionAdjustment > 0 ? "positive" : "negative",
                         "Position-based adjustment reflects role expectations."
@@ -186,7 +176,7 @@ public class PredictionService {
             double ageAdjustment = getAgeAdjustment(request.getAge());
             if (ageAdjustment != 0.0) {
                 score = applyFactor(
-                        allFactors, scoreSteps, score,
+                        allFactors, score,
                         "age", request.getAge(), ageAdjustment,
                         ageAdjustment > 0 ? "positive" : "negative",
                         ageAdjustment > 0
@@ -196,27 +186,8 @@ public class PredictionService {
             }
         }
 
-        double unclampedScore = round1(score);
         double clampedScore = Math.max(0, Math.min(100, score));
         double rounded = round1(clampedScore);
-
-        if (unclampedScore != rounded) {
-            scoreSteps.add(new ScoreStepDTO(
-                    "Score cap applied",
-                    unclampedScore,
-                    round1(rounded - unclampedScore),
-                    rounded,
-                    "The raw score exceeded the model range, so it was capped to stay between 0 and 100."
-            ));
-        }
-
-        scoreSteps.add(new ScoreStepDTO(
-                "Final score",
-                null,
-                0.0,
-                rounded,
-                "The final predicted form rating after all positive and negative adjustments and score limits."
-        ));
 
         String riskLevel = determineRiskLevel(rounded);
 
@@ -244,8 +215,7 @@ public class PredictionService {
                 summary,
                 positiveFactors,
                 negativeFactors,
-                sortedAllFactors,
-                scoreSteps
+                sortedAllFactors
         );
     }
 
@@ -307,7 +277,6 @@ public class PredictionService {
     }
 
     private double applyFactor(List<FactorContributionDTO> factors,
-                               List<ScoreStepDTO> scoreSteps,
                                double currentScore,
                                String feature,
                                Number value,
@@ -325,14 +294,6 @@ public class PredictionService {
                 value.doubleValue(),
                 round1(contribution),
                 direction,
-                explanation
-        ));
-
-        scoreSteps.add(new ScoreStepDTO(
-                feature,
-                value.doubleValue(),
-                round1(contribution),
-                round1(updatedScore),
                 explanation
         ));
 
