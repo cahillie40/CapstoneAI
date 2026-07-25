@@ -1,9 +1,9 @@
 export interface MlModelInfoTribuo {
   modelName: string;
-  algorithm: string;
-  status: string;
+  modelType: string;
+  trainingStatus: string;
   description: string;
-  featuresUsed: string[];
+  supportedFeatures: string[];
 }
 
 export interface MlTribuoTrainingInfoResponse {

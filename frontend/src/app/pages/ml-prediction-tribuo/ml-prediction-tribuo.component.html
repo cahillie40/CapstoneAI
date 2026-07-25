@@ -30,11 +30,11 @@
         </div>
         <div>
           <span class="detail-label">Algorithm</span>
-          <p>{{ modelInfo.algorithm }}</p>
+          <p>{{ modelInfo.modelType }}</p>
         </div>
         <div>
           <span class="detail-label">Status</span>
-          <p>{{ modelInfo.status }}</p>
+          <p>{{ modelInfo.trainingStatus }}</p>
         </div>
       </div>
 
@@ -46,7 +46,7 @@
       </div>
 
       <div class="features-list">
-        @for (feature of modelInfo.featuresUsed; track feature) {
+        @for (feature of modelInfo.supportedFeatures; track feature) {
           <span class="feature-chip">{{ feature }}</span>
         }
       </div>
