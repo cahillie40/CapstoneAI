@@ -16,9 +16,6 @@ public class MlTribuoModelManager {
     private String trainingSource = "DemoMlTrainingFactory";
     private LocalDateTime lastTrainedAt;
 
-    private Double lastMae;
-    private Double lastRmse;
-    private Double lastR2;
     private Integer lastTrainingRows;
     private Integer lastTestRows;
     private Double lastSplitRatio;
@@ -62,30 +59,6 @@ public class MlTribuoModelManager {
 
     public void setLastTrainedAt(LocalDateTime lastTrainedAt) {
         this.lastTrainedAt = lastTrainedAt;
-    }
-
-    public Double getLastMae() {
-        return lastMae;
-    }
-
-    public void setLastMae(Double lastMae) {
-        this.lastMae = lastMae;
-    }
-
-    public Double getLastRmse() {
-        return lastRmse;
-    }
-
-    public void setLastRmse(Double lastRmse) {
-        this.lastRmse = lastRmse;
-    }
-
-    public Double getLastR2() {
-        return lastR2;
-    }
-
-    public void setLastR2(Double lastR2) {
-        this.lastR2 = lastR2;
     }
 
     public Integer getLastTrainingRows() {

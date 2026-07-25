@@ -58,9 +58,6 @@ class MlTribuoEvaluationControllerIntegrationTest {
 
         mockMvc.perform(post("/ml/tribuo/evaluate"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mae").isNumber())
-                .andExpect(jsonPath("$.rmse").isNumber())
-                .andExpect(jsonPath("$.r2").isNumber())
                 .andExpect(jsonPath("$.trainingRows").isNumber())
                 .andExpect(jsonPath("$.testRows").isNumber())
                 .andExpect(jsonPath("$.splitRatio").isNumber())

@@ -36,7 +36,6 @@ export class MlTribuoEvaluationComponent implements OnInit {
   name = '';
   position = '';
   trendFilter: TrendFilter = 'ALL';
-  showAdvanced = false;
 
   page = 0;
   size = 10;
@@ -200,7 +199,6 @@ export class MlTribuoEvaluationComponent implements OnInit {
     this.position = '';
     this.trendFilter = 'ALL';
     this.page = 0;
-    this.showAdvanced = false;
 
     this.loadEvaluation();
     this.loadAllFilteredPlayers();
@@ -241,10 +239,6 @@ export class MlTribuoEvaluationComponent implements OnInit {
     if (this.page < this.totalPages - 1) {
       this.page++;
     }
-  }
-
-  toggleAdvanced(): void {
-    this.showAdvanced = !this.showAdvanced;
   }
 
   getTrend(player: MlTribuoEvaluationPlayerRow): 'IMPROVING' | 'DECLINING' | 'STABLE' {
