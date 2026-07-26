@@ -2,6 +2,9 @@ package com.example.playerai.dto;
 
 public class MlTribuoEvaluationResponse {
 
+    private Double mae;
+    private Double rmse;
+    private Double r2;
     private Integer trainingRows;
     private Integer testRows;
     private Double splitRatio;
@@ -14,7 +17,10 @@ public class MlTribuoEvaluationResponse {
     public MlTribuoEvaluationResponse() {
     }
 
-    public MlTribuoEvaluationResponse(Integer trainingRows,
+    public MlTribuoEvaluationResponse(Double mae,
+                                      Double rmse,
+                                      Double r2,
+                                      Integer trainingRows,
                                       Integer testRows,
                                       Double splitRatio,
                                       String evaluatedAt,
@@ -22,6 +28,9 @@ public class MlTribuoEvaluationResponse {
                                       Integer trainablePlayers,
                                       Integer excludedPlayers,
                                       String summary) {
+        this.mae = mae;
+        this.rmse = rmse;
+        this.r2 = r2;
         this.trainingRows = trainingRows;
         this.testRows = testRows;
         this.splitRatio = splitRatio;
@@ -30,6 +39,30 @@ public class MlTribuoEvaluationResponse {
         this.trainablePlayers = trainablePlayers;
         this.excludedPlayers = excludedPlayers;
         this.summary = summary;
+    }
+
+    public Double getMae() {
+        return mae;
+    }
+
+    public void setMae(Double mae) {
+        this.mae = mae;
+    }
+
+    public Double getRmse() {
+        return rmse;
+    }
+
+    public void setRmse(Double rmse) {
+        this.rmse = rmse;
+    }
+
+    public Double getR2() {
+        return r2;
+    }
+
+    public void setR2(Double r2) {
+        this.r2 = r2;
     }
 
     public Integer getTrainingRows() {

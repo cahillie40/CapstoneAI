@@ -82,6 +82,36 @@
       </div>
     </div>
 
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">MAE</span>
+        <span class="stat-value">
+          {{ evaluation.mae !== null ? (evaluation.mae | number:'1.2-4') : 'N/A' }}
+        </span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">RMSE</span>
+        <span class="stat-value">
+          {{ evaluation.rmse !== null ? (evaluation.rmse | number:'1.2-4') : 'N/A' }}
+        </span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">R²</span>
+        <span class="stat-value neutral">
+          {{ evaluation.r2 !== null ? (evaluation.r2 | number:'1.2-4') : 'N/A' }}
+        </span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Split Ratio</span>
+        <span class="stat-value">
+          {{ evaluation.splitRatio !== null ? (evaluation.splitRatio | number:'1.1-2') : 'N/A' }}
+        </span>
+      </div>
+    </div>
+
     <div class="card highlight-card">
       <h3>Evaluation Summary</h3>
       <div class="detail-grid">
@@ -139,7 +169,6 @@
       <button (click)="applyFilters()" class="btn-secondary">Search</button>
       <button (click)="clearFilters()" class="btn-secondary">Clear</button>
     </div>
-
   </div>
 
   <div class="table-wrapper">
