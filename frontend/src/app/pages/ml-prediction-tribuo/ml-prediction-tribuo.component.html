@@ -236,4 +236,100 @@
       </div>
     </div>
   }
+
+  <div class="card">
+    <h3>Prediction History</h3>
+    <p class="helper-text">
+      These rows come from the backend prediction history endpoint and show previously saved Tribuo predictions.
+    </p>
+  </div>
+
+  <div class="toolbar">
+    <div class="filters">
+      <input type="text" [(ngModel)]="historyName" placeholder="Search by player name" />
+
+      <select [(ngModel)]="historyRiskFilter">
+        <option value="ALL">All Risk Levels</option>
+        <option value="LOW">Low</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HIGH">High</option>
+      </select>
+
+      <button (click)="applyHistoryFilters()" class="btn-secondary">Search</button>
+      <button (click)="clearHistoryFilters()" class="btn-secondary">Clear</button>
+    </div>
+  </div>
+
+  @if (loadingHistory) {
+    <div class="card">
+      <p>Loading prediction history...</p>
+    </div>
+  }
+
+  @if (!loadingHistory && historyTotalElements > 0) {
+    <div class="table-wrapper">
+      <table class="players-table">
+        <thead>
+        <tr>
+          <th>Player Name</th>
+          <th>Model</th>
+          <th>Predicted Score</th>
+          <th>Risk Level</th>
+          <th>Confidence</th>
+          <th>Summary</th>
+          <th>Predicted At</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (item of pagedHistory; track item.id) {
+            <tr>
+              <td>{{ item.playerName }}</td>
+              <td>{{ item.modelType }}</td>
+              <td>{{ item.predictedScore ?? 'N/A' }}</td>
+              <td>
+                <span
+                  class="trend-badge"
+                  [ngClass]="{
+                    'trend-up': item.riskLevel === 'LOW',
+                    'trend-stable': item.riskLevel === 'MEDIUM',
+                    'trend-down': item.riskLevel === 'HIGH'
+                  }">
+                  {{ item.riskLevel }}
+                </span>
+              </td>
+              <td>{{ item.confidence ?? 'N/A' }}</td>
+              <td>{{ item.summary }}</td>
+              <td>{{ item.predictedAt | date:'medium' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (historyTotalPages > 1) {
+      <div class="pagination">
+        <button (click)="previousHistoryPage()" [disabled]="historyPage === 0">Previous</button>
+
+        @for (pageNumber of historyPageNumbers; track pageNumber) {
+          <button
+            (click)="goToHistoryPage(pageNumber)"
+            [class.active]="pageNumber === historyPage">
+            {{ pageNumber + 1 }}
+          </button>
+        }
+
+        <button (click)="nextHistoryPage()" [disabled]="historyPage >= historyTotalPages - 1">Next</button>
+      </div>
+
+      <div class="page-summary">
+        Showing page {{ historyPage + 1 }} of {{ historyTotalPages }} · {{ historyTotalElements }} matching history rows
+      </div>
+    }
+  }
+
+  @if (!loadingHistory && historyTotalElements === 0) {
+    <div class="card">
+      <p>No prediction history rows match the current filters.</p>
+    </div>
+  }
 </div>

@@ -13,6 +13,8 @@ import {
   MlPredictionTribuoResponse
 } from '../../models/ml-prediction-tribuo';
 
+type RiskFilter = 'ALL' | 'LOW' | 'MEDIUM' | 'HIGH';
+
 @Component({
   selector: 'app-ml-prediction-tribuo',
   standalone: true,
@@ -26,7 +28,7 @@ export class MlPredictionTribuoComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   players: Player[] = [];
-  history: MlPredictionTribuoHistoryResponse[] = [];
+  allHistory: MlPredictionTribuoHistoryResponse[] = [];
   selectedPlayerId: number | null = null;
 
   modelInfo: MlModelInfoTribuo | null = null;
@@ -38,6 +40,12 @@ export class MlPredictionTribuoComponent implements OnInit {
   loadingHistory = false;
   error: string | null = null;
   successMessage: string | null = null;
+
+  historyName = '';
+  historyRiskFilter: RiskFilter = 'ALL';
+
+  historyPage = 0;
+  historySize = 10;
 
   request: MlPredictionTribuoRequest = this.createEmptyRequest();
 
@@ -99,12 +107,13 @@ export class MlPredictionTribuoComponent implements OnInit {
       }))
       .subscribe({
         next: (data: MlPredictionTribuoHistoryResponse[]) => {
-          this.history = data ?? [];
+          this.allHistory = data ?? [];
+          this.historyPage = 0;
         },
         error: (err: unknown) => {
           console.error('Failed to load Tribuo history', err);
           this.error = 'Failed to load Tribuo history';
-          this.history = [];
+          this.allHistory = [];
         }
       });
   }
@@ -176,6 +185,69 @@ export class MlPredictionTribuoComponent implements OnInit {
     this.predictionResult = null;
     this.error = null;
     this.successMessage = null;
+  }
+
+  applyHistoryFilters(): void {
+    this.historyPage = 0;
+  }
+
+  clearHistoryFilters(): void {
+    this.historyName = '';
+    this.historyRiskFilter = 'ALL';
+    this.historyPage = 0;
+  }
+
+  get filteredHistory(): MlPredictionTribuoHistoryResponse[] {
+    let filtered = this.allHistory;
+
+    if (this.historyName.trim()) {
+      filtered = filtered.filter((item) =>
+        item.playerName?.toLowerCase().includes(this.historyName.toLowerCase())
+      );
+    }
+
+    if (this.historyRiskFilter !== 'ALL') {
+      filtered = filtered.filter((item) => item.riskLevel === this.historyRiskFilter);
+    }
+
+    return filtered;
+  }
+
+  get pagedHistory(): MlPredictionTribuoHistoryResponse[] {
+    const start = this.historyPage * this.historySize;
+    return this.filteredHistory.slice(start, start + this.historySize);
+  }
+
+  get historyTotalElements(): number {
+    return this.filteredHistory.length;
+  }
+
+  get historyTotalPages(): number {
+    return Math.ceil(this.historyTotalElements / this.historySize);
+  }
+
+  get historyPageNumbers(): number[] {
+    return Array.from({ length: this.historyTotalPages }, (_, i) => i);
+  }
+
+  goToHistoryPage(pageNumber: number): void {
+    if (pageNumber < 0 || pageNumber >= this.historyTotalPages || pageNumber === this.historyPage) {
+      return;
+    }
+
+    this.historyPage = pageNumber;
+  }
+
+  previousHistoryPage(): void {
+    if (this.historyPage > 0) {
+      this.historyPage--;
+    }
+  }
+
+  nextHistoryPage(): void {
+    if (this.historyPage < this.historyTotalPages - 1) {
+      this.historyPage++;
+    }
   }
 
   getRiskClass(riskLevel: string): string {
