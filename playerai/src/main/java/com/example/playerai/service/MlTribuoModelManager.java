@@ -1,10 +1,13 @@
 package com.example.playerai.service;
 
+import com.example.playerai.dto.MlTribuoEvaluationPlayerRowDTO;
 import org.springframework.stereotype.Component;
 import org.tribuo.Model;
 import org.tribuo.regression.Regressor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class MlTribuoModelManager {
@@ -23,6 +26,8 @@ public class MlTribuoModelManager {
     private Integer lastTestRows;
     private Double lastSplitRatio;
     private LocalDateTime lastEvaluatedAt;
+
+    private List<MlTribuoEvaluationPlayerRowDTO> lastEvaluationPlayers = new ArrayList<>();
 
     public Model<Regressor> getModel() {
         return model;
@@ -118,5 +123,13 @@ public class MlTribuoModelManager {
 
     public void setLastEvaluatedAt(LocalDateTime lastEvaluatedAt) {
         this.lastEvaluatedAt = lastEvaluatedAt;
+    }
+
+    public List<MlTribuoEvaluationPlayerRowDTO> getLastEvaluationPlayers() {
+        return lastEvaluationPlayers;
+    }
+
+    public void setLastEvaluationPlayers(List<MlTribuoEvaluationPlayerRowDTO> lastEvaluationPlayers) {
+        this.lastEvaluationPlayers = lastEvaluationPlayers != null ? lastEvaluationPlayers : new ArrayList<>();
     }
 }

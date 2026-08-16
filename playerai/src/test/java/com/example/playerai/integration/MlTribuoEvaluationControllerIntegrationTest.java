@@ -86,6 +86,10 @@ class MlTribuoEvaluationControllerIntegrationTest {
     void getEvaluationPlayers_returnsRowsWithExpectedFields() throws Exception {
         playerRepository.save(buildTrainablePlayer("Jude Bellingham", "Real Madrid", "CM"));
         playerRepository.save(buildTrainablePlayer("Vinicius Junior", "Real Madrid", "LW"));
+        playerRepository.save(buildTrainablePlayer("Erling Haaland", "Manchester City", "ST"));
+
+        mockMvc.perform(post("/ml/tribuo/evaluate"))
+                .andExpect(status().isOk());
 
         mockMvc.perform(get("/ml/tribuo/evaluation-players"))
                 .andExpect(status().isOk())
