@@ -1,6 +1,7 @@
 package com.example.playerai.service;
 
 import com.example.playerai.dto.MlTribuoEvaluationPlayerRowDTO;
+import com.example.playerai.dto.MlTribuoTrainingPreviewRowDTO;
 import org.springframework.stereotype.Component;
 import org.tribuo.Model;
 import org.tribuo.regression.Regressor;
@@ -28,6 +29,7 @@ public class MlTribuoModelManager {
     private LocalDateTime lastEvaluatedAt;
 
     private List<MlTribuoEvaluationPlayerRowDTO> lastEvaluationPlayers = new ArrayList<>();
+    private List<MlTribuoTrainingPreviewRowDTO> lastTrainingPreviewRows = new ArrayList<>();
 
     public Model<Regressor> getModel() {
         return model;
@@ -131,5 +133,13 @@ public class MlTribuoModelManager {
 
     public void setLastEvaluationPlayers(List<MlTribuoEvaluationPlayerRowDTO> lastEvaluationPlayers) {
         this.lastEvaluationPlayers = lastEvaluationPlayers != null ? lastEvaluationPlayers : new ArrayList<>();
+    }
+
+    public List<MlTribuoTrainingPreviewRowDTO> getLastTrainingPreviewRows() {
+        return lastTrainingPreviewRows;
+    }
+
+    public void setLastTrainingPreviewRows(List<MlTribuoTrainingPreviewRowDTO> lastTrainingPreviewRows) {
+        this.lastTrainingPreviewRows = lastTrainingPreviewRows != null ? lastTrainingPreviewRows : new ArrayList<>();
     }
 }

@@ -107,10 +107,14 @@ class MlTribuoTrainingControllerIntegrationTest {
     void getTrainingDataPreview_returnsPreviewRows() throws Exception {
         playerRepository.save(buildTrainablePlayer("Jude Bellingham", "Real Madrid", "CM"));
         playerRepository.save(buildTrainablePlayer("Vinicius Junior", "Real Madrid", "LW"));
+        playerRepository.save(buildTrainablePlayer("Erling Haaland", "Manchester City", "ST"));
+
+        mockMvc.perform(post("/ml/tribuo/train"))
+                .andExpect(status().isOk());
 
         mockMvc.perform(get("/ml/tribuo/training-data-preview"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
+                .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].playerName").exists())
                 .andExpect(jsonPath("$[0].position").exists())
                 .andExpect(jsonPath("$[0].age").exists())
